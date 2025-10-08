@@ -1,0 +1,138 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // Adjust if using mysql or sqlite
+  url      = env("DATABASE_URL")
+}
+
+// --- CORE ENUMS ---
+
+enum UserRole {
+  STUDENT
+  LECTURER
+  ADMIN
+}
+
+enum MessageStatus {
+  SENT
+  READ
+  ARCHIVED
+}
+
+// --- CORE MODELS ---
+
+model User {
+  id                String  @id @default(cuid())
+  email             String  @unique
+  password          String // NOTE: Renamed to 'password' for clarity, though it stores the hash
+  name              String?
+  role              UserRole @default(STUDENT)
+
+  // Relationships
+  coursesTaught     Course[]
+  enrollments       Enrollment[]
+  submissions       Submission[]
+  
+  // Messaging Relationships: New fields for clarity and separation
+  sentMessages      Message[] @relation("SentMessages")
+  receivedMessages  Message[] @relation("ReceivedMessages")
+}
+
+model Course {
+  id            String         @id @default(cuid())
+  title         String
+  code          String         @unique // e.g., "CS101"
+  description   String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // Relationships
+  lecturerId    String
+  lecturer      User           @relation(fields: [lecturerId], references: [id])
+  enrollments   Enrollment[]
+  assignments   Assignment[]
+  resources     Resource[]
+}
+
+model Enrollment {
+  id          String   @id @default(cuid())
+  studentId   String
+  courseId    String
+  enrolledAt  DateTime @default(now())
+
+  // Relationships
+  student     User     @relation(fields: [studentId], references: [id])
+  course      Course   @relation(fields: [courseId], references: [id])
+
+  @@unique([studentId, courseId]) // A student can only enroll in a course once
+}
+
+model Assignment {
+  id            String       @id @default(cuid())
+  title         String
+  description   String?
+  dueDate       DateTime
+  maxPoints     Int
+  courseId      String
+  createdAt     DateTime     @default(now())
+
+  // Relationships
+  course        Course       @relation(fields: [courseId], references: [id])
+  submissions   Submission[]
+}
+
+model Submission {
+  id            String     @id @default(cuid())
+  submissionPath String   // Path/URL to the submitted file
+  submittedAt   DateTime @default(now())
+  grade         Int?     // Null until graded
+  feedback      String?
+
+  // Relationships
+  studentId     String
+  assignmentId  String
+  student       User     @relation(fields: [studentId], references: [id])
+  assignment    Assignment @relation(fields: [assignmentId], references: [id])
+
+  @@unique([studentId, assignmentId]) // A student only has one submission per assignment
+}
+
+model Resource {
+  id          String   @id @default(cuid())
+  title       String
+  filePath    String // Path/URL to the resource file
+  courseId    String
+  uploadedAt  DateTime @default(now())
+
+  // Relationships
+  course      Course @relation(fields: [courseId], references: [id])
+}
+
+// --- PLATFORM MESSAGING MODEL ---
+
+model Message {
+  id          String         @id @default(cuid())
+  
+  // Core Content
+  content     String   
+  status      MessageStatus  @default(SENT)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // --- Relationships ---
+  
+  // Sender (User who sent the message)
+  senderId    String   
+  sender      User     @relation("SentMessages", fields: [senderId], references: [id])
+
+  // Recipient (User who receives the message)
+  recipientId String 
+  recipient   User     @relation("ReceivedMessages", fields: [recipientId], references: [id])
+}
