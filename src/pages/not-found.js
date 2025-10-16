@@ -11,10 +11,9 @@ export default function NotFound() {
   return (
     <div style={styles.container}>
       <h1 style={styles.heading}>404 - Page Not Found 🚫</h1>
-      <p style={styles.text}>
-        We couldn't find the requested page.
+      {/* <p style={styles.text}>We couldn't find the requested page.
       </p>
-      
+       */}
       {/* Link back to a safe route, like your main dashboard or home */}
       <Link href="/dashboard" style={styles.link}>
         Go to Dashboard
