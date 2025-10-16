@@ -24,7 +24,7 @@ export default function DashboardPage() {
     // 2. Unauthenticated State (Security Check)
     if (status === 'unauthenticated') {
       // If not logged in, force a redirect to the sign-in page
-      router.replace('/auth/signin');
+      router.replace('/auth/SignIn');
       return;
     }
 
@@ -39,7 +39,7 @@ export default function DashboardPage() {
       } else {
         // Handle a role that doesn't have a defined redirect
         console.error(`Error: Unhandled role '${userRole}'. Defaulting to sign-in.`);
-        router.replace('/auth/signin');
+        router.replace('/auth/SignIn');
       }
     }
   }, [status, session, router]);

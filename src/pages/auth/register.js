@@ -56,7 +56,7 @@ export default function RegisterPage() {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage(`Success! Your student account has been created. Redirecting to sign-in...`);
+        setMessage(`Success! Your student account has been created. Click on the Sign In link below to access your dashboard.`);
         setIsError(false);
         // Redirect to the sign-in page after a short delay
         setTimeout(() => {
@@ -141,7 +141,7 @@ export default function RegisterPage() {
       </form>
       
       <p style={styles.loginLink}>
-        Already have an account? <Link href="/auth/signin" style={styles.link}>Sign In</Link>
+        Already have an account? <Link href="/auth/SignIn" style={styles.link}>Sign In</Link>
       </p>
     </div>
   );

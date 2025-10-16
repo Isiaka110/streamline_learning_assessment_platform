@@ -1,48 +1,77 @@
-import * as fs from 'fs'; 
-// ... (rest of the file-handler.js code) ...
 // lib/file-handler.js
 
+import * as fs from 'fs'; 
 import formidable from 'formidable';
 import path from 'path';
 
-// Define the directory where uploaded files will be stored
-const uploadDir = path.join(process.cwd(), 'public', 'submissions');
+// Define the directory where uploaded resource files will be stored
+const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'resources');
 
-// Helper function to process the file upload
+// Define allowed MIME types and extensions
+const ALLOWED_MIME_TYPES = [
+    'application/pdf',                   // .pdf
+    'application/msword',                // .doc
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+    'application/vnd.ms-powerpoint',     // .ppt
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx
+    'application/vnd.ms-excel',          // .xls
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+    'text/plain',                        // .txt
+    'text/csv',                          // .csv
+    'application/zip',                   // .zip
+];
+
+// ❌ REMOVE: export const config = { ... }
+
+/**
+ * Helper function to process the file upload using formidable
+ * @param {object} req - The Next.js request object
+ */
 export const uploadFile = (req) => {
-  // Ensure the public/submissions directory exists
   if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
   }
   
-  // Set up formidable options
   const form = formidable({ 
     uploadDir: uploadDir,
-    // Keep file extensions (e.g., .pdf, .docx)
     keepExtensions: true, 
-    // Set a maximum file size (e.g., 5MB)
-    maxFileSize: 5 * 1024 * 1024, 
+    maxFileSize: 10 * 1024 * 1024, // 10MB limit
+    
+    // Custom unique and safe filename function
+    filename: (name, ext, part) => {
+        const originalName = part.originalFilename.split('.')[0].replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        return `${originalName}-${uniqueSuffix}${ext}`;
+    },
+
+    // File type validation function
+    filter: ({ name, originalFilename, mimetype }) => {
+        const isAllowed = ALLOWED_MIME_TYPES.includes(mimetype);
+        
+        if (!isAllowed) {
+            console.warn(`File rejected: ${originalFilename} with type ${mimetype} is not a permitted document type.`);
+        }
+        
+        return isAllowed;
+    }
   });
 
   return new Promise((resolve, reject) => {
     form.parse(req, (err, fields, files) => {
       if (err) {
-        // Handle file size limits, parsing errors, etc.
         return reject(err);
       }
       
-      // We expect the file to be under the 'submissionFile' field
-      const submissionFile = files.submissionFile ? files.submissionFile[0] : null;
-      
+      const fileKey = Object.keys(files)[0];
+      const uploadedFile = fileKey ? files[fileKey][0] : null;
+
+      // Check if the file was rejected by the filter
+      if (!uploadedFile && fileKey) {
+          return reject(new Error('The uploaded file type is not supported. Please upload PDF, DOCX, PPT, or other allowed document types.'));
+      }
+
       // Resolve with the fields (text data) and the file object
-      resolve({ fields, file: submissionFile });
+      resolve({ fields, file: uploadedFile });
     });
   });
-};
-
-// Set the config to tell Next.js not to parse the body automatically
-export const config = {
-  api: {
-    bodyParser: false,
-  },
 };

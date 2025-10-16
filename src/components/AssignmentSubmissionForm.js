@@ -1,113 +1,110 @@
-// components/AssignmentSubmissionForm.js
-
 import React, { useState } from 'react';
 
-const AssignmentSubmissionForm = ({ assignmentId, assignmentTitle, onSubmissionSuccess }) => {
-  const [file, setFile] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [isError, setIsError] = useState(false);
+// This component handles the form input and API call for submitting an assignment.
+// It must call onSuccess() after a successful submission.
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
+const AssignmentSubmissionForm = ({ assignmentId, onClose, onSuccess }) => {
+    const [submissionText, setSubmissionText] = useState('');
+    const [file, setFile] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [successMessage, setSuccessMessage] = useState(null);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage('');
-    setIsError(false);
+    const handleFileChange = (e) => {
+        setFile(e.target.files[0]);
+    };
 
-    if (!file) {
-      setMessage('Please select a file to upload.');
-      setIsError(true);
-      setLoading(false);
-      return;
-    }
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setError(null);
+        setSuccessMessage(null);
 
-    // 1. Create FormData object for file uploads
-    const formData = new FormData();
-    formData.append('submissionFile', file); // 'submissionFile' must match the key used in lib/file-handler.js
+        // Basic validation
+        if (!submissionText && !file) {
+            setError("Please provide submission text or upload a file.");
+            setIsLoading(false);
+            return;
+        }
 
-    try {
-      // 2. Client-Side Data Fetching (Calling the file-enabled API)
-      const response = await fetch(`/api/assignments/${assignmentId}/submit`, {
-        method: 'POST',
-        // IMPORTANT: Do NOT set 'Content-Type': 'multipart/form-data'. 
-        // The browser sets it automatically with the correct boundary when using FormData.
-        body: formData,
-      });
+        let filePath = null;
 
-      const data = await response.json();
+        try {
+            // 1. Handle File Upload (Optional - assuming a file upload utility exists)
+            // If you have a separate utility for uploading files (e.g., to S3 or a local /public folder)
+            // you would call it here and get the path.
+            if (file) {
+                // IMPORTANT: Replace this placeholder with your actual file upload logic.
+                // For this example, we'll create a mock file path.
+                // If you don't have file upload implemented, comment this block out for testing.
+                filePath = `https://example.com/uploads/${assignmentId}-${Date.now()}-${file.name}`;
+                console.log("Mock file upload success. Path:", filePath);
+                // In a real app, this would involve a separate API call to handle the file.
+            }
 
-      // 3. Handle API Response
-      if (response.ok) {
-        setMessage(data.message);
-        setIsError(false);
-        setFile(null); // Clear file input
-        onSubmissionSuccess(assignmentId); // Notify parent component
-      } else {
-        setMessage(`Submission Failed: ${data.message || 'An unknown error occurred.'}`);
-        setIsError(true);
-      }
-    } catch (error) {
-      console.error('Submission network error:', error);
-      setMessage('A network error occurred during submission.');
-      setIsError(true);
-    } finally {
-      setLoading(false);
-    }
-  };
+            // 2. Submit the assignment data to the API
+            const submissionData = {
+                assignmentId,
+                submissionText,
+                filePath, // This will be null if no file was uploaded
+            };
 
-  return (
-    <form onSubmit={handleSubmit} style={styles.formContainer}>
-      
-      <h3>Submit for: {assignmentTitle}</h3>
-      
-      {message && (
-        <p style={isError ? styles.errorText : styles.successText}>
-          {message}
-        </p>
-      )}
+            const res = await fetch('/api/student/submissions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(submissionData),
+            });
 
-      <label htmlFor="submissionFile" style={styles.label}>Select File (Max 5MB)</label>
-      <input
-        id="submissionFile"
-        type="file"
-        onChange={handleFileChange}
-        required
-        disabled={loading}
-        style={styles.input}
-      />
-      {file && <p style={styles.fileName}>Selected: {file.name}</p>}
+            const data = await res.json();
 
-      <button 
-        type="submit" 
-        disabled={loading || !file} 
-        style={styles.button}
-      >
-        {loading ? 'Uploading...' : 'Upload & Submit Assignment'}
-      </button>
-    </form>
-  );
+            if (res.ok) {
+                setSuccessMessage(data.message || 'Assignment submitted successfully!');
+                // CRITICAL FIX: Call onSuccess to notify the parent component (StudentAssignmentView) to refresh its data
+                if (onSuccess) {
+                    onSuccess();
+                }
+                setTimeout(onClose, 2000); // Close modal after success
+            } else {
+                setError(data.message || 'Failed to submit assignment due to an unknown error.');
+            }
+        } catch (err) {
+            console.error('Submission Error:', err);
+            setError('Network error while submitting assignment.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // ... (rest of the component structure, styles, etc.)
+
+    return (
+        <form onSubmit={handleSubmit}>
+            <h3>Submit Assignment</h3>
+            {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+            {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
+            
+            <textarea
+                value={submissionText}
+                onChange={(e) => setSubmissionText(e.target.value)}
+                placeholder="Type your submission text here..."
+                rows="5"
+                disabled={isLoading}
+            />
+
+            <input
+                type="file"
+                onChange={handleFileChange}
+                disabled={isLoading}
+            />
+            
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '15px' }}>
+                <button type="button" onClick={onClose} disabled={isLoading}>Cancel</button>
+                <button type="submit" disabled={isLoading || successMessage}>
+                    {isLoading ? 'Submitting...' : 'Submit'}
+                </button>
+            </div>
+        </form>
+    );
 };
 
 export default AssignmentSubmissionForm;
-
-// Basic styles (simplified)
-const styles = {
-    formContainer: {
-        padding: '20px',
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '10px',
-    },
-    label: { fontWeight: 'bold', marginTop: '5px' },
-    input: { padding: '10px', border: '1px solid #ccc', borderRadius: '4px' },
-    button: { padding: '12px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', marginTop: '15px' },
-    successText: { color: 'green', backgroundColor: '#e6ffe6', padding: '10px', borderRadius: '4px', textAlign: 'center' },
-    errorText: { color: 'red', backgroundColor: '#ffe6e6', padding: '10px', borderRadius: '4px', textAlign: 'center' },
-    fileName: { fontSize: '0.9em', color: '#555' }
-};

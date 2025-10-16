@@ -10,7 +10,9 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ----------------------------------------------------------------------
 // --- CORE ENUMS ---
+// ----------------------------------------------------------------------
 
 enum UserRole {
   STUDENT
@@ -24,115 +26,197 @@ enum MessageStatus {
   ARCHIVED
 }
 
+enum ResourceType {
+  DOCUMENT
+  VIDEO
+  LINK
+  // Add other types as needed
+}
+
+// ----------------------------------------------------------------------
 // --- CORE MODELS ---
+// ----------------------------------------------------------------------
 
 model User {
-  id                String  @id @default(cuid())
-  email             String  @unique
-  password          String // NOTE: Renamed to 'password' for clarity, though it stores the hash
-  name              String?
-  role              UserRole @default(STUDENT)
+  id               String       @id @default(cuid())
+  email            String       @unique
+  name             String?      // Made nullable for NextAuth compatibility
+  password         String       // Stores the bcrypt hash
+  role             UserRole     @default(STUDENT)
 
-  // Relationships
-  coursesTaught     Course[]
-  enrollments       Enrollment[]
-  submissions       Submission[]
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  // Relations
+  enrollments      Enrollment[]
+  submissions      Submission[]
   
-  // Messaging Relationships: New fields for clarity and separation
-  sentMessages      Message[] @relation("SentMessages")
-  receivedMessages  Message[] @relation("ReceivedMessages")
+  // FIX 1: Many-to-Many relation for co-teaching.
+  taughtCourses    Course[]     @relation("TaughtCourses") 
+
+  // Messaging Relations
+  sentMessages     Message[]    @relation("SentMessages")
+  receivedMessages Message[]    @relation("ReceivedMessages") 
+
+  // NextAuth fields
+  emailVerified    DateTime?
+  image            String?
+  sessions         Session[]
+  accounts         Account[]
 }
 
 model Course {
-  id            String         @id @default(cuid())
+  id            String       @id @default(cuid())
   title         String
-  code          String         @unique // e.g., "CS101"
+  code          String       // e.g., "CS101"
   description   String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  credits       Int          @default(3) 
 
-  // Relationships
-  lecturerId    String
-  lecturer      User           @relation(fields: [lecturerId], references: [id])
+  // ... other fields
+  semester      String?      // <-- Changed from String to String?
+  year          Int?         // <-- Changed from Int to Int?
+  // ...
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  // FIX 2: Many-to-Many relationship (co-teaching).
+  lecturers     User[]       @relation("TaughtCourses") 
+  
+  // Student Enrollment Relation 
   enrollments   Enrollment[]
   assignments   Assignment[]
   resources     Resource[]
+  messages      Message[]    // Relation for course-specific messages
+
+  @@unique([code, semester, year])
 }
 
 model Enrollment {
-  id          String   @id @default(cuid())
-  studentId   String
-  courseId    String
-  enrolledAt  DateTime @default(now())
+  id            String    @id @default(cuid())
+  studentId     String
+  courseId      String
+  enrolledAt    DateTime  @default(now())
 
-  // Relationships
-  student     User     @relation(fields: [studentId], references: [id])
-  course      Course   @relation(fields: [courseId], references: [id])
+  student       User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course        Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
-  @@unique([studentId, courseId]) // A student can only enroll in a course once
+  @@unique([studentId, courseId])
 }
 
 model Assignment {
   id            String       @id @default(cuid())
   title         String
-  description   String?
+  description   String       @db.Text
   dueDate       DateTime
   maxPoints     Int
-  courseId      String
+  
   createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 
-  // Relationships
-  course        Course       @relation(fields: [courseId], references: [id])
+  courseId      String
+  course        Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
   submissions   Submission[]
 }
 
 model Submission {
-  id            String     @id @default(cuid())
-  submissionPath String   // Path/URL to the submitted file
-  submittedAt   DateTime @default(now())
-  grade         Int?     // Null until graded
-  feedback      String?
+  id            String       @id @default(cuid())
+  submissionText String?     @db.Text
+  filePath      String?      // URL/path to the student's uploaded file
+  submittedAt   DateTime     @default(now())
+  grade         Int?
+  feedback      String?      @db.Text
+  gradedAt      DateTime?
+  
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt 
 
-  // Relationships
-  studentId     String
   assignmentId  String
-  student       User     @relation(fields: [studentId], references: [id])
-  assignment    Assignment @relation(fields: [assignmentId], references: [id])
+  assignment    Assignment   @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
 
-  @@unique([studentId, assignmentId]) // A student only has one submission per assignment
+  studentId     String
+  student       User         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([assignmentId, studentId])
 }
 
 model Resource {
-  id          String   @id @default(cuid())
-  title       String
-  filePath    String // Path/URL to the resource file
-  courseId    String
-  uploadedAt  DateTime @default(now())
+  id            String       @id @default(cuid())
+  title         String
+  description   String?      @db.Text
+  filePath      String
+  type          ResourceType @default(DOCUMENT) 
+  uploadedAt    DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 
-  // Relationships
-  course      Course @relation(fields: [courseId], references: [id])
+  courseId      String
+  course        Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+}
+
+model Announcement {
+  id            String    @id @default(cuid())
+  title         String
+  content       String    @db.Text
+  targetRole    UserRole? // Optional: target role for the announcement (e.g., LECTURER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 // --- PLATFORM MESSAGING MODEL ---
-
 model Message {
-  id          String         @id @default(cuid())
-  
-  // Core Content
-  content     String   
-  status      MessageStatus  @default(SENT)
-  
-  // Timestamps
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  // --- Relationships ---
-  
-  // Sender (User who sent the message)
-  senderId    String   
-  sender      User     @relation("SentMessages", fields: [senderId], references: [id])
+  id            String         @id @default(cuid())
 
-  // Recipient (User who receives the message)
-  recipientId String 
-  recipient   User     @relation("ReceivedMessages", fields: [recipientId], references: [id])
+  content       String         @db.Text 
+  status        MessageStatus  @default(SENT)
+
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  courseId      String?        // Made nullable: a message can be system-wide or course-specific
+  course        Course?        @relation(fields: [courseId], references: [id], onDelete: SetNull)
+
+  senderId      String
+  sender        User           @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+
+  recipientId   String?        // Made nullable for broadcasts or deleted users
+  recipient     User?          @relation("ReceivedMessages", fields: [recipientId], references: [id], onDelete: SetNull)
+}
+
+// ----------------------------------------------------------------------
+// --- NEXTAUTH MODELS (Unchanged) ---
+// ----------------------------------------------------------------------
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }

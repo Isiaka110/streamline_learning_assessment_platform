@@ -1,10 +1,15 @@
-// pages/api/users.js - Handles POST request for new user registration
+// pages/api/users.js - Enhanced for robust error handling
 
 import { PrismaClient, UserRole } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-import { getSession } from 'next-auth/react'; // Used to check the logged-in user's role
+// NOTE: getSession from 'next-auth/react' is correct for API routes in Pages Router
+import { getSession } from 'next-auth/react'; 
 
-const prisma = new PrismaClient();
+// Use globalThis to reuse the PrismaClient instance across hot reloads 
+// (Good practice for Next.js to prevent "Too many clients" errors)
+const prisma = global.prisma || new PrismaClient();
+if (process.env.NODE_ENV !== 'production') global.prisma = prisma;
+
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -13,27 +18,24 @@ export default async function handler(req, res) {
 
   const { name, email, password, role } = req.body;
   
-  // 1. Get the session of the user making the request
+  // 1. Get Session for Authorization Check
   const session = await getSession({ req });
-  
-  // Determine if the user is an Admin
   const isAdminRequest = session?.user?.role === UserRole.ADMIN;
   
-  let finalRole = UserRole.STUDENT; // Default role for self-registration
+  let finalRole = UserRole.STUDENT; // Default role for all self-registrations
 
   // 2. Authorization and Role Determination Logic
   if (isAdminRequest) {
-    // If the request is from an Admin, they can create any valid role (Admin, Lecturer, Student).
-    // The requested 'role' from the body is used, but defaults to STUDENT if invalid/missing.
+    // Admin request: Use the requested role if it is valid
     if (role && Object.values(UserRole).includes(role)) {
-      finalRole = role;
+        finalRole = role;
     } else {
-      // If Admin doesn't specify a role, or it's invalid, default to STUDENT or handle as error
-      finalRole = UserRole.STUDENT; 
+        // If Admin is creating a user but didn't specify a valid role, 
+        // default to STUDENT or use a specific admin default if needed.
+        console.warn('Admin attempted user creation without a valid role; defaulting to STUDENT.');
     }
   } else {
-    // If NOT an Admin (i.e., self-registration)
-    // 3. Security Check: Block creation of privileged roles during self-registration
+    // Non-Admin (Self-Registration): Role must be STUDENT
     if (role && role !== UserRole.STUDENT) {
       return res.status(403).json({ 
         message: 'Self-registration is only allowed for the Student role.' 
@@ -42,46 +44,46 @@ export default async function handler(req, res) {
     // finalRole remains UserRole.STUDENT
   }
   
-  // Basic validation
+  // 3. Basic Validation
   if (!name || !email || !password) {
     return res.status(400).json({ message: 'Missing required fields: name, email, and password.' });
   }
 
   try {
-    // 4. Hash the password
     const hashedPassword = await bcrypt.hash(password, 10); 
 
-    // 5. Create the user
+    // 4. Create the user in the database
     const newUser = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword, // Store the hash
-        role: finalRole, // Use the determined role (STUDENT or Admin-specified role)
+      data: { 
+        name, 
+        email, 
+        password: hashedPassword, 
+        role: finalRole // Use the determined role
       },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
+      select: { 
+        id: true, 
+        name: true, 
+        email: true, 
+        role: true 
       },
     });
 
-    // 6. Success Response
     return res.status(201).json({ 
       message: `User created successfully with role: ${finalRole}`, 
       user: newUser 
     });
 
   } catch (error) {
-    console.error('User creation error:', error);
+    // 🌟 ENHANCEMENT: Log the error details to the terminal for debugging 🌟
+    console.error('User creation failed due to Prisma/Database error:', error);
     
     // Check for unique constraint violation (email already exists)
     if (error.code === 'P2002') {
       return res.status(409).json({ message: 'Email already exists. Please use a different email or sign in.' });
     }
+    
+    // Generic 500 error for all other unhandled database/server errors
     return res.status(500).json({ message: 'Internal Server Error during user creation.' });
-  } finally {
-    await prisma.$disconnect();
   }
+  // No finally block is needed to disconnect prisma when using the global instance pattern
 }

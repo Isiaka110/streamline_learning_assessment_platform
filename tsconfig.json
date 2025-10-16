@@ -18,8 +18,14 @@
         "name": "next"
       }
     ],
+    // lms/jsconfig.json
+
+    "baseUrl": "./src", // If your code is inside the 'src' folder
     "paths": {
-      "@/*": ["./src/*"]
+      // Define a path alias for the API folder
+      "@api/*": ["pages/api/*"],
+      "@lib/*": ["lib/*"]
+
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

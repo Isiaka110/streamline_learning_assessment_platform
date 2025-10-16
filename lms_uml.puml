@@ -1,0 +1,99 @@
+@startuml
+!theme plain
+
+title LMS Core Entities Class Diagram
+
+' Enum for UserRole
+Enum UserRole {
+    STUDENT
+    LECTURER
+    ADMIN
+}
+
+' User Class
+class User {
+    + id: String <<PK>>
+    + email: String <<Unique>>
+    + name: String
+    + password: String <<Hashed>>
+    + role: UserRole
+    --
+    + createdAt: DateTime
+    + updatedAt: DateTime
+}
+
+' Course Class
+class Course {
+    + id: String <<PK>>
+    + code: String <<Unique>>
+    + title: String
+    + description: String
+    --
+    + createdAt: DateTime
+    + updatedAt: DateTime
+}
+
+' Assignment Class
+class Assignment {
+    + id: String <<PK>>
+    + title: String
+    + description: String
+    + dueDate: DateTime
+    + maxScore: Int
+    + courseId: String <<FK>>
+    --
+    + createdAt: DateTime
+    + updatedAt: DateTime
+}
+
+' Resource Class
+class Resource {
+    + id: String <<PK>>
+    + title: String
+    + filePath: String
+    + fileType: String
+    + courseId: String <<FK>>
+    --
+    + createdAt: DateTime
+    + updatedAt: DateTime
+}
+
+' Relationships
+
+' User and UserRole (Composition/Enum Usage)
+User "1" -- "1" UserRole : has >
+
+' Many-to-Many: Lecturers teach multiple Courses, Courses are taught by multiple Lecturers
+' This implies an implicit join table (e.g., _CourseToUser) in Prisma
+User "0..*" o-- "*" Course : teaches / taught by
+
+' One-to-Many: A Course can have many Assignments
+Course "1" -- "0..*" Assignment : has >
+
+' One-to-Many: A Course can have many Resources
+Course "1" -- "0..*" Resource : has >
+
+
+' Notes for clarity (optional)
+note left of User::password
+  Stored as hashed value
+end note
+
+note top of UserRole
+  Defines permission levels
+end note
+
+note bottom of Course::description
+  Detailed course overview
+end note
+
+note right of Assignment::courseId
+  Links to the Course it belongs to
+end note
+
+note right of Resource::filePath
+  URL or path to stored file
+end note
+
+
+@enduml
