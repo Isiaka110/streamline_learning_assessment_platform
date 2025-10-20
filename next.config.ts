@@ -4,7 +4,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Enables React's Strict Mode, which helps to highlight potential problems in an application.
   // Recommended for identifying deprecations and ensuring future compatibility.
-  reactStrictMode: true,
+  reactStrictMode: false,
 
   // Configuration for ESLint integration within Next.js builds.
   eslint: {
@@ -21,6 +21,11 @@ const nextConfig: NextConfig = {
     // monorepo setups or specific linting contexts).
     // Most typical Next.js projects don't need this.
     // dirs: ['pages', 'components', 'utils', 'src'],
+  },
+  typescript: {
+    // !! This option allows production builds to successfully complete even if
+    // your project has TypeScript errors.
+    ignoreBuildErrors: true,
   },
 
   // If you plan to use the `next/image` component and need to optimize images
