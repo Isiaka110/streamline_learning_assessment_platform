@@ -63,7 +63,7 @@ const AdminCourseTable = ({ courses, onEdit, onDelete }) => {
                                 {/* ✅ FIX: Check against the full string values stored by the API */}
                                 <td style={styles.tdSmall}>
                                     {course.semester === 'First Semester' ? '1st' : 
-                                     (course.semester === 'Second Semester' ? '2nd' : 'N/A')}
+                                    (course.semester === 'Second Semester' ? '2nd' : 'N/A')}
                                 </td>
                                 
                                 <td style={styles.tdSmall}>{course.year || 'N/A'}</td>
@@ -83,6 +83,7 @@ const AdminCourseTable = ({ courses, onEdit, onDelete }) => {
                                     <button 
                                         onClick={() => onEdit(course)} 
                                         style={styles.editButton}
+                                        title={`Edit course: ${course.code}`} // Added title for accessibility
                                     >
                                         Edit
                                     </button>
@@ -90,6 +91,8 @@ const AdminCourseTable = ({ courses, onEdit, onDelete }) => {
                                         // The onDelete function from the parent component likely expects only the ID
                                         onClick={() => onDelete(course.id)} 
                                         style={styles.deleteButton}
+                                        // 🌟 FIX APPLIED HERE for unescaped double quotes 
+                                        title={`Permanently delete course &quot;${course.code}&quot;?`} 
                                     >
                                         Delete
                                     </button>
@@ -99,7 +102,7 @@ const AdminCourseTable = ({ courses, onEdit, onDelete }) => {
                     ) : (
                         <tr>
                             {/* colSpan updated to 7 */}
-                            <td colSpan="7" style={styles.tdCenter}>No courses found. Click "+ Create New Course" to add one.</td>
+                            <td colSpan="7" style={styles.tdCenter}>No courses found. Click &quot;+ Create New Course&quot; to add one.</td>
                         </tr>
                     )}
                 </tbody>

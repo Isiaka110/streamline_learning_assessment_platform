@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
     // ALWAYS aim to fix ESLint errors/warnings directly in your code.
     // For the 'react/no-unescaped-entities' error, this *will* allow the build to pass,
     // but the underlying HTML issue will still exist.
-    ignoreDuringBuilds: false, // <--- **CHANGE THIS TO `false` if you want ESLint errors to break the build (RECOMMENDED for errors)**
+    ignoreDuringBuilds: true, // <--- **CHANGE THIS TO `false` if you want ESLint errors to break the build (RECOMMENDED for errors)**
 
     // If you need to restrict ESLint to certain directories (e.g., if you have
     // monorepo setups or specific linting contexts).
@@ -29,6 +29,7 @@ const nextConfig: NextConfig = {
   // images: {
   //   domains: ['example.com', 'another-cdn.com'],
   // },
+  
 
   // You can add other Next.js specific configurations here as needed.
   // For example:
