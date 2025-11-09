@@ -222,9 +222,7 @@ function StudentDashboard() {
                     <h1 style={styles.header}>Student Learning Hub & Status: {userName}</h1>
                 </div>
                 
-                <button onClick={handleLogout} style={styles.logoutButton}>
-                    Logout 🚪
-                </button>
+                
             </div>
             
             <p style={styles.subHeader}>Centralizing your courses, assessments, and communications.</p>
@@ -274,6 +272,9 @@ function StudentDashboard() {
                     </>
                 )}
             </div>
+            <button onClick={handleLogout} style={styles.logoutButton}>
+                    Logout 🚪
+                </button>
         </div>
     );
 }
