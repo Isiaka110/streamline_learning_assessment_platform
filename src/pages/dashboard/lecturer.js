@@ -8,7 +8,7 @@ import LogoContainer from '@components/LogoContainer';
 import LecturerCommunication from '@components/LecturerCommunication'; 
 import AnnouncementList from '@components/AnnouncementList'; 
 
-const mobileBreakpoint = 768; // in pixels
+const mobileBreakpoint = 768;
 
 function LecturerDashboard() {
     const { data: session } = useSession();
@@ -29,10 +29,8 @@ function LecturerDashboard() {
         const checkMobile = () => {
             setIsMobile(window.innerWidth < mobileBreakpoint);
         };
-        
         checkMobile();
         window.addEventListener('resize', checkMobile);
-        
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
@@ -42,7 +40,6 @@ function LecturerDashboard() {
         try {
             const response = await fetch('/api/announcements'); 
             const data = await response.json();
-            
             if (response.ok) {
                 setAnnouncements(data.announcements || []);
             } else {
@@ -56,13 +53,12 @@ function LecturerDashboard() {
         }
     }, []);
 
-    const fetchLecturerCourses = async () => {
+    const fetchLecturerCourses = useCallback(async () => {
         setLoadingCourses(true);
         setErrorCourses(null);
         try {
             const response = await fetch('/api/lecturer/courses'); 
             const data = await response.json();
-
             if (response.ok) {
                 setCourses(data.courses);
                 if (data.courses && data.courses.length > 0) {
@@ -79,12 +75,12 @@ function LecturerDashboard() {
         } finally {
             setLoadingCourses(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
         fetchLecturerCourses();
         fetchAnnouncements(); 
-    }, [fetchAnnouncements]);
+    }, [fetchLecturerCourses, fetchAnnouncements]);
 
     const handleLogout = () => {
         signOut({ callbackUrl: '/' }); 
@@ -100,7 +96,6 @@ function LecturerDashboard() {
 
     return (
         <div className="min-h-screen bg-gray-50 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-x-hidden">
-            
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-4 border-b border-gray-200 gap-4">
                 <div className="flex items-center gap-3 w-full sm:w-auto"> 
                     <div className="flex items-center shrink-0">
@@ -110,7 +105,6 @@ function LecturerDashboard() {
                     <div className="h-8 w-[2px] bg-gray-200 mx-1 sm:mx-2 hidden sm:block"></div>
                     <h1 className="text-lg sm:text-2xl font-bold text-gray-800 truncate">Control Panel: {userName}</h1>
                 </div>
-                
                 <button onClick={handleLogout} className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg shadow-md transition-colors text-xs sm:text-sm self-end sm:self-auto">
                     Logout 🚪
                 </button>
@@ -203,7 +197,6 @@ function LecturerDashboard() {
                 {courses?.length === 0 && !loadingCourses && (
                     <p className="p-6 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-center font-medium">You have not been assigned any courses yet. Please contact an administrator.</p>
                 )}
-
             </div>
         </div>
     );
