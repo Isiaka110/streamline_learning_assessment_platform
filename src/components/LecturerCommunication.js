@@ -152,4 +152,4 @@ function LecturerCommunication({ lecturerId, courseId, courseCode }) {
     );
 }
 
-export default LecturerCommunication;on;
+export default LecturerCommunication;
