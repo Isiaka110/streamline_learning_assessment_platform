@@ -1,40 +1,14 @@
-// pages/dashboard/admin/index.js
-
 import React from 'react';
 import { signOut } from 'next-auth/react';
-import { withAuthGuard } from '../../../components/AuthGuard'; 
-import LogoContainer from '../../../components/LogoContainer';
+import { withAuthGuard } from '@components/AuthGuard'; 
+import LogoContainer from '@components/LogoContainer';
 import { UserRole } from '@prisma/client';
 import Link from 'next/link';
-
-// 🔑 Import Prisma client directly for getServerSideProps
 import prisma from '@api/prisma'; 
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@api/auth/[...nextauth]'; 
 
 
-// Base styles defined as a separate constant for safe referencing
-const baseButtonStyles = {
-    display: 'block',
-    width: '100%',
-    textAlign: 'center',
-    padding: '12px 10px',
-    borderRadius: '8px',
-    fontWeight: '600',
-    textDecoration: 'none',
-    transition: 'background-color 0.2s',
-    marginTop: '15px',
-    fontSize: '0.95em',
-};
-
-/**
- * @param {object} props
- * @param {number} props.totalLecturers - Total count of users with LECTURER role.
- * @param {number} props.totalCourses - Total count of all Course records.
- * @param {number} props.unassignedCourses - Total count of Course records without a lecturer.
- * @param {string | null} props.error - An error message if data fetching failed.
- * @param {import('next-auth').Session} props.session - The user session object.
- */
 function AdminDashboard({ 
     totalLecturers, 
     totalCourses, 
@@ -44,80 +18,85 @@ function AdminDashboard({
 }) {
 
     const handleLogout = () => {
-        // Redirects user to the root path after sign out
         signOut({ callbackUrl: '/' }); 
     };
     
-    // Render error state if data fetching failed
     if (error) {
         return (
-            <div style={styles.container}>
-                <p style={styles.error}>{error}</p>
-                <button onClick={handleLogout} style={styles.logoutButton}>Logout</button>
+            <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50">
+                <p className="p-4 bg-red-100 text-red-700 border border-red-300 rounded max-w-2xl text-center mb-6">{error}</p>
+                <button onClick={handleLogout} className="px-6 py-2 bg-red-500 text-white font-semibold rounded hover:bg-red-600 transition-colors">Logout</button>
             </div>
         );
     }
 
     return (
-        <div style={styles.container}>
-            <div style={styles.brandingArea}> 
-            <LogoContainer/> <span style={styles.abbreviation}>LMS</span> 
-            </div>
-            
-            {/* Header and Logout */}
-            <div style={styles.headerRow}>
-                <h1 style={styles.header}>Platform Administration Center ⚙️</h1>
-                <button onClick={handleLogout} style={styles.logoutButton}>
-                    Logout
+        <div className="min-h-screen bg-gray-50 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-x-hidden">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-4 border-b border-gray-200">
+                <div className="flex flex-col md:flex-row items-start md:items-center order-1 md:order-1 mb-4 md:mb-0"> 
+                    <div className="flex items-center">
+                        <LogoContainer /> 
+                        <span className="text-2xl font-black text-indigo-600 hidden md:block ml-3 tracking-wide mt-1">LMS</span> 
+                    </div>
+                    <h1 className="text-2xl md:text-3xl font-bold text-gray-800 md:ml-4 mt-2 md:mt-0 order-3 md:order-2">Platform Administration Center ⚙️</h1>
+                </div>
+                
+                <button onClick={handleLogout} className="md:order-3 order-2 mt-2 md:mt-0 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg shadow-md transition-colors text-sm">
+                    Logout 🚪
                 </button>
             </div>
             
-            <p style={styles.subHeader}>
+            <p className="text-gray-600 mb-8 border-b border-gray-200 pb-4">
                 Welcome, {session?.user?.name || 'System Administrator'}. Centralize and optimize platform operations and user access.
             </p>
 
             {/* MAIN GRID LAYOUT - Strictly the 3 requested cards */}
-            <div style={styles.mainGrid}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
                 {/* 1. Manage Lecturers (C.R.U.D.) */}
-                <div style={styles.card}>
-                    <h2 style={styles.cardHeader}>Manage Lecturers (C.R.U.D.) 🧑‍🏫</h2>
-                    <p style={styles.metric}>
-                        **Total Lecturers Available:** <span style={styles.metricValue}>
-                            {totalLecturers}
-                        </span>
-                    </p>
-                    <p style={styles.textBlock}>Centralize management for all platform lecturers, including creation and assignment details.</p>
-                    <Link href="/dashboard/admin/lecturer-management" style={styles.primaryButton}> 
+                <div className="bg-white p-6 border border-gray-200 rounded-xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-4">Manage Lecturers (C.R.U.D.) 🧑‍🏫</h2>
+                        <p className="text-gray-600 font-medium mb-2">
+                            **Total Lecturers Available:** <span className="text-gray-900 font-bold ml-1 text-lg">
+                                {totalLecturers}
+                            </span>
+                        </p>
+                        <p className="text-gray-500 mb-6">Centralize management for all platform lecturers, including creation and assignment details.</p>
+                    </div>
+                    <Link href="/dashboard/admin/lecturer-management" className="text-center block w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-colors shadow-sm"> 
                         Manage Lecturers
                     </Link>
                 </div>
 
                 {/* 2. Manage Course Catalog */}
-                <div style={styles.card}>
-                    <h2 style={styles.cardHeader}>Manage Course Catalog 📚</h2>
-                    <p style={styles.metric}>
-                        **Total Active Courses:** <span style={styles.metricValue}>
-                            {totalCourses}
-                        </span>
-                    </p>
-                    <p style={styles.metric}>
-                        **Courses Needing Lecturer:** <span style={unassignedCourses > 0 ? styles.metricValueRed : styles.metricValue}>
-                            {unassignedCourses}
-                        </span>
-                    </p>
-                    <p style={styles.textBlock}>Create, update, and manage the course catalog, and assign lecturers to courses.</p>
-                    <Link href="/dashboard/admin/course-management" style={styles.primaryButton}> 
+                <div className="bg-white p-6 border border-gray-200 rounded-xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-4">Manage Course Catalog 📚</h2>
+                        <p className="text-gray-600 font-medium mb-2">
+                            **Total Active Courses:** <span className="text-gray-900 font-bold ml-1 text-lg">
+                                {totalCourses}
+                            </span>
+                        </p>
+                        <p className="text-gray-600 font-medium mb-2">
+                            **Courses Needing Lecturer:** <span className={`font-bold ml-1 text-lg ${unassignedCourses > 0 ? 'text-red-500' : 'text-gray-900'}`}>
+                                {unassignedCourses}
+                            </span>
+                        </p>
+                        <p className="text-gray-500 mb-6">Create, update, and manage the course catalog, and assign lecturers to courses.</p>
+                    </div>
+                    <Link href="/dashboard/admin/course-management" className="text-center block w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-colors shadow-sm"> 
                         Manage Courses & Assignments
                     </Link>
                 </div>
                 
                 {/* 3. System-Wide Announcements (Full-width action) */}
-                <div style={{...styles.card, ...styles.fullWidthCard}}>
-                    <h2 style={styles.cardHeader}>System-Wide Announcements 📣</h2>
-                    <p style={styles.textBlock}>Push critical updates and notifications to all platform users.</p>
-                    {/* Assuming this route exists */}
-                    <Link href="/admin/compose-announcement" style={styles.tertiaryButton}>
+                <div className="md:col-span-2 bg-blue-50 border border-blue-200 p-6 rounded-xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-4">System-Wide Announcements 📣</h2>
+                        <p className="text-gray-600 mb-6 border-b border-blue-200/50 pb-4">Push critical updates and notifications to all platform users.</p>
+                    </div>
+                    <Link href="/admin/compose-announcement" className="text-center md:self-start md:px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors shadow-md shadow-blue-500/20">
                         Compose New Platform Announcement
                     </Link>
                 </div>
@@ -127,23 +106,19 @@ function AdminDashboard({
     );
 }
 
-// 🔑 getServerSideProps for fetching data and enforcing server-side authorization
 export async function getServerSideProps(context) {
     const session = await getServerSession(context.req, context.res, authOptions);
 
-    // --- 1. Authorization Check (Must be ADMIN) ---
     if (!session || session.user.role !== UserRole.ADMIN) {
         return {
             redirect: {
-                destination: '/auth/login?error=AccessDenied',
+                destination: '/auth/SignIn?error=AccessDenied',
                 permanent: false,
             },
         };
     }
 
-    // --- 2. Next.js Serialization Fix ---
     if (session?.user) {
-        // Convert any 'undefined' user fields to 'null' for safe serialization
         session.user.image = session.user.image ?? null;
         session.user.name = session.user.name ?? null;
     }
@@ -153,24 +128,19 @@ export async function getServerSideProps(context) {
     let unassignedCourses = 0;
     let error = null;
 
-    // --- 3. Fetch Required Dashboard Metrics ---
     try {
-        // Total Lecturers
         totalLecturers = await prisma.user.count({
             where: {
                 role: UserRole.LECTURER,
             },
         });
 
-        // Total Courses
         totalCourses = await prisma.course.count();
 
-        // ✅ CRITICAL FIX: Courses Needing Lecturer (Unassigned)
-        // Correctly checks for an empty many-to-many relationship using 'none: {}'
         unassignedCourses = await prisma.course.count({
             where: {
                 lecturers: { 
-                    none: {} // FIX: Use empty object for 'none' filter in count
+                    none: {} 
                 }
             }
         });
@@ -186,138 +156,9 @@ export async function getServerSideProps(context) {
             totalCourses,
             unassignedCourses,
             error, 
-            // Final serialization
             session: JSON.parse(JSON.stringify(session)), 
         },
     };
 }
 
-// ----------------------------------------------------------------------
-// --- STYLES (Your Original Styles) ---
-// ----------------------------------------------------------------------
-const styles = {
-    container: { 
-        padding: '20px', 
-        maxWidth: '1400px', 
-        margin: 'auto', 
-        fontFamily: 'system-ui, sans-serif', 
-        minHeight: '100vh',
-        backgroundColor: '#f9fafb'
-    },
-    headerRow: { 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        marginBottom: '10px' 
-    },
-    brandingArea: {
-        display: 'flex',
-        alignItems: 'center', 
-    },
-    abbreviation: {
-        fontSize: '1.5em', 
-        fontWeight: '900',
-        color: '#4f46e5', 
-        marginRight: '15px',
-        marginLeft: '10px',
-        letterSpacing: '1px',
-        flexShrink: 0, 
-        lineHeight: '1', 
-        paddingTop: '2px', 
-    },
-    header: { 
-        fontSize: '2em', 
-        color: '#1f2937' 
-    },
-    logoutButton: {
-        padding: '8px 15px',
-        backgroundColor: '#ef4444', 
-        color: 'white',
-        border: 'none',
-        borderRadius: '6px',
-        cursor: 'pointer',
-        fontWeight: 'bold',
-        fontSize: '0.9em'
-    },
-    subHeader: { 
-        color: '#6b7280', 
-        marginBottom: '30px', 
-        borderBottom: '1px solid #e5e7eb', 
-        paddingBottom: '15px' 
-    },
-    mainGrid: {
-        display: 'grid',
-        // Sets up three columns, but allows wrapping for smaller screens
-        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
-        gap: '25px',
-    },
-    card: {
-        padding: '25px',
-        border: '1px solid #d1d5db',
-        borderRadius: '12px',
-        boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
-        backgroundColor: 'white',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        minHeight: '200px',
-    },
-    fullWidthCard: {
-        // Forces this card to span all columns in the grid
-        gridColumn: '1 / -1', 
-        backgroundColor: '#eff6ff',
-        border: '1px solid #bfdbfe',
-    },
-    cardHeader: {
-        fontSize: '1.4em',
-        marginBottom: '15px',
-        color: '#374151'
-    },
-    textBlock: {
-        color: '#4b5563',
-        marginBottom: '15px',
-        flexGrow: 1, 
-    },
-    metric: {
-        fontSize: '1em',
-        marginBottom: '10px',
-        color: '#4b5563',
-        fontWeight: '500',
-    },
-    metricValue: {
-        fontSize: '1.2em',
-        fontWeight: 'bold',
-        color: '#1f2937',
-        marginLeft: '5px',
-    },
-    metricValueRed: {
-        fontSize: '1.2em',
-        fontWeight: 'bold',
-        color: '#ef4444',
-        marginLeft: '5px',
-    },
-    primaryButton: { 
-        backgroundColor: '#4f46e5', 
-        color: 'white',
-        border: '1px solid #4f46e5',
-        ...baseButtonStyles
-    },
-    tertiaryButton: {
-        backgroundColor: '#3b82f6', 
-        color: 'white',
-        border: '1px solid #3b82f6',
-        ...baseButtonStyles
-    },
-    error: { 
-        padding: '15px', 
-        backgroundColor: '#fee2e2', 
-        color: '#b91c1c', 
-        border: '1px solid #fca5a5', 
-        borderRadius: '4px', 
-        margin: '20px auto',
-        maxWidth: '600px',
-    }
-};
-
-// Apply AuthGuard to enforce client-side redirection if the user somehow lands here without permission
 export default withAuthGuard(AdminDashboard, [UserRole.ADMIN]);

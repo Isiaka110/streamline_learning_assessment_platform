@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "prisma:seed": "node prisma/seed.js",
-    "db:init": "npx prisma migrate dev --name init && npm run prisma:seed"
+    "db:init": "npx prisma db push && npm run prisma:seed"
   },
   "dependencies": {
     "@next-auth/prisma-adapter": "^1.0.7",

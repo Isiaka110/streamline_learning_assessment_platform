@@ -1,8 +1,8 @@
 // File: components/ResourceManager.js
 
 import React, { useState, useEffect, useCallback } from 'react';
-import ResourceList from './ResourceList'; // Import the new ResourceList
-import ResourceFormModal from './ResourceFormModal'; // 🔑 CORRECTED IMPORT NAME
+import ResourceList from './ResourceList'; 
+import ResourceFormModal from './ResourceFormModal'; 
 
 const ResourceManager = ({ courseId, courseCode }) => {
     const [resources, setResources] = useState([]);
@@ -20,12 +20,9 @@ const ResourceManager = ({ courseId, courseCode }) => {
             return;
         }
         try {
-            // ✅ FIX: Use the correct dynamic API path for GET
-            // Path: /api/courses/[courseId]/resources
             const res = await fetch(`/api/courses/${courseId}/resources`);
             
             if (res.status === 404) {
-                 // Handle 404 gracefully if no resources/course found, but still set loading=false
                  setResources([]); 
                  setIsLoading(false);
                  return;
@@ -34,10 +31,8 @@ const ResourceManager = ({ courseId, courseCode }) => {
             const data = await res.json();
             
             if (res.ok) {
-                // Ensure data.resources is an array
                 setResources(Array.isArray(data.resources) ? data.resources : []);
             } else {
-                // This captures authorization or other backend errors
                 setError(data.message || 'Failed to load course resources.');
             }
         } catch (err) {
@@ -53,12 +48,12 @@ const ResourceManager = ({ courseId, courseCode }) => {
     }, [fetchResources]);
 
     const handleCreate = () => {
-        setEditingResource(null); // Clear any existing resource for a new creation
+        setEditingResource(null); 
         setIsModalOpen(true);
     };
 
     const handleEdit = (resource) => {
-        setEditingResource(resource); // Set the resource to be edited
+        setEditingResource(resource); 
         setIsModalOpen(true);
     };
 
@@ -69,18 +64,15 @@ const ResourceManager = ({ courseId, courseCode }) => {
 
         setError(null);
         try {
-            // ✅ FIX: Use the correct dynamic API path for DELETE
-            // Path: /api/courses/[courseId]/resources/[resourceId]
             const res = await fetch(`/api/courses/${courseId}/resources/${resourceId}`, {
                 method: 'DELETE',
             });
 
-            if (res.status === 204 || res.ok) { // 204 is common for successful delete (No Content)
-                alert('Resource deleted successfully.');
-                fetchResources(); // Refresh list
+            if (res.status === 204 || res.ok) {
+                fetchResources(); 
             } else {
                 const data = await res.json().catch(() => ({}));
-                setError(data.message || 'Failed to delete resource.');
+                setError(data.message || 'Failed to delete dynamic asset.');
             }
         } catch (err) {
             console.error('Delete Resource Error:', err);
@@ -89,37 +81,44 @@ const ResourceManager = ({ courseId, courseCode }) => {
     };
 
     const handleSuccess = () => {
-        setIsModalOpen(false); // Close the modal
-        fetchResources(); // Refresh the list
-    };
-
-    const styles = {
-        container: { padding: '20px', backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' },
-        headerRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' },
-        createButton: { padding: '10px 20px', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' },
-        title: { fontSize: '1.8em', color: '#1f2937' },
-        info: { padding: '15px', backgroundColor: '#eff6ff', color: '#1d4ed8', borderRadius: '4px', textAlign: 'center' }
+        setIsModalOpen(false); 
+        fetchResources(); 
     };
 
     return (
-        <div style={styles.container}>
-            <div style={styles.headerRow}>
-                <h2 style={styles.title}>Resources for {courseCode}</h2>
-                <button onClick={handleCreate} style={styles.createButton}>
-                    + Upload New Resource
+        <div className="bg-white rounded-[40px] shadow-2xl shadow-indigo-100/50 border border-gray-100 overflow-hidden animate-in fade-in duration-700">
+            <div className="bg-gray-900 p-10 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-64 h-64 bg-indigo-600/10 rounded-full -translate-x-20 -translate-y-20 blur-3xl"></div>
+                <div className="relative z-10 space-y-1">
+                    <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 italic">Sector Asset Inventory</span>
+                    </div>
+                    <h2 className="text-3xl font-black tracking-tighter uppercase italic italic-shadow">
+                        Material Repository <span className="text-indigo-500">[{courseCode}]</span>
+                    </h2>
+                </div>
+                <button 
+                    onClick={handleCreate} 
+                    className="relative z-10 px-8 py-4 bg-indigo-600 hover:bg-white hover:text-indigo-600 text-white font-black rounded-2xl shadow-xl shadow-indigo-900/20 transition-all transform active:scale-95 flex items-center gap-3 uppercase tracking-widest text-[10px] group"
+                >
+                    <svg className="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4"></path></svg>
+                    Inject New Asset
                 </button>
             </div>
             
-            <ResourceList 
-                resources={resources} 
-                isLoading={isLoading} 
-                error={error} 
-                onEdit={handleEdit} 
-                onDelete={handleDelete} 
-            />
+            <div className="p-10">
+                <ResourceList 
+                    resources={resources} 
+                    isLoading={isLoading} 
+                    error={error} 
+                    onEdit={handleEdit} 
+                    onDelete={handleDelete} 
+                />
+            </div>
 
             {isModalOpen && (
-                <ResourceFormModal // 🔑 CORRECTED COMPONENT NAME
+                <ResourceFormModal 
                     courseId={courseId}
                     resource={editingResource} 
                     onClose={() => setIsModalOpen(false)}

@@ -5,14 +5,7 @@
 
 import { SessionProvider } from "next-auth/react";
 
-// NOTE: You must fix the path to your global CSS file based on your project structure.
-// If your CSS is in the project root:
-
-// import '../../styles/globals.css'; 
-
-// If your CSS is in the src directory:
-// import '../styles/globals.css'; 
-
+import '../styles/globals.css';
 
 /**
  * The MyApp component wraps all page components in your application. 

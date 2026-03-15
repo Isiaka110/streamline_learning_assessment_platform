@@ -1,14 +1,14 @@
-// pages/api/assignments/[assignmentId]/submit.js
-
-import { PrismaClient, UserRole } from '@prisma/client';
+import prisma from '@api/prisma';
+import { UserRole } from '@prisma/client';
 import { getSession } from 'next-auth/react';
-import { uploadFile, config as uploadConfig } from '../../../lib/file-handler'; // Import the file handler
-import path from 'path'; // Needed for file path manipulation
+import { uploadFile } from '@lib/file-handler';
+import path from 'path';
 
-const prisma = new PrismaClient();
-
-// Must export this config to enable file upload via formidable
-export const config = uploadConfig; 
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -42,7 +42,7 @@ export default async function handler(req, res) {
     
     // Construct the file path relative to the public directory for storage
     // NOTE: In production, this would be a URL to S3/GCS
-    const submissionPath = path.join('/submissions', path.basename(uploadedFile.filepath));
+    const filePath = path.join('/submissions', path.basename(uploadedFile.filepath));
 
     // 3. Data Access Layer: Check Assignment and Deadline
     const assignment = await prisma.assignment.findUnique({
@@ -76,7 +76,7 @@ export default async function handler(req, res) {
         submissionRecord = await prisma.submission.update({
             where: { id: existingSubmission.id },
             data: {
-                submissionPath: submissionPath,
+                filePath: filePath,
                 submittedAt: new Date(),
                 // Reset grade and feedback upon re-submission
                 grade: null, 
@@ -90,7 +90,7 @@ export default async function handler(req, res) {
             data: {
                 studentId: studentId,
                 assignmentId: assignmentId,
-                submissionPath: submissionPath,
+                filePath: filePath,
             },
         });
     }
@@ -112,7 +112,6 @@ export default async function handler(req, res) {
       error: error.message 
     });
   } finally {
-    await prisma.$disconnect();
     // In a cleanup scenario, you'd handle file deletion if the database transaction failed
   }
 }

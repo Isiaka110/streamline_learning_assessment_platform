@@ -1,5 +1,5 @@
 // :::::::2:::::::: components/AssignmentGradingTool.js
-import React, { useState, useEffect, useCallback } from 'react'; // 🔑 ADDED useCallback
+import React, { useState, useEffect, useCallback } from 'react';
 
 // Sub-component for individual submission grading
 const GradingForm = ({ submission, maxPoints, onGradeUpdate }) => {
@@ -68,66 +68,92 @@ const GradingForm = ({ submission, maxPoints, onGradeUpdate }) => {
     const fileUrl = submission.filePath; 
     const isGraded = submission.grade !== null;
 
-    // Determine card background based on grading status
-    const cardStyle = {
-        ...styles.gradingCard,
-        borderLeft: isGraded ? '5px solid #10b981' : '5px solid #f59e0b',
-        opacity: isGraded ? 0.95 : 1,
-    };
-
-    const gradeTagStyle = {
-        ...styles.gradeTag,
-        backgroundColor: isGraded ? '#d1fae5' : '#fef3c7',
-        color: isGraded ? '#065f46' : '#92400e',
-    };
-
     return (
-        <div style={cardStyle}>
-            <div style={styles.cardHeader}>
-                <h4 style={styles.studentName}>{submission.student.name}</h4>
-                <div style={gradeTagStyle}>
-                    {isGraded ? `Graded: ${submission.grade}/${maxPoints}` : 'Pending Grade'}
+        <div className={`bg-white rounded-3xl p-6 border-2 transition-all duration-300 hover:shadow-xl ${isGraded ? 'border-emerald-100 shadow-emerald-50/50' : 'border-amber-100 shadow-amber-50/50 blink-border'}`}>
+            <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-50">
+                <div className="flex items-center gap-3">
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-xl ${isGraded ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>
+                        {submission.student.name.charAt(0)}
+                    </div>
+                    <div>
+                        <h4 className="text-lg font-black text-gray-900 tracking-tight leading-none">{submission.student.name}</h4>
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">
+                            {new Date(submission.submittedAt).toLocaleDateString()} @ {new Date(submission.submittedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                        </p>
+                    </div>
+                </div>
+                <div className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest shadow-sm ${isGraded ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'}`}>
+                    {isGraded ? `${submission.grade}/${maxPoints}` : 'Unmarked'}
                 </div>
             </div>
             
-            <p style={styles.submissionDate}>Submitted: {new Date(submission.submittedAt).toLocaleString()}</p>
-            
-            {/* Download Link Section */}
-            <div style={styles.fileSection}>
+            <div className="bg-gray-50 rounded-2xl p-4 mb-6 relative group overflow-hidden border border-gray-100 italic text-sm text-gray-600 leading-relaxed min-h-[80px]">
+                <span className="text-3xl font-serif text-indigo-100 absolute -top-1 -left-1">"</span>
+                {submission.submissionText || "No additional text provided."}
+                
                 {fileUrl ? (
-                    <a href={fileUrl} target="_blank" rel="noopener noreferrer" style={styles.downloadLink}>
-                        ⬇️ Download Submission File ({fileUrl.split('.').pop().toUpperCase()})
+                    <a 
+                        href={fileUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="mt-4 flex items-center gap-2 bg-white px-4 py-2.5 rounded-xl border border-indigo-100 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all font-bold text-xs shadow-sm shadow-indigo-50/50 group-active:scale-95 text-center"
+                    >
+                        <svg className="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        <span>Download Asset ({fileUrl.split('.').pop().toUpperCase()})</span>
                     </a>
                 ) : (
-                    <p style={styles.noFile}>No file submitted by the student.</p>
+                    <div className="mt-4 flex items-center gap-2 text-gray-400 text-[10px] font-black uppercase tracking-tighter">
+                        <svg className="w-4 h-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+                        Zero Attachments
+                    </div>
                 )}
             </div>
 
-            <form onSubmit={handleSubmit} style={styles.gradingForm}>
-                <label style={styles.label}>Grade ({maxPoints} Max):</label>
-                <input 
-                    type="number" 
-                    value={grade} 
-                    onChange={(e) => setGrade(e.target.value)} 
-                    min="0"
-                    max={maxPoints}
-                    required
-                    style={styles.input}
-                />
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Assign Score (Max {maxPoints})</label>
+                    <input 
+                        type="number" 
+                        value={grade} 
+                        onChange={(e) => setGrade(e.target.value)} 
+                        min="0"
+                        max={maxPoints}
+                        required
+                        className="w-full px-4 py-3 bg-white border-2 border-gray-100 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 outline-none rounded-xl transition-all font-black text-indigo-600 text-xl"
+                    />
+                </div>
 
-                <label style={styles.label}>Feedback:</label>
-                <textarea 
-                    value={feedback} 
-                    onChange={(e) => setFeedback(e.target.value)} 
-                    rows="4"
-                    placeholder="Provide constructive feedback here..."
-                    style={styles.textarea}
-                />
+                <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Lecturer Feedback</label>
+                    <textarea 
+                        value={feedback} 
+                        onChange={(e) => setFeedback(e.target.value)} 
+                        rows="3"
+                        placeholder="Well done! Consider improving..."
+                        className="w-full px-4 py-3 bg-white border-2 border-gray-100 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 outline-none rounded-xl transition-all text-sm font-medium resize-none shadow-inner"
+                    />
+                </div>
 
-                <button type="submit" disabled={loading} style={styles.button}>
-                    {loading ? 'Saving...' : `Save Grade (${grade}/${maxPoints})`}
+                <button 
+                    type="submit" 
+                    disabled={loading} 
+                    className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 transform active:scale-95 shadow-xl ${isGraded ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-100' : 'bg-indigo-600 text-white hover:bg-black shadow-indigo-100'}`}
+                >
+                    {loading ? (
+                        <>
+                            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            Saving...
+                        </>
+                    ) : (
+                        `Finalize Mark (${grade}/${maxPoints})`
+                    )}
                 </button>
-                {message && <p style={{ color: message.startsWith('Error') ? '#b91c1c' : '#065f46', marginTop: '10px', fontSize: '0.9em' }}>{message}</p>}
+                
+                {message && (
+                    <div className={`mt-2 p-3 rounded-xl text-center text-[10px] font-bold uppercase tracking-wider animate-in fade-in slide-in-from-top-1 ${message.startsWith('Error') ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-green-50 text-green-600 border border-green-100'}`}>
+                        {message}
+                    </div>
+                )}
             </form>
         </div>
     );
@@ -139,10 +165,8 @@ const AssignmentGradingTool = ({ assignmentId, assignmentTitle, onGradingComplet
     const [submissions, setSubmissions] = useState([]);
     const [maxPoints, setMaxPoints] = useState(0);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null); // Line 140
+    const [error, setError] = useState(null);
 
-    // 1. 🔑 FIX: Wrap fetchSubmissions in useCallback
-    // Added assignmentId to the dependency array to ensure the function updates if the ID changes
     const fetchSubmissions = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -150,30 +174,27 @@ const AssignmentGradingTool = ({ assignmentId, assignmentTitle, onGradingComplet
             const response = await fetch(`/api/assignments/${assignmentId}/submissions`); 
             
             if (!response.ok) {
-                // 2. 🔑 FIX: Renamed 'err' to '_err' in catch block to resolve unused variable warning
                 const errorData = await response.json().catch(() => ({})); 
                 throw new Error(errorData.message || `Server error: ${response.status} ${response.statusText}`);
             }
 
             const data = await response.json();
-            setSubmissions(data.submissions);
-            setMaxPoints(data.maxPoints); 
+            setSubmissions(data.submissions || []);
+            setMaxPoints(data.maxPoints || 0); 
 
-        } catch (err) { // Line 163
+        } catch (err) {
             console.error("Fetch Submissions Error:", err);
-            // The state variable 'error' is used here, so this variable itself is fine.
             setError(`Error: ${err.message || 'Network error fetching submissions.'}`); 
         } finally {
             setLoading(false);
         }
-    }, [assignmentId]); // <-- Dependency array for useCallback
+    }, [assignmentId]);
 
-    // 3. 🔑 FIX: Added fetchSubmissions to the dependency array of useEffect
-    useEffect(() => { // Line 171
+    useEffect(() => {
         if (assignmentId) {
             fetchSubmissions();
         }
-    }, [assignmentId, fetchSubmissions]); // <-- Dependency array for useEffect
+    }, [assignmentId, fetchSubmissions]);
 
     const handleGradeUpdate = (submissionId, updatedSubmission) => {
         setSubmissions(prev => 
@@ -181,39 +202,65 @@ const AssignmentGradingTool = ({ assignmentId, assignmentTitle, onGradingComplet
         );
     };
     
-    // ... rest of the component remains the same ...
-
-    if (!assignmentId) return <p>Select an assignment to view submissions.</p>;
-    if (loading) return <p style={styles.loading}>Loading submissions...</p>;
+    if (!assignmentId) return <div className="p-10 text-center bg-gray-50 border-2 border-dashed border-gray-200 rounded-3xl text-gray-400 font-bold">Select an assignment to begin grading.</div>;
     
-    // Note: The 'error' state variable IS used here (line 186):
-    if (error) return <p style={styles.error}>Error: {error}</p>; 
+    if (loading) return (
+        <div className="flex flex-col items-center justify-center p-20 gap-4">
+            <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-indigo-600 font-black uppercase tracking-widest text-xs">Accessing Student Portal...</p>
+        </div>
+    );
+    
+    if (error) return (
+        <div className="p-6 bg-red-50 border-2 border-red-100 rounded-3xl text-red-700 flex items-center gap-4">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <div>
+                <p className="font-black text-lg text-rose-800">System Obstruction</p>
+                <p className="text-sm font-medium opacity-80">{error}</p>
+            </div>
+        </div>
+    );
     
     // Sort submissions: Pending first, then Graded
     const sortedSubmissions = [...submissions].sort((a, b) => {
-        if (a.grade === null && b.grade !== null) return -1; // a (pending) comes before b (graded)
-        if (a.grade !== null && b.grade === null) return 1;  // a (graded) comes after b (pending)
-        return new Date(b.submittedAt) - new Date(a.submittedAt); // Otherwise, sort by latest submission
+        if (a.grade === null && b.grade !== null) return -1;
+        if (a.grade !== null && b.grade === null) return 1; 
+        return new Date(b.submittedAt) - new Date(a.submittedAt);
     });
 
     const gradedCount = submissions.filter(s => s.grade != null).length;
     const pendingCount = submissions.length - gradedCount;
 
     return (
-        <div style={styles.container}>
-            <h2 style={styles.header}>Grade Submissions: {assignmentTitle}</h2>
-            
-            <div style={styles.summaryBox}>
-                <p style={styles.summaryItem}>Total Submissions: <strong style={{color: '#3b82f6'}}>{submissions.length}</strong></p>
-                <p style={styles.summaryItem}>Graded: <strong style={{color: '#10b981'}}>{gradedCount}</strong></p>
-                <p style={styles.summaryItem}>Pending: <strong style={{color: '#f59e0b'}}>{pendingCount}</strong></p>
+        <div className="space-y-8 animate-in fade-in duration-500">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 bg-white p-6 sm:p-8 rounded-3xl shadow-xl shadow-gray-100/50 border border-gray-50">
+                <div className="space-y-2 text-center md:text-left">
+                    <p className="text-indigo-600 font-black uppercase tracking-[0.2em] text-[10px]">Lecturer Assessment Module</p>
+                    <h2 className="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">{assignmentTitle}</h2>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-2 sm:gap-4 w-full md:w-auto">
+                    <div className="px-2 sm:px-6 py-3 sm:py-4 bg-indigo-50 border border-indigo-100 rounded-2xl text-center min-w-0 md:min-w-[120px]">
+                        <p className="text-[8px] sm:text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Total</p>
+                        <p className="text-lg sm:text-2xl font-black text-indigo-700 leading-none">{submissions.length}</p>
+                    </div>
+                    <div className="px-2 sm:px-6 py-3 sm:py-4 bg-emerald-50 border border-emerald-100 rounded-2xl text-center min-w-0 md:min-w-[120px]">
+                        <p className="text-[8px] sm:text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1">Graded</p>
+                        <p className="text-lg sm:text-2xl font-black text-emerald-700 leading-none">{gradedCount}</p>
+                    </div>
+                    <div className="px-2 sm:px-6 py-3 sm:py-4 bg-amber-50 border border-amber-100 rounded-2xl text-center min-w-0 md:min-w-[120px]">
+                        <p className="text-[8px] sm:text-[10px] font-black text-amber-400 uppercase tracking-widest mb-1">Pending</p>
+                        <p className="text-lg sm:text-2xl font-black text-amber-700 leading-none">{pendingCount}</p>
+                    </div>
+                </div>
             </div>
 
             {submissions.length === 0 ? (
-                <p style={styles.info}>No submissions found for this assignment.</p>
+                <div className="p-20 text-center bg-gray-50/50 rounded-[40px] border-4 border-dashed border-gray-100 italic text-gray-400 font-bold text-xl">
+                    No submissions found for this assignment yet.
+                </div>
             ) : (
-                // 🔑 The submissionsGrid ensures multiple student cards are listed cleanly
-                <div style={styles.submissionsGrid}>
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                     {sortedSubmissions.map(submission => (
                         <GradingForm 
                             key={submission.id}
@@ -226,368 +273,28 @@ const AssignmentGradingTool = ({ assignmentId, assignmentTitle, onGradingComplet
             )}
             
             {(gradedCount === submissions.length) && submissions.length > 0 && onGradingComplete && (
-                <div style={styles.completionMessage}>
-                    <p style={{fontWeight: 'bold', fontSize: '1.1em'}}>🎉 All submissions have been graded! 🎉</p>
-                    <button 
-                        onClick={() => onGradingComplete(true)} 
-                        style={styles.backButton}
-                    >
-                        Return to Assignment List
-                    </button>
+                <div className="bg-gradient-to-br from-emerald-500 to-teal-600 p-12 rounded-[40px] text-center text-white shadow-2xl shadow-emerald-200/50 animate-in zoom-in-95 duration-700 mt-20 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32 blur-3xl"></div>
+                    <div className="relative z-10 space-y-6">
+                        <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center mx-auto mb-8 border-2 border-white/30 animate-bounce shadow-xl">
+                            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <h3 className="text-4xl font-black tracking-tight">Mission Accomplished!</h3>
+                        <p className="text-emerald-50 font-bold max-w-md mx-auto text-lg opacity-90 leading-relaxed">
+                            Every participant has been assessed. All grades have been synchronized with the main ledger.
+                        </p>
+                        <button 
+                            onClick={() => onGradingComplete(true)} 
+                            className="mt-10 px-10 py-5 bg-white text-emerald-700 font-black rounded-3xl shadow-2xl hover:bg-emerald-50 transition-all hover:scale-105 active:scale-95 flex items-center gap-3 mx-auto uppercase tracking-widest text-xs"
+                        >
+                            Return To Hub
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12h18m0 0l-7-7m7 7l-7 7"></path></svg>
+                        </button>
+                    </div>
                 </div>
             )}
         </div>
     );
 };
 
-// --- STYLES ---
-const styles = {
-    // ... (styles remain the same)
-    container: { padding: '20px', backgroundColor: '#f9fafb', minHeight: '100vh' },
-    header: { fontSize: '1.8em', color: '#1f2937', borderBottom: '2px solid #e5e7eb', paddingBottom: '10px', marginBottom: '20px' },
-    loading: { color: '#3b82f6', padding: '20px' },
-    error: { color: '#b91c1c', backgroundColor: '#fee2e2', padding: '15px', borderRadius: '6px', border: '1px solid #fca5a5' },
-    
-    // Summary Box
-    summaryBox: { display: 'flex', gap: '20px', padding: '15px 25px', backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)', marginBottom: '30px' },
-    summaryItem: { fontSize: '1em', color: '#4b5563' },
-    
-    // Grid for Submissions
-    submissionsGrid: { display: 'grid', gap: '25px', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))' },
-    info: { padding: '20px', backgroundColor: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', borderRadius: '6px', textAlign: 'center' },
-    
-    // Grading Card Styles
-    gradingCard: { 
-        padding: '20px', 
-        border: '1px solid #e5e7eb', 
-        borderRadius: '8px', 
-        backgroundColor: '#fff', 
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-        transition: 'transform 0.2s, box-shadow 0.2s',
-    },
-    cardHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f3f4f6', paddingBottom: '10px', marginBottom: '10px' },
-    studentName: { fontSize: '1.2em', margin: 0, color: '#1f2937' },
-    gradeTag: { padding: '4px 10px', borderRadius: '9999px', fontSize: '0.9em', fontWeight: 'bold' },
-    submissionDate: { fontSize: '0.85em', color: '#6b7280', marginBottom: '15px' },
-    
-    // File Section Styles
-    fileSection: { marginBottom: '20px', padding: '10px', backgroundColor: '#f3f4f6', borderRadius: '6px' },
-    downloadLink: { 
-        display: 'block', 
-        padding: '10px 15px', 
-        backgroundColor: '#3b82f6', 
-        color: 'white', 
-        textDecoration: 'none', 
-        borderRadius: '4px', 
-        textAlign: 'center',
-        fontWeight: 'bold',
-        fontSize: '0.95em',
-        transition: 'background-color 0.2s',
-    },
-    noFile: { margin: 0, color: '#9ca3af', fontStyle: 'italic', textAlign: 'center' },
-    
-    // Form Styles
-    gradingForm: { marginTop: '15px' },
-    label: { display: 'block', margin: '10px 0 5px', fontWeight: '600', color: '#333' },
-    input: { width: '100%', padding: '10px', border: '1px solid #d1d5db', borderRadius: '6px', marginBottom: '10px', boxSizing: 'border-box' },
-    textarea: { width: '100%', padding: '10px', border: '1px solid #d1d5db', borderRadius: '6px', resize: 'vertical', boxSizing: 'border-box' },
-    button: { padding: '10px 15px', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', marginTop: '15px', fontWeight: 'bold', width: '100%' },
-
-    // Completion Message
-    completionMessage: { textAlign: 'center', marginTop: '30px', padding: '30px', backgroundColor: '#d1fae5', borderRadius: '10px', border: '2px solid #34d399', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' },
-    backButton: { padding: '10px 20px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', marginTop: '20px', fontWeight: 'bold' }
-};
-
 export default AssignmentGradingTool;
-// // :::::::2:::::::: components/AssignmentGradingTool.js
-// import React, { useState, useEffect } from 'react';
-
-// // Sub-component for individual submission grading
-// const GradingForm = ({ submission, maxPoints, onGradeUpdate }) => {
-//     // Grade defaults to 0 if null, but displayed as existing grade if present
-//     const [grade, setGrade] = useState(submission.grade != null ? submission.grade : 0); 
-//     const [feedback, setFeedback] = useState(submission.feedback || '');
-//     const [loading, setLoading] = useState(false);
-//     const [message, setMessage] = useState('');
-
-//     useEffect(() => {
-//         setGrade(submission.grade != null ? submission.grade : 0);
-//         setFeedback(submission.feedback || '');
-//         setMessage('');
-//     }, [submission]);
-
-//     const handleSubmit = async (e) => {
-//         e.preventDefault();
-//         setLoading(true);
-//         setMessage('');
-        
-//         const numGrade = parseInt(grade);
-//         if (isNaN(numGrade) || numGrade < 0 || numGrade > maxPoints) {
-//             setMessage(`Error: Grade must be a number between 0 and ${maxPoints}.`);
-//             setLoading(false);
-//             return;
-//         }
-
-//         try {
-//             // NOTE: API route for grading should be fixed to handle PATCH method
-//             const response = await fetch(`/api/submissions/${submission.id}/grade`, {
-//                 method: 'PATCH',
-//                 headers: { 'Content-Type': 'application/json' },
-//                 body: JSON.stringify({ 
-//                     grade: numGrade, 
-//                     feedback: feedback 
-//                 }),
-//             });
-
-//             const contentType = response.headers.get("content-type");
-//             let data = {};
-//             if (contentType && contentType.includes("application/json")) {
-//                 data = await response.json();
-//             } else {
-//                 const text = await response.text();
-//                 console.error("Server Non-JSON Response (Grading):", text);
-//                 setMessage(`Server returned non-JSON response (Status: ${response.status}).`);
-//                 setLoading(false);
-//                 return;
-//             }
-
-//             if (response.ok) {
-//                 setMessage(data.message || `Grade saved successfully (${numGrade}/${maxPoints})`);
-//                 // Update parent state with the new submission data
-//                 onGradeUpdate(submission.id, data.submission); 
-//             } else {
-//                 setMessage(`Error: ${data.message || 'Failed to update grade. Check server logs.'}`);
-//             }
-//         } catch (error) {
-//             setMessage('Network error during grading.');
-//         } finally {
-//             setLoading(false);
-//         }
-//     };
-
-//     // 🔑 Using 'filePath' to match the Prisma schema
-//     const fileUrl = submission.filePath; 
-//     const isGraded = submission.grade !== null;
-
-//     // Determine card background based on grading status
-//     const cardStyle = {
-//         ...styles.gradingCard,
-//         borderLeft: isGraded ? '5px solid #10b981' : '5px solid #f59e0b',
-//         opacity: isGraded ? 0.95 : 1,
-//     };
-
-//     const gradeTagStyle = {
-//         ...styles.gradeTag,
-//         backgroundColor: isGraded ? '#d1fae5' : '#fef3c7',
-//         color: isGraded ? '#065f46' : '#92400e',
-//     };
-
-//     return (
-//         <div style={cardStyle}>
-//             <div style={styles.cardHeader}>
-//                 <h4 style={styles.studentName}>{submission.student.name}</h4>
-//                 <div style={gradeTagStyle}>
-//                     {isGraded ? `Graded: ${submission.grade}/${maxPoints}` : 'Pending Grade'}
-//                 </div>
-//             </div>
-            
-//             <p style={styles.submissionDate}>Submitted: {new Date(submission.submittedAt).toLocaleString()}</p>
-            
-//             {/* Download Link Section */}
-//             <div style={styles.fileSection}>
-//                 {fileUrl ? (
-//                     <a href={fileUrl} target="_blank" rel="noopener noreferrer" style={styles.downloadLink}>
-//                         ⬇️ Download Submission File ({fileUrl.split('.').pop().toUpperCase()})
-//                     </a>
-//                 ) : (
-//                     <p style={styles.noFile}>No file submitted by the student.</p>
-//                 )}
-//             </div>
-
-//             <form onSubmit={handleSubmit} style={styles.gradingForm}>
-//                 <label style={styles.label}>Grade ({maxPoints} Max):</label>
-//                 <input 
-//                     type="number" 
-//                     value={grade} 
-//                     onChange={(e) => setGrade(e.target.value)} 
-//                     min="0"
-//                     max={maxPoints}
-//                     required
-//                     style={styles.input}
-//                 />
-
-//                 <label style={styles.label}>Feedback:</label>
-//                 <textarea 
-//                     value={feedback} 
-//                     onChange={(e) => setFeedback(e.target.value)} 
-//                     rows="4"
-//                     placeholder="Provide constructive feedback here..."
-//                     style={styles.textarea}
-//                 />
-
-//                 <button type="submit" disabled={loading} style={styles.button}>
-//                     {loading ? 'Saving...' : `Save Grade (${grade}/${maxPoints})`}
-//                 </button>
-//                 {message && <p style={{ color: message.startsWith('Error') ? '#b91c1c' : '#065f46', marginTop: '10px', fontSize: '0.9em' }}>{message}</p>}
-//             </form>
-//         </div>
-//     );
-// };
-
-
-// // Main Component
-// const AssignmentGradingTool = ({ assignmentId, assignmentTitle, onGradingComplete }) => {
-//     const [submissions, setSubmissions] = useState([]);
-//     const [maxPoints, setMaxPoints] = useState(0);
-//     const [loading, setLoading] = useState(true);
-//     const [error, setError] = useState(null);
-
-//     const fetchSubmissions = async () => {
-//         setLoading(true);
-//         setError(null);
-//         try {
-//             const response = await fetch(`/api/assignments/${assignmentId}/submissions`); 
-            
-//             if (!response.ok) {
-//                 const errorData = await response.json().catch(() => ({}));
-//                 throw new Error(errorData.message || `Server error: ${response.status} ${response.statusText}`);
-//             }
-
-//             const data = await response.json();
-//             setSubmissions(data.submissions);
-//             setMaxPoints(data.maxPoints); 
-
-//         } catch (err) {
-//             console.error("Fetch Submissions Error:", err);
-//             setError(`Error: ${err.message || 'Network error fetching submissions.'}`);
-//         } finally {
-//             setLoading(false);
-//         }
-//     };
-
-//     useEffect(() => {
-//         if (assignmentId) {
-//             fetchSubmissions();
-//         }
-//     }, [assignmentId]);
-
-//     const handleGradeUpdate = (submissionId, updatedSubmission) => {
-//         setSubmissions(prev => 
-//             prev.map(sub => (sub.id === submissionId ? updatedSubmission : sub))
-//         );
-//     };
-    
-//     if (!assignmentId) return <p>Select an assignment to view submissions.</p>;
-//     if (loading) return <p style={styles.loading}>Loading submissions...</p>;
-//     if (error) return <p style={styles.error}>Error: {error}</p>;
-    
-//     // Sort submissions: Pending first, then Graded
-//     const sortedSubmissions = [...submissions].sort((a, b) => {
-//         if (a.grade === null && b.grade !== null) return -1; // a (pending) comes before b (graded)
-//         if (a.grade !== null && b.grade === null) return 1;  // a (graded) comes after b (pending)
-//         return new Date(b.submittedAt) - new Date(a.submittedAt); // Otherwise, sort by latest submission
-//     });
-
-//     const gradedCount = submissions.filter(s => s.grade != null).length;
-//     const pendingCount = submissions.length - gradedCount;
-
-//     return (
-//         <div style={styles.container}>
-//             <h2 style={styles.header}>Grade Submissions: {assignmentTitle}</h2>
-            
-//             <div style={styles.summaryBox}>
-//                 <p style={styles.summaryItem}>Total Submissions: <strong style={{color: '#3b82f6'}}>{submissions.length}</strong></p>
-//                 <p style={styles.summaryItem}>Graded: <strong style={{color: '#10b981'}}>{gradedCount}</strong></p>
-//                 <p style={styles.summaryItem}>Pending: <strong style={{color: '#f59e0b'}}>{pendingCount}</strong></p>
-//             </div>
-
-//             {submissions.length === 0 ? (
-//                 <p style={styles.info}>No submissions found for this assignment.</p>
-//             ) : (
-//                 // 🔑 The submissionsGrid ensures multiple student cards are listed cleanly
-//                 <div style={styles.submissionsGrid}>
-//                     {sortedSubmissions.map(submission => (
-//                         <GradingForm 
-//                             key={submission.id}
-//                             submission={submission}
-//                             maxPoints={maxPoints}
-//                             onGradeUpdate={handleGradeUpdate}
-//                         />
-//                     ))}
-//                 </div>
-//             )}
-            
-//             {(gradedCount === submissions.length) && submissions.length > 0 && onGradingComplete && (
-//                 <div style={styles.completionMessage}>
-//                     <p style={{fontWeight: 'bold', fontSize: '1.1em'}}>🎉 All submissions have been graded! 🎉</p>
-//                     <button 
-//                         onClick={() => onGradingComplete(true)} 
-//                         style={styles.backButton}
-//                     >
-//                         Return to Assignment List
-//                     </button>
-//                 </div>
-//             )}
-//         </div>
-//     );
-// };
-
-// // --- STYLES ---
-// const styles = {
-//     // Main Container Styles
-//     container: { padding: '20px', backgroundColor: '#f9fafb', minHeight: '100vh' },
-//     header: { fontSize: '1.8em', color: '#1f2937', borderBottom: '2px solid #e5e7eb', paddingBottom: '10px', marginBottom: '20px' },
-//     loading: { color: '#3b82f6', padding: '20px' },
-//     error: { color: '#b91c1c', backgroundColor: '#fee2e2', padding: '15px', borderRadius: '6px', border: '1px solid #fca5a5' },
-    
-//     // Summary Box
-//     summaryBox: { display: 'flex', gap: '20px', padding: '15px 25px', backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)', marginBottom: '30px' },
-//     summaryItem: { fontSize: '1em', color: '#4b5563' },
-    
-//     // Grid for Submissions
-//     submissionsGrid: { display: 'grid', gap: '25px', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))' },
-//     info: { padding: '20px', backgroundColor: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', borderRadius: '6px', textAlign: 'center' },
-    
-//     // Grading Card Styles
-//     gradingCard: { 
-//         padding: '20px', 
-//         border: '1px solid #e5e7eb', 
-//         borderRadius: '8px', 
-//         backgroundColor: '#fff', 
-//         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-//         transition: 'transform 0.2s, box-shadow 0.2s',
-//     },
-//     cardHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f3f4f6', paddingBottom: '10px', marginBottom: '10px' },
-//     studentName: { fontSize: '1.2em', margin: 0, color: '#1f2937' },
-//     gradeTag: { padding: '4px 10px', borderRadius: '9999px', fontSize: '0.9em', fontWeight: 'bold' },
-//     submissionDate: { fontSize: '0.85em', color: '#6b7280', marginBottom: '15px' },
-    
-//     // File Section Styles
-//     fileSection: { marginBottom: '20px', padding: '10px', backgroundColor: '#f3f4f6', borderRadius: '6px' },
-//     downloadLink: { 
-//         display: 'block', 
-//         padding: '10px 15px', 
-//         backgroundColor: '#3b82f6', 
-//         color: 'white', 
-//         textDecoration: 'none', 
-//         borderRadius: '4px', 
-//         textAlign: 'center',
-//         fontWeight: 'bold',
-//         fontSize: '0.95em',
-//         transition: 'background-color 0.2s',
-//     },
-//     noFile: { margin: 0, color: '#9ca3af', fontStyle: 'italic', textAlign: 'center' },
-    
-//     // Form Styles
-//     gradingForm: { marginTop: '15px' },
-//     label: { display: 'block', margin: '10px 0 5px', fontWeight: '600', color: '#333' },
-//     input: { width: '100%', padding: '10px', border: '1px solid #d1d5db', borderRadius: '6px', marginBottom: '10px', boxSizing: 'border-box' },
-//     textarea: { width: '100%', padding: '10px', border: '1px solid #d1d5db', borderRadius: '6px', resize: 'vertical', boxSizing: 'border-box' },
-//     button: { padding: '10px 15px', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', marginTop: '15px', fontWeight: 'bold', width: '100%' },
-
-//     // Completion Message
-//     completionMessage: { textAlign: 'center', marginTop: '30px', padding: '30px', backgroundColor: '#d1fae5', borderRadius: '10px', border: '2px solid #34d399', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' },
-//     backButton: { padding: '10px 20px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', marginTop: '20px', fontWeight: 'bold' }
-// };
-
-// export default AssignmentGradingTool;

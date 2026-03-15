@@ -1,11 +1,10 @@
-// File: components/AdminLecturerModal.js (FINAL FIXES)
+// File: components/AdminLecturerModal.js
 
 import React, { useState, useEffect, useCallback } from 'react';
 
 function AdminLecturerModal({ lecturer, onClose = () => {}, onSuccess = () => {} }) {
     const isEdit = !!lecturer; 
 
-    // Helper to get initial assigned course IDs, handling both 'courses' and 'taughtCourses' field names
     const getInitialCourseIds = useCallback((lecturerObj) => {
         const courseList = lecturerObj?.courses || lecturerObj?.taughtCourses;
         if (courseList && courseList.length > 0) {
@@ -18,7 +17,6 @@ function AdminLecturerModal({ lecturer, onClose = () => {}, onSuccess = () => {}
         name: lecturer?.name || '',
         email: lecturer?.email || '',
         password: '', 
-        // Initial state set using the helper
         assignedCourseIds: getInitialCourseIds(lecturer), 
     });
     
@@ -27,7 +25,6 @@ function AdminLecturerModal({ lecturer, onClose = () => {}, onSuccess = () => {}
     const [isSaving, setIsSaving] = useState(false);
     const [isCoursesLoading, setIsCoursesLoading] = useState(true);
 
-    // Effect for handling lecturer prop change
     useEffect(() => {
         setFormData({
             name: lecturer?.name || '',
@@ -38,7 +35,6 @@ function AdminLecturerModal({ lecturer, onClose = () => {}, onSuccess = () => {}
         setError(''); 
     }, [lecturer, getInitialCourseIds]);
 
-    // Effect for fetching all courses for the multi-select dropdown
     useEffect(() => {
         const fetchAllCourses = async () => {
             setIsCoursesLoading(true);
@@ -47,7 +43,6 @@ function AdminLecturerModal({ lecturer, onClose = () => {}, onSuccess = () => {}
                 const data = await res.json();
 
                 if (res.ok) {
-                    // Assuming /api/admin/courses returns an array of courses directly
                     setAllCourses(Array.isArray(data) ? data : data.courses || []); 
                 } else {
                     setError(data.message || 'Failed to load courses.');
@@ -81,13 +76,12 @@ function AdminLecturerModal({ lecturer, onClose = () => {}, onSuccess = () => {}
         e.preventDefault();
         setError('');
         
-        // Validation checks... (kept as is)
         if (!formData.name || !formData.email) {
             setError('Name and email are required.');
             return;
         }
         if (!isEdit && (!formData.password || formData.password.length < 6)) {
-            setError('Password is required for new lecturer creation and must be at least 6 characters.');
+            setError('Password is required for new lecturer creation (min 6 chars).');
             return;
         }
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
@@ -99,15 +93,11 @@ function AdminLecturerModal({ lecturer, onClose = () => {}, onSuccess = () => {}
 
         const method = isEdit ? 'PUT' : 'POST';
         const url = isEdit ? `/api/admin/lecturers/${lecturer.id}` : '/api/admin/lecturers';
-
-        // 🔑 CRITICAL FIX: The PUT API likely expects 'newCourseIds' for course changes.
-        // We will use 'courseIds' for POST and 'newCourseIds' for PUT to match the likely API requirement.
         const courseIdField = isEdit ? 'newCourseIds' : 'courseIds'; 
 
         const payload = {
             name: formData.name.trim(),
             email: formData.email.toLowerCase(),
-            // 🔑 Dynamic field name for course IDs based on operation type
             [courseIdField]: formData.assignedCourseIds || []
         };
         
@@ -119,147 +109,155 @@ function AdminLecturerModal({ lecturer, onClose = () => {}, onSuccess = () => {}
             const res = await fetch(url, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload), // The payload now contains 'newCourseIds' for PUT
+                body: JSON.stringify(payload),
             });
             
-            const contentType = res.headers.get("content-type");
-            let data = {};
-            if (contentType && contentType.includes("application/json")) {
-                data = await res.json();
-            } else {
-                const textError = await res.text();
-                console.error("Server returned non-JSON error response:", textError);
-                setError(`Server Error ${res.status}: ${textError.substring(0, 100)}...`);
-                setIsSaving(false);
-                return; 
-            }
+            const data = await res.json().catch(() => ({}));
 
             if (res.ok) {
-                alert(`✅ Lecturer successfully ${isEdit ? 'updated' : 'created'}.`);
                 onSuccess(true); 
             } else {
-                // If API returns an error, it will show here (e.g., "Missing required fields")
-                setError(data.message || `Failed to ${isEdit ? 'update' : 'create'} lecturer. Status: ${res.status}`);
+                setError(data.message || `Failed to ${isEdit ? 'update' : 'create'} personnel.`);
             }
 
         } catch (err) {
             console.error("Save operation network error:", err);
-            setError('Network error during save operation. Check your connection.');
+            setError('Network error during save operation.');
         } finally {
             setIsSaving(false);
         }
     };
 
-    // --- Component Rendering (no changes needed here, keeping your inline styles) ---
     return (
-        <div style={modalStyles.backdrop} onClick={() => onClose(false)}>
-            <div style={modalStyles.modal} onClick={(e) => e.stopPropagation()}>
-                <h2 style={modalStyles.header}>{isEdit ? `Edit Lecturer: ${lecturer.name}` : 'Create New Lecturer'}</h2>
-                <span style={modalStyles.closeButton} onClick={() => onClose(false)}>&times;</span> 
-                
-                {error && <p style={modalStyles.error}>🚨 {error}</p>}
-
-                <form onSubmit={handleSubmit}>
-                    
-                    {/* Name Input */}
-                    <div style={modalStyles.formGroup}>
-                        <label htmlFor="name" style={{fontWeight: 'bold'}}>Full Name:</label>
-                        <input 
-                            type="text" 
-                            id="name"
-                            name="name" 
-                            value={formData.name} 
-                            onChange={handleChange} 
-                            style={modalStyles.input}
-                            disabled={isSaving}
-                            required
-                        />
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex justify-center items-center z-[1000] p-6 animate-in fade-in duration-300" onClick={() => onClose(false)}>
+            <div className="bg-white rounded-[40px] w-full max-w-2xl overflow-hidden relative shadow-2xl flex flex-col transform transition-all animate-in zoom-in-95 duration-300 max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+                <div className="bg-indigo-600 p-10 text-white relative overflow-hidden shrink-0">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full translate-x-10 -translate-y-10 blur-3xl"></div>
+                    <div className="relative z-10 flex justify-between items-end">
+                        <div className="space-y-2">
+                            <h2 className="text-4xl font-black tracking-tight leading-none uppercase">{isEdit ? 'Reassign Personnel' : 'Initialize Personnel'}</h2>
+                            <p className="text-indigo-100/80 text-[10px] font-black uppercase tracking-[0.2em]">{isEdit ? 'Modifying security and sector access' : 'Onboarding new academic operative'}</p>
+                        </div>
+                        <button onClick={() => onClose(false)} className="p-4 hover:bg-white/20 rounded-2xl transition-all active:scale-95 group">
+                            <svg className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
                     </div>
-                    
-                    {/* Email Input */}
-                    <div style={modalStyles.formGroup}>
-                        <label htmlFor="email" style={{fontWeight: 'bold'}}>Email:</label>
-                        <input 
-                            type="email" 
-                            id="email"
-                            name="email" 
-                            value={formData.email} 
-                            onChange={handleChange} 
-                            style={modalStyles.input}
-                            disabled={isSaving}
-                            required
-                        />
-                    </div>
+                </div>
 
-                    {/* Password Input (Only for Create) */}
-                    {!isEdit && (
-                        <div style={modalStyles.formGroup}>
-                            <label htmlFor="password" style={{fontWeight: 'bold'}}>Initial Password:</label>
-                            <input 
-                                type="password" 
-                                id="password"
-                                name="password" 
-                                value={formData.password} 
-                                onChange={handleChange} 
-                                style={modalStyles.input}
-                                disabled={isSaving}
-                                required={!isEdit}
-                                minLength={6}
-                            />
+                <div className="p-10 overflow-y-auto custom-scrollbar">
+                    {error && (
+                        <div className="mb-8 p-4 bg-rose-50 border border-rose-100 rounded-2xl text-rose-600 text-[10px] font-black uppercase tracking-widest text-center animate-shake">
+                            {error}
                         </div>
                     )}
-                    
-                    {/* Course Assignment Multi-select */}
-                    <div style={modalStyles.formGroup}>
-                        <label htmlFor="assignedCourseIds" style={{fontWeight: 'bold'}}>Assign Courses (Optional):</label>
-                        <select 
-                            id="assignedCourseIds"
-                            name="assignedCourseIds" 
-                            multiple 
-                            value={formData.assignedCourseIds} 
-                            onChange={handleChange} 
-                            style={{ ...modalStyles.input, height: 'auto', minHeight: '100px' }} 
-                            disabled={isCoursesLoading || isSaving}
-                        >
-                            {isCoursesLoading && <option value="">Loading Courses...</option>}
-                            {!isCoursesLoading && allCourses.length === 0 && <option value="">No courses available</option>}
-                            
-                            {allCourses.map(course => (
-                                <option key={course.id} value={course.id}>
-                                    {course.code} - {course.title}
-                                </option>
-                            ))}
-                        </select>
-                        {allCourses.length === 0 && !isCoursesLoading && <p style={{color: 'orange', fontSize: '0.8em', marginTop: '5px'}}>No courses found to assign.</p>}
-                        <small style={{display: 'block', marginTop: '5px', color: '#6b7280'}}>Hold down Ctrl (Windows) / Command (Mac) to select multiple courses.</small>
-                    </div>
 
-                    <button type="submit" disabled={isSaving || isCoursesLoading} style={modalStyles.submitButton}>
-                        {isSaving ? 'Saving...' : (isEdit ? 'Save Changes' : 'Create Lecturer')}
-                    </button>
-                </form>
+                    <form onSubmit={handleSubmit} className="space-y-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Personnel Name</label>
+                                <input 
+                                    type="text" 
+                                    name="name" 
+                                    value={formData.name} 
+                                    onChange={handleChange} 
+                                    placeholder="e.g. Dr. Arthur Vectra"
+                                    className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 rounded-2xl outline-none transition-all font-bold text-gray-700 placeholder:text-gray-300"
+                                    required 
+                                    disabled={isSaving} 
+                                />
+                            </div>
+
+                            <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Secure Email Access</label>
+                                <input 
+                                    type="email" 
+                                    name="email" 
+                                    value={formData.email} 
+                                    onChange={handleChange} 
+                                    placeholder="vectra@platform.edu"
+                                    className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 rounded-2xl outline-none transition-all font-bold text-gray-700 placeholder:text-gray-300"
+                                    required 
+                                    disabled={isSaving} 
+                                />
+                            </div>
+                        </div>
+
+                        {!isEdit && (
+                            <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Initial Encryption Key (Password)</label>
+                                <input 
+                                    type="password" 
+                                    name="password" 
+                                    value={formData.password} 
+                                    onChange={handleChange} 
+                                    placeholder="Minimum 6 characters"
+                                    className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 rounded-2xl outline-none transition-all font-bold text-gray-700 placeholder:text-gray-300"
+                                    required={!isEdit} 
+                                    minLength={6}
+                                    disabled={isSaving} 
+                                />
+                            </div>
+                        )}
+
+                        <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Sector Assignments (Multi-Select)</label>
+                            <div className="relative">
+                                <select 
+                                    name="assignedCourseIds" 
+                                    multiple 
+                                    value={formData.assignedCourseIds} 
+                                    onChange={handleChange} 
+                                    className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 rounded-[32px] outline-none transition-all font-bold text-gray-700 min-h-[160px] custom-scrollbar shadow-inner"
+                                    disabled={isCoursesLoading || isSaving}
+                                >
+                                    {isCoursesLoading ? (
+                                        <option disabled>Parsing Sector Data...</option>
+                                    ) : allCourses.length === 0 ? (
+                                        <option disabled>No Sectors Identified</option>
+                                    ) : (
+                                        allCourses.map(course => (
+                                            <option key={course.id} value={course.id} className="py-2 px-4 rounded-xl checked:bg-indigo-600 checked:text-white my-1 cursor-pointer">
+                                                [{course.code}] {course.title}
+                                            </option>
+                                        ))
+                                    )}
+                                </select>
+                            </div>
+                            <div className="flex justify-between items-center px-4 mt-2">
+                                <p className="text-[9px] font-black text-gray-300 uppercase italic">Hold CTRL/CMD for Multi-Lock</p>
+                                <span className="text-[10px] font-black text-indigo-500 uppercase">{formData.assignedCourseIds.length} Sectors Active</span>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-4 pt-4 shrink-0">
+                            <button 
+                                type="button" 
+                                onClick={() => onClose(false)} 
+                                className="flex-1 py-5 px-6 bg-gray-50 text-gray-400 font-black rounded-3xl hover:bg-gray-100 transition-colors uppercase tracking-widest text-[10px] border border-gray-200"
+                                disabled={isSaving}
+                            >
+                                Abort
+                            </button>
+                            <button 
+                                type="submit" 
+                                disabled={isSaving || isCoursesLoading}
+                                className={`flex-[2] py-5 px-6 font-black rounded-3xl shadow-2xl transition-all transform active:scale-95 uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 ${isSaving ? 'bg-gray-200 text-gray-400' : 'bg-indigo-600 text-white hover:bg-black shadow-indigo-100 hover:shadow-black/20'}`}
+                            >
+                                {isSaving ? (
+                                    <>
+                                        <svg className="animate-spin h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                        Synchronizing Hub...
+                                    </>
+                                ) : (
+                                    isEdit ? 'Sync Personnel Data' : 'Authorize New Personnel'
+                                )}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     );
 }
-
-const modalStyles = {
-    backdrop: {
-        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex',
-        justifyContent: 'center', alignItems: 'center', zIndex: 1000
-    },
-    modal: {
-        backgroundColor: 'white', padding: '30px', borderRadius: '8px',
-        maxWidth: '600px', width: '90%', position: 'relative',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
-    },
-    header: { margin: '0 0 20px 0', fontSize: '1.5em', borderBottom: '1px solid #eee', paddingBottom: '10px' },
-    closeButton: { position: 'absolute', top: '10px', right: '20px', fontSize: '1.5em', cursor: 'pointer' },
-    formGroup: { marginBottom: '15px' },
-    input: { width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' },
-    submitButton: { width: '100%', padding: '10px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', marginTop: '10px', fontWeight: 'bold' },
-    error: { color: 'white', backgroundColor: '#f87171', padding: '10px', borderRadius: '4px', marginBottom: '15px' }
-};
 
 export default AdminLecturerModal;

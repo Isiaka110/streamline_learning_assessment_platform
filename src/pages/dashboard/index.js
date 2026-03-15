@@ -19,7 +19,7 @@ export async function getServerSideProps(context) {
   // 1. Unauthenticated check (always redirect to login)
   if (!session) {
     return {
-      redirect: { destination: '/auth/SignIn', permanent: false },
+      redirect: { destination: '/auth/signin', permanent: false },
     };
   }
 

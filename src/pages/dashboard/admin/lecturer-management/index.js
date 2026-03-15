@@ -1,11 +1,9 @@
-// pages/dashboard/admin/lecturer-management/index.js
-
 import React, { useState, useEffect } from 'react';
-import { withAuthGuard } from '../../../../components/AuthGuard'; 
+import { withAuthGuard } from '@components/AuthGuard'; 
 import { UserRole } from '@prisma/client'; 
-import AdminLecturerTable from '../../../../components/AdminLecturerTable'; 
-import AdminLecturerModal from '../../../../components/AdminLecturerModal'; 
-import LogoContainer from '../../../../components/LogoContainer'; 
+import AdminLecturerTable from '@components/AdminLecturerTable'; 
+import AdminLecturerModal from '@components/AdminLecturerModal'; 
+import LogoContainer from '@components/LogoContainer'; 
 
 function AdminLecturerManagement() {
     const [lecturers, setLecturers] = useState([]);
@@ -54,7 +52,7 @@ function AdminLecturerManagement() {
         setIsModalOpen(true);
     };
 
-    const handleDelete = async (lecturerId) => { // This already correctly receives lecturerId
+    const handleDelete = async (lecturerId) => {
         if (!window.confirm("Are you sure you want to delete this lecturer? This action is permanent and will unassign all their courses.")) {
             return;
         }
@@ -62,7 +60,6 @@ function AdminLecturerManagement() {
         setError(null);
         
         try {
-            // FIX: Update the URL to use lecturerId
             const res = await fetch(`/api/admin/lecturers/${lecturerId}`, { 
                 method: 'DELETE' 
             });
@@ -93,25 +90,26 @@ function AdminLecturerManagement() {
     };
 
     if (isLoading) {
-        return <p style={styles.loading}>Loading Lecturer Data...</p>;
+        return <div className="min-h-screen flex items-center justify-center"><p className="text-xl font-semibold text-blue-600 animate-pulse">Loading Lecturer Data...</p></div>;
     }
     if (error) {
-        return <p style={{ ...styles.message, color: 'red' }}>Error: {error}</p>;
+        return <div className="p-4 bg-red-100 text-red-700 border border-red-300 rounded max-w-2xl mx-auto mt-10 text-center"><p>Error: {error}</p></div>;
     }
 
     return (
-        <div style={styles.container}>
-            <div style={styles.brandingArea}> 
-                <LogoContainer/> 
-                <span style={styles.abbreviation}>LMS</span> 
-            </div>
-            <div style={styles.headerRow}>
-                <h1 style={styles.header}>Lecturer Management 👥</h1>
-                <button onClick={handleCreateNew} style={styles.createButton}>
+        <div className="min-h-screen bg-gray-50 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <LogoContainer />
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2 mt-4">Lecturer Management 👥</h1>
+            <p className="text-gray-600 mb-8 border-b border-gray-200 pb-4">View, edit, or delete Lecturer accounts and their course assignments.</p>
+
+            <div className="flex justify-end mb-6">
+                <button 
+                    onClick={handleCreateNew} 
+                    className="px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-lg shadow-md transition-colors"
+                >
                     + Register New Lecturer
                 </button>
             </div>
-            <p style={styles.subHeader}>View, edit, or delete Lecturer accounts and their course assignments.</p>
 
             <AdminLecturerTable 
                 lecturers={lecturers} 
@@ -131,67 +129,3 @@ function AdminLecturerManagement() {
 }
 
 export default withAuthGuard(AdminLecturerManagement, [UserRole.ADMIN]);
-
-const styles = {
-    container: { 
-        padding: '30px', 
-        maxWidth: '1200px', 
-        margin: 'auto', 
-        fontFamily: 'Arial, sans-serif' 
-    },
-    headerRow: { 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        marginBottom: '20px' 
-    },
-    brandingArea: {
-        display: 'flex',
-        alignItems: 'center', 
-    },
-    abbreviation: {
-        fontSize: '1.5em', 
-        fontWeight: '900',
-        color: '#4f46e5', 
-        marginRight: '15px',
-        marginLeft: '10px',
-        letterSpacing: '1px',
-        flexShrink: 0, 
-        lineHeight: '1', 
-        paddingTop: '2px', 
-    },
-    header: { 
-        fontSize: '2em', 
-        color: '#1f2937' 
-    },
-    subHeader: { 
-        color: '#6b7280', 
-        marginBottom: '25px', 
-        borderBottom: '1px solid #e5e7eb', 
-        paddingBottom: '15px' 
-    },
-    
-    createButton: {
-        padding: '10px 20px',
-        backgroundColor: '#10b981', 
-        color: 'white',
-        border: 'none',
-        borderRadius: '6px',
-        cursor: 'pointer',
-        fontWeight: 'bold',
-        transition: 'background-color 0.2s',
-        whiteSpace: 'nowrap',
-    },
-    loading: {
-        textAlign: 'center',
-        padding: '50px',
-        fontSize: '1.2em',
-        color: '#3b82f6',
-    },
-    message: {
-        padding: '10px',
-        backgroundColor: '#fef3c7',
-        border: '1px solid #fde68a',
-        borderRadius: '4px',
-    }
-};

@@ -4,20 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 
-// Simple status colors for messages
-const STATUS_COLORS = {
-  READ: '#d1fae5', // Light green
-  SENT: '#eff6ff', // Light blue (for unread/newly sent)
-  ARCHIVED: '#f3f4f6', // Light gray
-};
-
 export default function MessageList() {
   const { data: session, status } = useSession();
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Get the logged-in user's ID (needed for the API call and display logic)
   const userId = session?.user?.id; 
 
   useEffect(() => {
@@ -28,11 +20,9 @@ export default function MessageList() {
       setError(null);
       
       try {
-        // Call the GET API route we created: /api/messages/[userId]
         const response = await fetch(`/api/messages/${userId}`);
         
         if (!response.ok) {
-          // Attempt to read the error message from the response body
           const errorData = await response.json();
           throw new Error(errorData.message || 'Failed to fetch messages.');
         }
@@ -48,139 +38,122 @@ export default function MessageList() {
     };
 
     fetchMessages();
-  }, [userId, status]); // Re-run effect when userId or session status changes
+  }, [userId, status]); 
 
   if (status === 'loading' || loading) {
-    return <div style={styles.loading}>Loading messages...</div>;
+    return (
+        <div className="flex flex-col items-center justify-center p-32 gap-6 animate-pulse">
+            <div className="w-16 h-16 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+            <p className="font-black text-emerald-600 uppercase tracking-widest text-xs">Decrypting Message Stream...</p>
+        </div>
+    );
   }
   
   if (error) {
-    return <div style={styles.error}>Error loading messages: {error}</div>;
+    return (
+        <div className="p-10 bg-rose-50 border-2 border-rose-100 rounded-[40px] text-rose-700 flex flex-col items-center gap-4 animate-in fade-in zoom-in-95 max-w-2xl mx-auto my-20">
+            <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <p className="font-black text-xl uppercase tracking-tighter text-center">Protocol Interrupted</p>
+            <p className="font-medium opacity-80 text-center">{error}</p>
+        </div>
+    );
   }
   
   if (!messages.length) {
-    return <div style={styles.container}>
-      <h2 style={styles.heading}>Your Inbox & Sent Items</h2>
-      <p style={styles.empty}>You have no messages yet. Start a conversation!</p>
-      {/* Optional: Add a link to the compose message form later */}
-    </div>;
+    return (
+        <div className="max-w-4xl mx-auto my-20 space-y-8 animate-in fade-in duration-700">
+            <div className="bg-white p-10 rounded-[40px] shadow-2xl shadow-gray-100 border border-gray-100 text-center space-y-6">
+                <div className="w-20 h-20 bg-emerald-50 rounded-3xl flex items-center justify-center mx-auto text-emerald-600 border border-emerald-100">
+                    <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+                </div>
+                <div className="space-y-2">
+                    <h2 className="text-3xl font-black text-gray-900 tracking-tighter uppercase">Signal Stream Empty</h2>
+                    <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">No active communications detected in this channel</p>
+                </div>
+                <button className="px-10 py-5 bg-indigo-600 text-white font-black rounded-3xl shadow-xl shadow-indigo-100 hover:bg-black transition-all hover:scale-105 active:scale-95 uppercase tracking-widest text-[10px]">
+                    Initialize First Signal
+                </button>
+            </div>
+        </div>
+    );
   }
 
   return (
-    <div style={styles.container}>
-      <h2 style={styles.heading}>Your Messages ({messages.length})</h2>
-      
-      <div style={styles.list}>
-        {messages.map((message) => {
-          const isIncoming = message.recipientId === userId;
-          const participant = isIncoming ? message.sender : message.recipient;
-          const statusColor = STATUS_COLORS[message.status] || STATUS_COLORS.SENT;
-
-          return (
-            <div key={message.id} style={{ ...styles.messageCard, backgroundColor: statusColor }}>
-              <div style={styles.header}>
-                <span style={styles.type}>
-                  {isIncoming ? 'INBOX: From ' : 'SENT: To '}
-                </span>
-                <span style={styles.name}>
-                  {participant.name || participant.email} ({participant.role})
-                </span>
-                <span style={styles.date}>
-                  {new Date(message.createdAt).toLocaleDateString()}
-                </span>
-              </div>
-              
-              <p style={styles.content}>{message.content.substring(0, 150)}...</p>
-              
-              {/* This link would lead to a detailed view of the message later */}
-              <Link href={`/messages/${message.id}`} style={styles.viewLink}>
-                View Message & Reply
-              </Link>
+    <div className="max-w-4xl mx-auto my-12 space-y-10 animate-in fade-in duration-700">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 bg-white p-10 rounded-[40px] shadow-2xl shadow-gray-100 border border-gray-50 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-2 bg-emerald-600 h-full"></div>
+            <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                    <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-100 italic">Communication Archive</span>
+                </div>
+                <h1 className="text-5xl font-black text-gray-900 tracking-tighter leading-none">
+                    Signal <span className="text-emerald-600">Hub</span>
+                </h1>
+                <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Processing {messages.length} Active Intel Streams</p>
             </div>
-          );
-        })}
-      </div>
+        </div>
+      
+        <div className="grid gap-6">
+            {messages.map((message) => {
+                const isIncoming = message.recipientId === userId;
+                const participant = isIncoming ? message.sender : message.recipient;
+                const isRead = message.status === 'READ';
+
+                return (
+                    <div 
+                        key={message.id} 
+                        className={`group relative bg-white p-8 rounded-[40px] border border-gray-100 shadow-xl transition-all duration-500 hover:shadow-2xl hover:shadow-indigo-50 hover:-translate-y-1 flex flex-col justify-between overflow-hidden ${!isRead && isIncoming ? 'ring-2 ring-emerald-500' : ''}`}
+                    >
+                        {!isRead && isIncoming && (
+                            <div className="absolute top-0 right-0 px-4 py-2 bg-emerald-500 text-white text-[9px] font-black uppercase tracking-widest rounded-bl-[20px] shadow-lg animate-pulse">
+                                New Signal
+                            </div>
+                        )}
+                        
+                        <div className="space-y-6">
+                            <div className="flex justify-between items-start">
+                                <div className="flex items-center gap-4">
+                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-xl shadow-lg transition-transform group-hover:scale-110 ${isIncoming ? 'bg-emerald-50 text-emerald-600' : 'bg-indigo-50 text-indigo-600'}`}>
+                                        {participant.name?.charAt(0) || 'U'}
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <div className="flex items-center gap-2">
+                                            <span className={`text-[10px] font-black uppercase tracking-widest ${isIncoming ? 'text-emerald-500' : 'text-indigo-500'}`}>
+                                                {isIncoming ? 'Inbound From' : 'Broadcast to'}
+                                            </span>
+                                            <span className="w-1 h-1 rounded-full bg-gray-200"></span>
+                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">{participant.role}</span>
+                                        </div>
+                                        <h4 className="text-xl font-black text-gray-900 tracking-tight group-hover:text-indigo-600 transition-colors uppercase leading-tight mt-0.5">
+                                            {participant.name || participant.email}
+                                        </h4>
+                                    </div>
+                                </div>
+                                <span className="text-[10px] font-black text-gray-300 uppercase tracking-tighter tabular-nums bg-gray-50 px-3 py-1 rounded-full border border-gray-100">
+                                    {new Date(message.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                </span>
+                            </div>
+                            
+                            <div className="p-6 bg-gray-50/50 rounded-[24px] border border-gray-100 group-hover:bg-white group-hover:border-indigo-100 transition-all">
+                                <p className="text-sm font-medium text-gray-600 leading-relaxed italic line-clamp-2">
+                                    "{message.content}"
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div className="mt-8 flex justify-end">
+                            <Link 
+                                href={`/messages/${message.id}`} 
+                                className="group/link flex items-center gap-2 px-8 py-3 bg-white border border-gray-100 text-indigo-600 font-black rounded-2xl shadow-lg shadow-gray-100 hover:bg-indigo-600 hover:text-white transition-all transform active:scale-95 uppercase tracking-widest text-[10px]"
+                            >
+                                Access Intel Archive
+                                <svg className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </Link>
+                        </div>
+                    </div>
+                );
+            })}
+        </div>
     </div>
   );
 }
-
-// Simple internal styling for component clarity
-const styles = {
-    container: {
-        maxWidth: '800px',
-        margin: '50px auto',
-        padding: '20px',
-        border: '1px solid #e5e7eb',
-        borderRadius: '8px',
-        backgroundColor: '#ffffff',
-    },
-    heading: {
-        fontSize: '1.5em',
-        marginBottom: '20px',
-        borderBottom: '2px solid #10b981',
-        paddingBottom: '10px',
-        color: '#1f2937'
-    },
-    list: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '15px',
-    },
-    messageCard: {
-        padding: '15px',
-        borderRadius: '6px',
-        borderLeft: '4px solid #10b981',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-        transition: 'box-shadow 0.2s',
-    },
-    header: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        marginBottom: '5px',
-        fontSize: '0.9em'
-    },
-    type: {
-        fontWeight: 'bold',
-        marginRight: '5px',
-        color: '#4b5563'
-    },
-    name: {
-        fontWeight: 'bold',
-        flexGrow: 1,
-        color: '#1f2937'
-    },
-    date: {
-        color: '#6b7280',
-        fontSize: '0.85em'
-    },
-    content: {
-        marginTop: '10px',
-        marginBottom: '10px',
-        color: '#374151'
-    },
-    viewLink: {
-        color: '#2563eb',
-        textDecoration: 'none',
-        fontSize: '0.9em',
-        fontWeight: '500'
-    },
-    loading: {
-        textAlign: 'center',
-        padding: '50px',
-        color: '#3b82f6'
-    },
-    error: {
-        textAlign: 'center',
-        padding: '50px',
-        color: '#ef4444',
-        backgroundColor: '#fee2e2',
-        border: '1px solid #fca5a5',
-        borderRadius: '4px'
-    },
-    empty: {
-        textAlign: 'center',
-        padding: '30px',
-        color: '#6b7280',
-        fontStyle: 'italic'
-    }
-};

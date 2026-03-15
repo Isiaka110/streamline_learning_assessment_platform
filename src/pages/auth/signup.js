@@ -1,60 +1,82 @@
-// pages/auth/signin.js
+// pages/auth/signup.js
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/router';
-import { signIn } from 'next-auth/react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import Head from 'next/head';
 
-export default function SignInPage() {
-  const router = useRouter();
+const DEFAULT_ROLE = 'STUDENT'; 
+
+export default function RegisterPage() {
   const [formData, setFormData] = useState({
+    name: '',
     email: '',
     password: '',
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [message, setMessage] = useState(null); 
+  const [isError, setIsError] = useState(false);
+  const router = useRouter();
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
-    if (error) setError(null);
+    if (message) setMessage(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
-    
-    const result = await signIn('credentials', {
-      redirect: false,
-      email: formData.email,
-      password: formData.password,
-    });
+    setMessage(null);
+    setIsError(false);
 
-    if (result.error) {
-      setError(result.error); 
-    } else {
-      router.push('/dashboard'); 
+    if (!formData.name || !formData.email || !formData.password) {
+        setMessage('Error: All fields are required.');
+        setIsError(true);
+        setLoading(false);
+        return;
     }
+    
+    try {
+      const payload = { ...formData, role: DEFAULT_ROLE };
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
 
-    setLoading(false);
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage(`Success! Your account has been created. Redirecting to sign in...`);
+        setIsError(false);
+        setTimeout(() => {
+            router.push('/auth/signin');
+        }, 2000);
+      } else {
+        setMessage(`Registration Failed: ${data.message || 'An unknown error occurred.'}`);
+        setIsError(true);
+      }
+    } catch (error) {
+      console.error('Network error during registration:', error);
+      setMessage('A network error occurred. Please try again.');
+      setIsError(true);
+    } finally {
+      setLoading(false);
+    }
   };
-  
-  const { error: urlError } = router.query;
-  const displayError = error || urlError;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-blue-900 to-indigo-800 text-white font-sans flex items-center justify-center p-6 bg-fixed">
       <Head>
-        <title>Sign In | Streamline LMS</title>
+        <title>Student Registration | Streamline LMS</title>
       </Head>
 
       {/* Decorative background elements */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+      <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+      <div className="absolute bottom-1/3 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none"></div>
 
       <div className="w-full max-w-md animate-fade-in">
         <div className="flex justify-center mb-6 sm:mb-10">
@@ -70,24 +92,41 @@ export default function SignInPage() {
           <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-50"></div>
           
           <div className="p-6 sm:p-10 relative z-10">
-            <h1 className="text-2xl sm:text-3xl font-extrabold mb-2 text-white text-center leading-tight">Welcome Back</h1>
-            <p className="text-blue-200/60 mb-6 sm:mb-8 text-center text-xs sm:text-sm font-medium tracking-wide">Continue your educational journey</p>
+            <h1 className="text-2xl sm:text-3xl font-extrabold mb-2 text-white text-center leading-tight">Student Registration</h1>
+            <p className="text-blue-200/60 mb-6 sm:mb-8 text-center text-xs sm:text-sm font-medium tracking-wide">Join the future of academic management</p>
             
-            {displayError && (
-              <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl text-center mb-6 sm:mb-8 bg-rose-500/10 text-rose-200 border border-rose-500/20 text-[10px] sm:text-xs font-semibold animate-shake">
-                {displayError === 'CredentialsSignin' 
-                  ? 'Invalid email or password. Please try again.' 
-                  : `Authentication failed: ${displayError}`
-                }
+            {message && (
+              <div className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl text-center mb-6 sm:mb-8 border transition-all ${isError ? 'bg-rose-500/10 text-rose-200 border-rose-500/20 animate-shake' : 'bg-emerald-500/10 text-emerald-200 border-emerald-500/20'}`}>
+                <p className="text-[10px] sm:text-xs font-semibold">{message}</p>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
               <div className="space-y-2">
-                <label htmlFor="email" className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-blue-200/50 ml-1">Email Address</label>
+                <label htmlFor="name" className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-blue-200/50 ml-1">Full Name</label>
                 <div className="relative group/input">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-blue-300/40 group-focus-within/input:text-cyan-400 transition-colors">
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.206" /></svg>
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                  </div>
+                  <input
+                    id="name"
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                    disabled={loading}
+                    placeholder="John Doe"
+                    className="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-4 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl text-white placeholder-white/20 focus:outline-none focus:border-cyan-400/50 focus:ring-4 focus:ring-cyan-400/10 transition-all duration-300 text-sm sm:text-base font-medium"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="email" className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-blue-200/50 ml-1">Academic Email</label>
+                <div className="relative group/input">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-blue-300/40 group-focus-within/input:text-cyan-400 transition-colors">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                   </div>
                   <input
                     id="email"
@@ -97,17 +136,14 @@ export default function SignInPage() {
                     onChange={handleChange}
                     required
                     disabled={loading}
-                    placeholder="name@institution.edu"
+                    placeholder="student@institution.edu"
                     className="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-4 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl text-white placeholder-white/20 focus:outline-none focus:border-cyan-400/50 focus:ring-4 focus:ring-cyan-400/10 transition-all duration-300 text-sm sm:text-base font-medium"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <label htmlFor="password" className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-blue-200/50 ml-1">Password</label>
-                  <a href="#" className="text-[9px] sm:text-[10px] font-bold uppercase tracking-tighter text-cyan-400 hover:text-cyan-300 transition-colors">Forgot?</a>
-                </div>
+                <label htmlFor="password" className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-blue-200/50 ml-1">Password</label>
                 <div className="relative group/input">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-blue-300/40 group-focus-within/input:text-cyan-400 transition-colors">
                     <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
@@ -120,7 +156,8 @@ export default function SignInPage() {
                     onChange={handleChange}
                     required
                     disabled={loading}
-                    placeholder="••••••••"
+                    minLength="8"
+                    placeholder="Min. 8 characters"
                     className="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-4 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl text-white placeholder-white/20 focus:outline-none focus:border-cyan-400/50 focus:ring-4 focus:ring-cyan-400/10 transition-all duration-300 text-sm sm:text-base font-medium"
                   />
                 </div>
@@ -128,18 +165,18 @@ export default function SignInPage() {
 
               <button 
                 type="submit" 
-                disabled={loading} 
-                className="w-full py-3.5 sm:py-4 px-6 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl sm:rounded-2xl shadow-xl shadow-blue-500/20 hover:shadow-cyan-400/30 transition-all duration-300 transform hover:-translate-y-1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed group relative overflow-hidden"
+                disabled={loading || !formData.email || !formData.password || !formData.name} 
+                className="w-full py-3.5 sm:py-4 px-6 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl sm:rounded-2xl shadow-xl shadow-blue-500/20 hover:shadow-cyan-400/30 transition-all duration-300 transform hover:-translate-y-1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed group relative overflow-hidden mt-2"
               >
                 <span className="relative z-10 flex items-center justify-center gap-2 text-sm sm:text-base">
                   {loading ? (
                     <>
                       <svg className="animate-spin h-4 w-4 sm:h-5 sm:w-5 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                      Authenticating...
+                      Creating Account...
                     </>
                   ) : (
                     <>
-                      Sign In to Dashboard
+                      Register as Student
                       <svg className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
                     </>
                   )}
@@ -150,17 +187,13 @@ export default function SignInPage() {
 
           <div className="p-6 sm:p-8 bg-white/5 border-t border-white/10 text-center">
             <p className="text-blue-100/40 text-xs sm:text-sm font-medium">
-              New to the platform? 
-              <Link href="/auth/signup" className="text-cyan-400 hover:text-cyan-300 font-bold ml-2 underline decoration-cyan-400/30 underline-offset-4 decoration-2 hover:decoration-cyan-400 transition-all">
-                Create Account
+              Already have an account? 
+              <Link href="/auth/signin" className="text-cyan-400 hover:text-cyan-300 font-bold ml-2 underline decoration-cyan-400/30 underline-offset-4 decoration-2 hover:decoration-cyan-400 transition-all">
+                Sign In
               </Link>
             </p>
           </div>
         </div>
-        
-        <p className="text-center mt-6 sm:mt-8 text-blue-200/30 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest px-4 leading-relaxed">
-          Secured by NextAuth.js & Advanced Encryption
-        </p>
       </div>
 
       <style jsx global>{`

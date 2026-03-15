@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
-// Polling interval (e.g., refresh every 5 seconds)
 const POLLING_INTERVAL = 5000; 
 
 function CourseCommentThread({ courseId, currentUserId, otherUserId }) {
@@ -8,18 +7,12 @@ function CourseCommentThread({ courseId, currentUserId, otherUserId }) {
     const [newComment, setNewComment] = useState('');
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    
-    // 🔑 NEW State: Store the full user names
     const [userNames, setUserNames] = useState({});
-    
-    // 🔑 NEW State: Track if the component is mounted to prevent state updates after unmount
     const [isMounted, setIsMounted] = useState(false);
 
     const isCurrentUserSender = (senderId) => senderId === currentUserId;
 
-    // --- Core Fetch Function (Used for initial load and polling) ---
     const fetchComments = useCallback(async () => {
-        // Prevent fetching if required data is missing
         if (!courseId || !currentUserId || !otherUserId) return;
 
         try {
@@ -27,16 +20,13 @@ function CourseCommentThread({ courseId, currentUserId, otherUserId }) {
             const data = await response.json();
 
             if (response.ok) {
-                // 🔑 FIX: Assuming the API now returns messages with senderName and recipientName
                 const threadMessages = data.messages
                     .filter(msg => 
                         (msg.senderId === currentUserId && msg.recipientId === otherUserId) ||
                         (msg.senderId === otherUserId && msg.recipientId === currentUserId)
                     )
-                    // Sort from newest to oldest (matching the API default)
                     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 
-                // 🔑 FIX: Derive user names from the first message, if possible
                 if (threadMessages.length > 0) {
                     const firstMsg = threadMessages[0];
                     const names = {
@@ -49,8 +39,6 @@ function CourseCommentThread({ courseId, currentUserId, otherUserId }) {
                 if (isMounted) {
                     setComments(threadMessages);
                 }
-            } else {
-                console.error("Failed to fetch comments:", data.message);
             }
         } catch (error) {
             console.error("Network error fetching comments:", error);
@@ -61,15 +49,10 @@ function CourseCommentThread({ courseId, currentUserId, otherUserId }) {
         }
     }, [courseId, currentUserId, otherUserId, isMounted]);
 
-    // --- Real-Time Polling Implementation ---
     useEffect(() => {
         setIsMounted(true);
-        fetchComments(); // Initial fetch
-        
-        // Setup polling
+        fetchComments(); 
         const intervalId = setInterval(fetchComments, POLLING_INTERVAL);
-
-        // Cleanup function: runs when component unmounts
         return () => {
              setIsMounted(false);
              clearInterval(intervalId);
@@ -77,7 +60,6 @@ function CourseCommentThread({ courseId, currentUserId, otherUserId }) {
     }, [fetchComments]);
 
 
-    // --- Post Comment Handler ---
     const handleSubmitComment = async () => {
         if (!newComment.trim() || isSubmitting) return;
 
@@ -93,87 +75,87 @@ function CourseCommentThread({ courseId, currentUserId, otherUserId }) {
                 }),
             });
 
-            const data = await response.json();
-
             if (response.ok) {
                 setNewComment('');
-                // Instead of only using the local object, we force a re-fetch
-                // to get the message with the correct timestamp and any processing the server did.
                 await fetchComments(); 
-                
-            } else {
-                alert(`Error posting comment: ${data.message}`);
             }
         } catch (error) {
             console.error("Network error posting comment:", error);
-            alert('A network error occurred while posting.');
         } finally {
             setIsSubmitting(false);
         }
     };
     
-    // Helper to get the display name
     const getDisplayName = (userId) => {
-        if (userId === currentUserId) return "You";
-        return userNames[userId] || 'Other User';
-    };
-
-
-    const styles = {
-        // ... (Styles remain the same)
-        commentBox: { display: 'flex', flexDirection: 'column', gap: '15px' },
-        inputArea: { borderBottom: '1px solid #ddd', paddingBottom: '15px', marginBottom: '15px' },
-        commentInput: { width: '100%', height: '80px', padding: '10px', border: '1px solid #d1d5db', borderRadius: '4px', marginBottom: '10px', resize: 'vertical', fontSize: '0.95em' },
-        commentButton: { padding: '8px 15px', backgroundColor: '#4f46e5', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', transition: 'background-color 0.2s', float: 'right' },
-        warning: { color: '#dc2626', fontSize: '0.85em', marginTop: '5px' },
-        thread: { display: 'flex', flexDirection: 'column', maxHeight: '350px', overflowY: 'auto', gap: '8px', paddingRight: '5px' },
-        commentItem: { maxWidth: '80%', padding: '10px 12px', borderRadius: '8px', boxShadow: '0 1px 2px rgba(0,0,0,0.1)', border: '1px solid #eee' },
-        commentAuthor: { margin: '0', fontSize: '0.9em', color: '#1f2937' },
-        commentContent: { margin: '5px 0', fontSize: '0.95em', wordWrap: 'break-word' },
-        commentTime: { fontSize: '0.75em', color: '#6b7280', display: 'block', textAlign: 'right', marginTop: '5px' }
+        if (userId === currentUserId) return "Self";
+        return userNames[userId] || 'External Node';
     };
 
     return (
-        <div style={styles.commentBox}>
-            <div style={styles.inputArea}>
-                <textarea 
-                    placeholder="Type your message or feedback here..." 
-                    style={styles.commentInput}
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    disabled={!otherUserId || isSubmitting}
-                />
-                <button 
-                    style={styles.commentButton}
-                    onClick={handleSubmitComment}
-                    disabled={!otherUserId || isSubmitting || !newComment.trim()}
-                >
-                    {isSubmitting ? 'Posting...' : 'Post Message'}
-                </button>
+        <div className="flex flex-col gap-10 animate-in fade-in duration-700">
+            <div className="bg-white p-8 rounded-[40px] shadow-2xl shadow-gray-100 border border-gray-100 transform transition-all">
+                <div className="flex items-center gap-3 mb-6">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">Encrypted Data Stream Active</span>
+                </div>
+                <div className="relative group">
+                    <textarea 
+                        placeholder="Type tactical intel or feedback here..." 
+                        className="w-full h-[120px] px-8 py-6 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 rounded-[32px] outline-none transition-all font-medium text-gray-700 resize-none placeholder:text-gray-300 shadow-inner group-hover:shadow-indigo-50"
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                        disabled={!otherUserId || isSubmitting}
+                    />
+                    <div className="absolute bottom-4 right-4 flex items-center gap-4">
+                        <button 
+                            className={`px-10 py-4 font-black rounded-[24px] shadow-2xl transition-all transform active:scale-95 uppercase tracking-widest text-[10px] flex items-center gap-3 ${!otherUserId || isSubmitting || !newComment.trim() ? 'bg-gray-100 text-gray-300 cursor-not-allowed' : 'bg-indigo-600 text-white hover:bg-black shadow-indigo-100 hover:shadow-black/20'}`}
+                            onClick={handleSubmitComment}
+                            disabled={!otherUserId || isSubmitting || !newComment.trim()}
+                        >
+                            {isSubmitting ? 'Transmitting...' : (
+                                <>
+                                    Transmit Signal
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                                </>
+                            )}
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <div style={styles.thread}>
+            <div className="space-y-6 max-h-[600px] overflow-y-auto px-4 custom-scrollbar pb-10">
                 {loading ? (
-                    <p>Loading conversation history...</p>
+                    <div className="flex flex-col items-center justify-center py-20 gap-4 opacity-30">
+                        <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                        <p className="text-[10px] font-black uppercase tracking-widest italic">Syncing History...</p>
+                    </div>
                 ) : comments.length === 0 ? (
-                    <p>No messages yet. Start the conversation!</p>
+                    <div className="py-20 text-center bg-gray-50/50 rounded-[40px] border-4 border-dashed border-gray-100 animate-in zoom-in-95">
+                        <p className="text-xl font-black text-gray-300 italic tracking-tight uppercase">No communications archived.</p>
+                        <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mt-2 animate-pulse">Initiate First Link</p>
+                    </div>
                 ) : (
                     comments.map(msg => (
                         <div 
                             key={msg.id} 
-                            style={{ 
-                                ...styles.commentItem,
-                                backgroundColor: isCurrentUserSender(msg.senderId) ? '#e0f2fe' : '#fff', 
-                                alignSelf: isCurrentUserSender(msg.senderId) ? 'flex-end' : 'flex-start',
-                            }}
+                            className={`flex flex-col max-w-[85%] animate-in slide-in-from-bottom-4 duration-500 ${isCurrentUserSender(msg.senderId) ? 'self-end items-end' : 'self-start items-start'}`}
                         >
-                            <p style={styles.commentAuthor}>
-                                {/* 🔑 FIX: Show the actual user's name */}
-                                <strong>{getDisplayName(msg.senderId)}:</strong>
-                            </p>
-                            <p style={styles.commentContent}>{msg.content}</p>
-                            <span style={styles.commentTime}>
-                                {new Date(msg.createdAt).toLocaleString()}
+                            <div className="flex items-center gap-2 mb-2 px-4">
+                                {!isCurrentUserSender(msg.senderId) && <div className="w-1.5 h-1.5 rounded-full bg-indigo-600 ring-2 ring-indigo-50"></div>}
+                                <span className={`text-[9px] font-black uppercase tracking-widest ${isCurrentUserSender(msg.senderId) ? 'text-gray-400' : 'text-indigo-600'}`}>
+                                    {getDisplayName(msg.senderId)}
+                                </span>
+                                {isCurrentUserSender(msg.senderId) && <div className="w-1.5 h-1.5 rounded-full bg-gray-300"></div>}
+                            </div>
+                            
+                            <div className={`p-6 rounded-[32px] shadow-xl transition-transform hover:scale-[1.02] ${isCurrentUserSender(msg.senderId) ? 'bg-indigo-600 text-white rounded-tr-none shadow-indigo-100' : 'bg-white text-gray-800 rounded-tl-none border border-gray-100 shadow-gray-100'}`}>
+                                <p className="text-sm font-medium leading-relaxed italic selection:bg-white/20">
+                                    {msg.content}
+                                </p>
+                            </div>
+                            
+                            <span className="text-[9px] font-black text-gray-300 uppercase mt-3 px-4 tabular-nums tracking-tighter">
+                                {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {new Date(msg.createdAt).toLocaleDateString([], { day: '2-digit', month: 'short' })}
                             </span>
                         </div>
                     ))

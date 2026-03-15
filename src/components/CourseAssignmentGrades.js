@@ -1,9 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
-/**
- * Fetches and displays assignments and grades for a specific course/student.
- * * NOTE: Assumes the existence of /api/student/courses/[courseId]/assignments route.
- */
 function CourseAssignmentGrades({ courseId }) {
     const [assignments, setAssignments] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -36,80 +32,80 @@ function CourseAssignmentGrades({ courseId }) {
     }, [fetchAssignmentData, courseId]);
 
     const getGradeDisplay = (submission, maxPoints) => {
-        if (!submission) return 'Not Submitted';
-        if (submission.grade === null) return 'Submitted (Pending)';
-        return `${submission.grade}/${maxPoints}`;
+        if (!submission) return <span className="text-gray-400 font-black italic">VOID</span>;
+        if (submission.grade === null) return <span className="text-amber-500 font-black italic">PENDING REVIEW</span>;
+        return (
+            <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-black text-indigo-600 italic leading-none">{submission.grade}</span>
+                <span className="text-[10px] font-black text-gray-300 uppercase">/ {maxPoints}</span>
+            </div>
+        );
     };
-    
-    // Renders the list of assignments, matching the desired output format
-    const renderAssignments = () => (
-        <div style={styles.assignmentList}>
-            {assignments.map(assignment => (
-                <div key={assignment.id} style={styles.card}>
-                    <div style={styles.textGroup}>
-                        <h5 style={styles.cardTitle}>{assignment.title}</h5>
-                        <p style={styles.cardDetail}>Due: {new Date(assignment.dueDate).toLocaleDateString('en-GB')}</p>
-                    </div>
-                    <div style={styles.gradeGroup}>
-                        <span style={styles.gradeStatus}>
-                            Grade: **{getGradeDisplay(assignment.submission, assignment.maxPoints)}**
-                        </span>
-                        <button style={styles.actionButton}>View/Submit</button>
-                    </div>
-                </div>
-            ))}
+
+    if (loading) return (
+        <div className="flex flex-col items-center justify-center p-20 gap-4 animate-pulse">
+            <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+            <p className="font-black text-indigo-600 uppercase tracking-widest text-[10px] italic">Querying Performance Matrices...</p>
         </div>
     );
 
-    if (loading) return <p style={styles.loading}>Loading assignments and grades...</p>;
-    if (error) return <p style={styles.error}>Error loading assignments: {error}</p>;
+    if (error) return (
+        <div className="p-10 bg-rose-50 border-2 border-rose-100 rounded-[40px] text-rose-700 flex flex-col items-center gap-4 animate-in fade-in zoom-in-95">
+            <p className="font-black text-xs uppercase tracking-widest">Protocol Deviation</p>
+            <p className="font-bold opacity-70 text-[10px] text-center">{error}</p>
+        </div>
+    );
 
     return (
-        <div style={styles.container}>
-            <h4 style={styles.header}>Assignments & Grades ({assignments.length})</h4>
+        <div className="space-y-10 animate-in fade-in duration-700">
+            <div className="flex justify-between items-end border-b border-gray-100 pb-8">
+                <div className="space-y-1">
+                    <h4 className="text-3xl font-black text-gray-900 tracking-tighter uppercase italic">Directive <span className="text-indigo-600 tracking-[0.1em]">Ledger</span></h4>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">{assignments.length} Strategic Assignments Identified</p>
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 rounded-full border border-indigo-100">
+                     <div className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></div>
+                     <span className="text-[9px] font-black text-indigo-600 uppercase tracking-widest">Live Sync Alpha-8</span>
+                </div>
+            </div>
+
             {assignments.length === 0 ? (
-                <p style={styles.info}>No assignments have been posted for this course yet.</p>
+                <div className="py-20 text-center bg-gray-50/50 rounded-[40px] border-4 border-dashed border-gray-100">
+                    <p className="text-xl font-black text-gray-300 italic tracking-tight uppercase">Manual Void</p>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-2">No directives have been issued for this sector.</p>
+                </div>
             ) : (
-                renderAssignments()
+                <div className="grid grid-cols-1 gap-6">
+                    {assignments.map(assignment => (
+                        <div key={assignment.id} className="group bg-white p-8 rounded-[40px] shadow-xl shadow-gray-100 border border-gray-50 transform transition-all hover:scale-[1.01] hover:shadow-indigo-100/50 duration-500 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-50 rounded-full translate-x-12 -translate-y-12 blur-3xl group-hover:bg-indigo-200 transition-colors"></div>
+                            
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest italic decoration-indigo-200 underline underline-offset-4 decoration-2">Protocol-{assignment.id.substring(0,4)}</span>
+                                        <span className="w-1 h-1 rounded-full bg-gray-200"></span>
+                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">Temporal Cap: {new Date(assignment.dueDate).toLocaleDateString('en-GB')}</span>
+                                    </div>
+                                    <h5 className="text-2xl font-black text-gray-900 tracking-tight leading-none group-hover:text-indigo-600 transition-colors uppercase italic">{assignment.title}</h5>
+                                </div>
+                                
+                                <div className="flex items-center gap-8">
+                                    <div className="flex flex-col items-end">
+                                        <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-1 italic">Tactical Output</span>
+                                        {getGradeDisplay(assignment.submission, assignment.maxPoints)}
+                                    </div>
+                                    <button className="px-8 py-4 bg-gray-900 text-white font-black rounded-[24px] shadow-2xl transition-all transform active:scale-95 uppercase tracking-widest text-[9px] group-hover:bg-indigo-600 hover:shadow-indigo-100">
+                                        Access Matrix
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             )}
         </div>
     );
 }
-
-// ----------------------------------------------------------------------
-// --- STYLES (Adapted from previous responses) ---
-// ----------------------------------------------------------------------
-
-const styles = {
-    container: { borderTop: '1px solid #ddd', paddingTop: '20px', marginTop: '20px' },
-    header: { fontSize: '1.3em', marginBottom: '15px', color: '#374151' },
-    loading: { color: '#3b82f6' },
-    error: { color: '#b91c1c' },
-    info: { color: '#4b5563' },
-    assignmentList: { display: 'flex', flexDirection: 'column', gap: '10px' },
-    card: { 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        padding: '10px', 
-        backgroundColor: '#f9fafb',
-        border: '1px solid #eee',
-        borderRadius: '4px'
-    },
-    textGroup: { flexGrow: 1 },
-    cardTitle: { margin: 0, fontSize: '1em', color: '#1f2937' },
-    cardDetail: { margin: 0, fontSize: '0.8em', color: '#6b7280' },
-    gradeGroup: { display: 'flex', alignItems: 'center', gap: '10px' },
-    gradeStatus: { fontWeight: 'bold', color: '#059669' },
-    actionButton: { 
-        padding: '6px 12px', 
-        backgroundColor: '#4f46e5', 
-        color: 'white', 
-        border: 'none', 
-        borderRadius: '4px', 
-        cursor: 'pointer',
-        fontSize: '0.9em'
-    }
-};
 
 export default CourseAssignmentGrades;

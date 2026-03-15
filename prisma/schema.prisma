@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql" // Adjust if using mysql or sqlite
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
@@ -38,7 +38,7 @@ enum ResourceType {
 // ----------------------------------------------------------------------
 
 model User {
-  id               String       @id @default(cuid())
+  id               String       @id @default(auto()) @map("_id") @db.ObjectId
   email            String       @unique
   name             String?      // Made nullable for NextAuth compatibility
   password         String       // Stores the bcrypt hash
@@ -52,7 +52,8 @@ model User {
   submissions      Submission[]
   
   // FIX 1: Many-to-Many relation for co-teaching.
-  taughtCourses    Course[]     @relation("TaughtCourses") 
+  taughtCourseIds  String[]     @db.ObjectId
+  taughtCourses    Course[]     @relation("TaughtCourses", fields: [taughtCourseIds], references: [id]) 
 
   // Messaging Relations
   sentMessages     Message[]    @relation("SentMessages")
@@ -66,7 +67,7 @@ model User {
 }
 
 model Course {
-  id            String       @id @default(cuid())
+  id            String       @id @default(auto()) @map("_id") @db.ObjectId
   title         String
   code          String       // e.g., "CS101"
   description   String?
@@ -80,7 +81,8 @@ model Course {
   updatedAt     DateTime     @updatedAt
 
   // FIX 2: Many-to-Many relationship (co-teaching).
-  lecturers     User[]       @relation("TaughtCourses") 
+  lecturerIds   String[]     @db.ObjectId
+  lecturers     User[]       @relation("TaughtCourses", fields: [lecturerIds], references: [id]) 
   
   // Student Enrollment Relation 
   enrollments   Enrollment[]
@@ -92,9 +94,9 @@ model Course {
 }
 
 model Enrollment {
-  id            String    @id @default(cuid())
-  studentId     String
-  courseId      String
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  studentId     String    @db.ObjectId
+  courseId      String    @db.ObjectId
   enrolledAt    DateTime  @default(now())
 
   student       User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
@@ -104,59 +106,59 @@ model Enrollment {
 }
 
 model Assignment {
-  id            String       @id @default(cuid())
+  id            String       @id @default(auto()) @map("_id") @db.ObjectId
   title         String
-  description   String       @db.Text
+  description   String       
   dueDate       DateTime
   maxPoints     Int
   
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
-  courseId      String
+  courseId      String       @db.ObjectId
   course        Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   submissions   Submission[]
 }
 
 model Submission {
-  id            String       @id @default(cuid())
-  submissionText String?     @db.Text
+  id            String       @id @default(auto()) @map("_id") @db.ObjectId
+  submissionText String?     
   filePath      String?      // URL/path to the student's uploaded file
   submittedAt   DateTime     @default(now())
   grade         Int?
-  feedback      String?      @db.Text
+  feedback      String?      
   gradedAt      DateTime?
   
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt 
 
-  assignmentId  String
+  assignmentId  String       @db.ObjectId
   assignment    Assignment   @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
 
-  studentId     String
+  studentId     String       @db.ObjectId
   student       User         @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([assignmentId, studentId])
 }
 
 model Resource {
-  id            String       @id @default(cuid())
+  id            String       @id @default(auto()) @map("_id") @db.ObjectId
   title         String
-  description   String?      @db.Text
+  description   String?      
   filePath      String
   type          ResourceType @default(DOCUMENT) 
   uploadedAt    DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
-  courseId      String
+  courseId      String       @db.ObjectId
   course        Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
 }
 
 model Announcement {
-  id            String    @id @default(cuid())
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
   title         String
-  content       String    @db.Text
+  content       String    
   targetRole    UserRole? // Optional: target role for the announcement (e.g., LECTURER)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -164,21 +166,21 @@ model Announcement {
 
 // --- PLATFORM MESSAGING MODEL ---
 model Message {
-  id            String         @id @default(cuid())
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
 
-  content       String         @db.Text 
+  content       String         
   status        MessageStatus  @default(SENT)
 
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
-  courseId      String?        // Made nullable: a message can be system-wide or course-specific
+  courseId      String?        @db.ObjectId // Made nullable: a message can be system-wide or course-specific
   course        Course?        @relation(fields: [courseId], references: [id], onDelete: SetNull)
 
-  senderId      String
+  senderId      String         @db.ObjectId
   sender        User           @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
 
-  recipientId   String?        // Made nullable for broadcasts or deleted users
+  recipientId   String?        @db.ObjectId // Made nullable for broadcasts or deleted users
   recipient     User?          @relation("ReceivedMessages", fields: [recipientId], references: [id], onDelete: SetNull)
 }
 
@@ -187,17 +189,17 @@ model Message {
 // ----------------------------------------------------------------------
 
 model Account {
-  id                String  @id @default(cuid())
-  userId            String
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String? 
+  access_token      String? 
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String? 
   session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -206,16 +208,17 @@ model Account {
 }
 
 model Session {
-  id           String   @id @default(cuid())
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
   sessionToken String   @unique
-  userId       String
+  userId       String   @db.ObjectId
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model VerificationToken {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
   identifier String
-  token      String @unique
+  token      String   @unique
   expires    DateTime
 
   @@unique([identifier, token])
