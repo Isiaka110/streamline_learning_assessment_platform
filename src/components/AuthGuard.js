@@ -142,7 +142,7 @@ export const withAuthGuard = (WrappedComponent, allowedRoles = []) => {
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <span className="loading-spinner" style={{ marginRight: '10px' }}>
                     {/* You can add a CSS spinner here if you have one */}
-                    <img src="/path/to/your/logo.png" alt="Loading..." style={{ height: '30px', animation: 'spin 1s linear infinite' }}/>
+                    <img src="/logo.png" alt="Loading..." style={{ height: '30px' }}/>
                 </span>
                 Loading authentication...
             </div>

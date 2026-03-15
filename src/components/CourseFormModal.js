@@ -105,8 +105,8 @@ const CourseFormModal = ({ course, onClose, onSuccess }) => {
                 <div className="bg-indigo-600 p-10 text-white relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full translate-x-20 -translate-y-20 blur-3xl"></div>
                     <div className="relative z-10">
-                        <h2 className="text-4xl font-black tracking-tight leading-none mb-2">{isEdit ? 'Modify Course' : 'Create Course'}</h2>
-                        <p className="text-indigo-100/80 text-sm font-black uppercase tracking-widest">{isEdit ? 'Updating core educational infrastructure' : 'Initializing new academic framework'}</p>
+                        <h2 className="text-4xl font-black tracking-tight leading-none mb-2">{isEdit ? 'Edit Course' : 'Create Course'}</h2>
+                        <p className="text-indigo-100/80 text-sm font-black uppercase tracking-widest">{isEdit ? 'Update course details' : 'Add a new course to the curriculum'}</p>
                     </div>
                 </div>
 
@@ -120,7 +120,7 @@ const CourseFormModal = ({ course, onClose, onSuccess }) => {
                     <form onSubmit={handleSubmit} className="space-y-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-2 focus-within:translate-x-1 transition-transform">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Directive Title</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Course Title</label>
                                 <input 
                                     type="text" 
                                     name="title" 
@@ -134,7 +134,7 @@ const CourseFormModal = ({ course, onClose, onSuccess }) => {
                             </div>
                             
                             <div className="space-y-2 focus-within:translate-x-1 transition-transform">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Access Code</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Course Code</label>
                                 <input 
                                     type="text" 
                                     name="code" 
@@ -150,7 +150,7 @@ const CourseFormModal = ({ course, onClose, onSuccess }) => {
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-2 focus-within:translate-x-1 transition-transform">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Operational Phase</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Semester</label>
                                 <select
                                     name="semester"
                                     value={formData.semester}
@@ -166,7 +166,7 @@ const CourseFormModal = ({ course, onClose, onSuccess }) => {
                             </div>
 
                             <div className="space-y-2 focus-within:translate-x-1 transition-transform">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Cycle Year</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Year</label>
                                 <select
                                     name="year"
                                     value={formData.year}
@@ -183,7 +183,7 @@ const CourseFormModal = ({ course, onClose, onSuccess }) => {
                         </div>
 
                         <div className="space-y-2 focus-within:translate-x-1 transition-transform">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Assigned Personnel</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Assign Lecturer</label>
                             <select
                                 name="lecturerId"
                                 value={formData.lecturerId}
@@ -203,12 +203,12 @@ const CourseFormModal = ({ course, onClose, onSuccess }) => {
                         </div>
 
                         <div className="space-y-2 focus-within:translate-x-1 transition-transform">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Framework Narrative</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Description (Optional)</label>
                             <textarea 
                                 name="description" 
                                 value={formData.description} 
                                 onChange={handleChange} 
-                                placeholder="Define the core mission and learning trajectory..."
+                                placeholder="Provide a brief overview of the course..."
                                 className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 rounded-2xl outline-none transition-all font-medium text-gray-700 min-h-[120px] resize-none placeholder:text-gray-300"
                                 disabled={loading} 
                             />
@@ -221,14 +221,14 @@ const CourseFormModal = ({ course, onClose, onSuccess }) => {
                                 className="flex-1 py-5 px-6 bg-gray-50 text-gray-400 font-black rounded-3xl hover:bg-gray-100 transition-colors uppercase tracking-widest text-[10px] border border-gray-200"
                                 disabled={loading}
                             >
-                                Abort
+                                Cancel
                             </button>
                             <button 
                                 type="submit" 
                                 disabled={loading}
                                 className="flex-[2] py-5 px-6 bg-indigo-600 text-white font-black rounded-3xl hover:bg-black shadow-2xl shadow-indigo-100 hover:shadow-black/20 transition-all transform active:scale-95 uppercase tracking-widest text-[10px]"
                             >
-                                {loading ? 'Synchronizing...' : (isEdit ? 'Update Protocol' : 'Deploy Protocol')}
+                                {loading ? 'Saving...' : (isEdit ? 'Save Changes' : 'Create Course')}
                             </button>
                         </div>
                     </form>

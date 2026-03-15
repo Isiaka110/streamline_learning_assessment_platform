@@ -36,7 +36,7 @@ function GlobalAnnouncements() {
             <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></div>
-                    <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.3em] italic">Platform Directive Stream</span>
+                    <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.3em] italic">Platform Announcements</span>
                 </div>
                 <h3 className="text-4xl font-black text-gray-900 tracking-tighter leading-none italic uppercase italic-shadow">
                     Global <span className="text-indigo-600">Sync</span>
@@ -46,7 +46,7 @@ function GlobalAnnouncements() {
             {loading ? (
                 <div className="py-24 flex flex-col items-center justify-center gap-6 bg-gray-50/50 rounded-[40px] border-4 border-dashed border-gray-100">
                     <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                    <p className="font-black text-indigo-400 uppercase tracking-widest text-[9px] italic">Fetching Central Command Intel...</p>
+                    <p className="font-black text-indigo-400 uppercase tracking-widest text-[9px] italic">Fetching Announcements...</p>
                 </div>
             ) : error ? (
                 <div className="p-8 bg-rose-50 border-2 border-rose-100 rounded-[32px] text-rose-600 flex flex-col items-center gap-3 animate-shake">
@@ -55,8 +55,8 @@ function GlobalAnnouncements() {
                 </div>
             ) : announcements.length === 0 ? (
                 <div className="py-20 text-center bg-gray-50/50 rounded-[40px] border-4 border-dashed border-gray-100 italic">
-                    <p className="text-2xl font-black text-gray-200 tracking-tight uppercase">Manual Void</p>
-                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-1">Directives currently at zero.</p>
+                    <p className="text-2xl font-black text-gray-200 tracking-tight uppercase">No Announcements</p>
+                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-1">Check back later for updates.</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 gap-6">

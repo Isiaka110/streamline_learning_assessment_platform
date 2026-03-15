@@ -29,7 +29,7 @@ const AnnouncementList = ({ announcements, isLoading, error }) => {
                     <svg className="w-10 h-10 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
                 </div>
                 <p className="text-2xl font-black text-gray-200 italic tracking-tight uppercase">Void Transmission</p>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-2">The command has not issued any global directives.</p>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-2">No global announcements found.</p>
             </div>
         );
     }
@@ -57,7 +57,7 @@ const AnnouncementList = ({ announcements, isLoading, error }) => {
                         
                         <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
                             <div className="space-y-4">
-                                <span className="px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-indigo-100 italic">Directive Alpha-{idx + 101}</span>
+                                <span className="px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-indigo-100 italic">Notice-{idx + 101}</span>
                                 <h3 className="text-3xl font-black text-gray-900 tracking-tight leading-tight group-hover:text-indigo-600 transition-colors uppercase italic italic-shadow">
                                     {announcement.title}
                                 </h3>

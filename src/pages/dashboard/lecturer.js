@@ -103,7 +103,7 @@ function LecturerDashboard() {
                         <span className="text-xl sm:text-2xl font-black text-indigo-600 ml-2 tracking-wide mt-1">LMS</span> 
                     </div>
                     <div className="h-8 w-[2px] bg-gray-200 mx-1 sm:mx-2 hidden sm:block"></div>
-                    <h1 className="text-lg sm:text-2xl font-bold text-gray-800 truncate">Control Panel: {userName}</h1>
+                    <h1 className="text-lg sm:text-2xl font-bold text-gray-800 truncate">Lecturer Dashboard: {userName}</h1>
                 </div>
                 <button onClick={handleLogout} className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg shadow-md transition-colors text-xs sm:text-sm self-end sm:self-auto">
                     Logout 🚪

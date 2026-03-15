@@ -61,14 +61,14 @@ export default function ComposeMessage() {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage('Communication broadcast successful.');
+        setMessage('Message sent successfully.');
         setFormData({ ...formData, content: '' }); 
       } else {
-        setMessage(`Transmission failure: ${data.message || 'Unknown protocol error.'}`);
+        setMessage(`Failed to send message: ${data.message || 'Unknown error.'}`);
         setIsError(true);
       }
     } catch (error) {
-      setMessage('Network uplink failure.');
+      setMessage('Network error while sending message.');
       setIsError(true);
     } finally {
       setLoading(false);
@@ -81,8 +81,8 @@ export default function ComposeMessage() {
         <div className="bg-indigo-600 p-10 text-white relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full translate-x-20 -translate-y-20 blur-3xl"></div>
           <div className="relative z-10 space-y-2">
-            <h2 className="text-4xl font-black tracking-tight leading-none uppercase italic">Transmit Signal</h2>
-            <p className="text-indigo-100/80 text-[10px] font-black uppercase tracking-[0.2em]">Platform Encryption Secure</p>
+            <h2 className="text-4xl font-black tracking-tight leading-none uppercase italic">Send Message</h2>
+            <p className="text-indigo-100/80 text-[10px] font-black uppercase tracking-[0.2em]">Secure communication</p>
           </div>
         </div>
 
@@ -95,7 +95,7 @@ export default function ComposeMessage() {
 
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 italic">Target Recipient</label>
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 italic">Recipient</label>
               <div className="relative">
                 <select
                   name="recipientId"
@@ -105,7 +105,7 @@ export default function ComposeMessage() {
                   disabled={loading}
                   className="w-full px-8 py-5 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 rounded-[28px] outline-none transition-all font-bold text-gray-700 appearance-none cursor-pointer shadow-inner"
                 >
-                  <option value="" disabled>-- Identify Channel --</option>
+                  <option value="" disabled>-- Select Recipient --</option>
                   {DUMMY_RECIPIENTS.map(user => (
                       <option key={user.id} value={user.id}>
                           {user.name}
@@ -119,14 +119,14 @@ export default function ComposeMessage() {
             </div>
 
             <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 italic">Secure Payload (Message)</label>
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 italic">Message Content</label>
               <textarea
                 name="content"
                 value={formData.content}
                 onChange={handleChange}
                 required
                 disabled={loading}
-                placeholder="Type your strategic data here..."
+                placeholder="Type your message here..."
                 className="w-full min-h-[180px] p-8 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 rounded-[32px] outline-none transition-all resize-none shadow-inner font-medium text-gray-700 placeholder:text-gray-300 italic"
               />
             </div>
@@ -138,12 +138,11 @@ export default function ComposeMessage() {
             >
               {loading ? (
                 <>
-                  <svg className="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                  Synchronizing Broadcast...
+                  Sending...
                 </>
               ) : (
                 <>
-                  Engage Transmission
+                  Send Message
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
                 </>
               )}
@@ -154,7 +153,7 @@ export default function ComposeMessage() {
       
       <div className="mt-8 flex justify-center items-center gap-3 opacity-30">
         <div className="w-1 h-1 rounded-full bg-indigo-600"></div>
-        <p className="text-[10px] font-black uppercase tracking-[0.4em] italic text-indigo-900">End of Transmission Form</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] italic text-indigo-900">End of Message Form</p>
         <div className="w-1 h-1 rounded-full bg-indigo-600"></div>
       </div>
     </div>

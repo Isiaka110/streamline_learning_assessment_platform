@@ -90,8 +90,8 @@ function AssignmentFormModal({ assignment, courseId, onClose, onSuccess }) {
                 <div className="bg-indigo-600 p-10 text-white relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full translate-x-10 -translate-y-10 blur-3xl"></div>
                     <div className="relative z-10">
-                        <h2 className="text-4xl font-black tracking-tight leading-none mb-2">{isEditing ? 'Edit Strategy' : 'New Directive'}</h2>
-                        <p className="text-indigo-100/80 text-sm font-black uppercase tracking-widest">{isEditing ? 'Optimizing assessment objectives' : 'Establishing new evaluation parameters'}</p>
+                        <h2 className="text-4xl font-black tracking-tight leading-none mb-2">{isEditing ? 'Edit Assignment' : 'New Assignment'}</h2>
+                        <p className="text-indigo-100/80 text-sm font-black uppercase tracking-widest">{isEditing ? 'Update assignment details' : 'Create a new assignment'}</p>
                     </div>
                 </div>
 
@@ -104,7 +104,7 @@ function AssignmentFormModal({ assignment, courseId, onClose, onSuccess }) {
 
                     <form onSubmit={handleSubmit} className="space-y-8">
                         <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Directive Title</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Assignment Title</label>
                             <input
                                 type="text"
                                 value={title}
@@ -118,7 +118,7 @@ function AssignmentFormModal({ assignment, courseId, onClose, onSuccess }) {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Termination Sequence (Due Date)</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Due Date</label>
                                 <input
                                     type="datetime-local"
                                     value={dueDate}
@@ -130,7 +130,7 @@ function AssignmentFormModal({ assignment, courseId, onClose, onSuccess }) {
                             </div>
 
                             <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Total Points Cap</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Maximum Points</label>
                                 <input
                                     type="number"
                                     value={maxPoints}
@@ -145,11 +145,11 @@ function AssignmentFormModal({ assignment, courseId, onClose, onSuccess }) {
                         </div>
 
                         <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Operational Intel (Optional)</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Description (Optional)</label>
                             <textarea
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                placeholder="Detailed strategic notes for participants..."
+                                placeholder="Instructions for students..."
                                 className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 rounded-2xl outline-none transition-all font-medium text-gray-700 min-h-[120px] resize-none placeholder:text-gray-300 shadow-inner"
                                 disabled={isLoading}
                             />
@@ -162,7 +162,7 @@ function AssignmentFormModal({ assignment, courseId, onClose, onSuccess }) {
                                 className="flex-1 py-5 px-6 bg-gray-50 text-gray-400 font-black rounded-3xl hover:bg-gray-100 transition-colors uppercase tracking-widest text-[10px] border border-gray-200"
                                 disabled={isLoading}
                             >
-                                Abort
+                                Cancel
                             </button>
                             <button 
                                 type="submit" 
@@ -175,7 +175,7 @@ function AssignmentFormModal({ assignment, courseId, onClose, onSuccess }) {
                                         Synchronizing...
                                     </span>
                                 ) : (
-                                    isEditing ? 'Commit Changes' : 'Initialize Protocol'
+                                    isEditing ? 'Save' : 'Create Assignment'
                                 )}
                             </button>
                         </div>

@@ -5,7 +5,7 @@ export default function LogoutButton() {
     // Call signOut, which clears the session and redirects the user.
     // The callbackUrl ensures the user is taken directly to the sign-in page.
     await signOut({ 
-      callbackUrl: '/auth/SignIn' 
+      callbackUrl: '/auth/signin' 
     });
   };
 

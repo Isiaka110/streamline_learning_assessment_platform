@@ -87,8 +87,8 @@ function ResourceFormModal({ courseId, resource, onClose, onSuccess }) {
                 <div className="bg-indigo-600 p-10 text-white relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full translate-x-10 -translate-y-10 blur-3xl"></div>
                     <div className="relative z-10">
-                        <h2 className="text-4xl font-black tracking-tight leading-none mb-2">{isEdit ? 'Modify Asset' : 'Upload Artifact'}</h2>
-                        <p className="text-indigo-100/80 text-sm font-black uppercase tracking-widest">{isEdit ? 'Reconfiguring existing resource parameters' : 'Integrating new educational material'}</p>
+                        <h2 className="text-4xl font-black tracking-tight leading-none mb-2">{isEdit ? 'Edit Resource' : 'Upload Resource'}</h2>
+                        <p className="text-indigo-100/80 text-sm font-black uppercase tracking-widest">{isEdit ? 'Update resource details' : 'Upload new course material'}</p>
                     </div>
                     <button onClick={onClose} className="absolute top-8 right-8 p-3 hover:bg-white/20 rounded-2xl transition-colors text-white active:scale-95 group">
                         <svg className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -104,7 +104,7 @@ function ResourceFormModal({ courseId, resource, onClose, onSuccess }) {
 
                     <form onSubmit={handleSubmit} className="space-y-8">
                         <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Artifact Designation</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Resource Title</label>
                             <input 
                                 type="text" 
                                 name="title" 
@@ -118,7 +118,7 @@ function ResourceFormModal({ courseId, resource, onClose, onSuccess }) {
                         </div>
 
                         <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{isEdit ? 'Update Data Stream (Optional)' : 'Initialize Data Stream'}</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{isEdit ? 'Replace File (Optional)' : 'Select File'}</label>
                             <div className="relative group/file">
                                 <input 
                                     type="file" 
@@ -137,7 +137,7 @@ function ResourceFormModal({ courseId, resource, onClose, onSuccess }) {
                         </div>
 
                         <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Contextual Description (Optional)</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Description (Optional)</label>
                             <textarea 
                                 name="description" 
                                 value={formData.description} 
@@ -155,7 +155,7 @@ function ResourceFormModal({ courseId, resource, onClose, onSuccess }) {
                                 className="flex-1 py-5 px-6 bg-gray-50 text-gray-400 font-black rounded-3xl hover:bg-gray-100 transition-colors uppercase tracking-widest text-[10px] border border-gray-200"
                                 disabled={isSaving}
                             >
-                                Abort
+                                Cancel
                             </button>
                             <button 
                                 type="submit" 
@@ -168,7 +168,7 @@ function ResourceFormModal({ courseId, resource, onClose, onSuccess }) {
                                         Processing...
                                     </>
                                 ) : (
-                                    isEdit ? 'Sync Changes' : 'Commit Artifact'
+                                    isEdit ? 'Save' : 'Upload'
                                 )}
                             </button>
                         </div>

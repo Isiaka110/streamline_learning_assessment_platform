@@ -38,11 +38,11 @@ const AssignmentCreationForm = ({ courseId, onSuccess, onCancel }) => {
             if (res.ok) {
                 if (onSuccess) onSuccess(data.assignment);
             } else {
-                setError(data.message || 'Failed to initialize assignment protocol.');
+                setError(data.message || 'Failed to create assignment.');
             }
         } catch (err) {
             console.error('Assignment Creation Error:', err);
-            setError('Uplink failure during protocol initialization.');
+            setError('Network error during assignment creation.');
         } finally {
             setIsLoading(false);
         }
@@ -58,7 +58,7 @@ const AssignmentCreationForm = ({ courseId, onSuccess, onCancel }) => {
 
             <div className="space-y-6">
                 <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Protocol Title</label>
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Assignment Title</label>
                     <input
                         type="text"
                         value={title}
@@ -71,7 +71,7 @@ const AssignmentCreationForm = ({ courseId, onSuccess, onCancel }) => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Termination Matrix (Due Date)</label>
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Due Date</label>
                         <input
                             type="datetime-local"
                             value={dueDate}
@@ -81,7 +81,7 @@ const AssignmentCreationForm = ({ courseId, onSuccess, onCancel }) => {
                         />
                     </div>
                     <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Point Capacity</label>
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Maximum Grade</label>
                         <input
                             type="number"
                             value={maxPoints}
@@ -95,11 +95,11 @@ const AssignmentCreationForm = ({ courseId, onSuccess, onCancel }) => {
                 </div>
 
                 <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Strategic Narrative</label>
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Description</label>
                     <textarea
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        placeholder="Detailed operational instructions for participants..."
+                        placeholder="Enter assignment instructions..."
                         className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 rounded-2xl outline-none transition-all min-h-[140px] resize-none font-medium text-gray-700 placeholder:text-gray-300 shadow-inner"
                         disabled={isLoading}
                     />
@@ -113,7 +113,7 @@ const AssignmentCreationForm = ({ courseId, onSuccess, onCancel }) => {
                     className="flex-1 py-5 px-6 bg-gray-50 text-gray-400 font-black rounded-3xl hover:bg-gray-100 transition-colors uppercase tracking-widest text-[10px] border border-gray-200"
                     disabled={isLoading}
                 >
-                    Abort
+                    Cancel
                 </button>
                 <button 
                     type="submit" 
@@ -121,13 +121,11 @@ const AssignmentCreationForm = ({ courseId, onSuccess, onCancel }) => {
                     disabled={isLoading}
                 >
                     {isLoading ? (
-                        <>
-                            <svg className="animate-spin h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                            Synchronizing...
+                            Saving...
                         </>
                     ) : (
                         <>
-                            Initialize Protocol
+                            Create Assignment
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4"></path></svg>
                         </>
                     )}

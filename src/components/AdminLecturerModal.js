@@ -117,7 +117,7 @@ function AdminLecturerModal({ lecturer, onClose = () => {}, onSuccess = () => {}
             if (res.ok) {
                 onSuccess(true); 
             } else {
-                setError(data.message || `Failed to ${isEdit ? 'update' : 'create'} personnel.`);
+                setError(data.message || `Failed to ${isEdit ? 'update' : 'create'} lecturer.`);
             }
 
         } catch (err) {
@@ -135,8 +135,8 @@ function AdminLecturerModal({ lecturer, onClose = () => {}, onSuccess = () => {}
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full translate-x-10 -translate-y-10 blur-3xl"></div>
                     <div className="relative z-10 flex justify-between items-end">
                         <div className="space-y-2">
-                            <h2 className="text-4xl font-black tracking-tight leading-none uppercase">{isEdit ? 'Reassign Personnel' : 'Initialize Personnel'}</h2>
-                            <p className="text-indigo-100/80 text-[10px] font-black uppercase tracking-[0.2em]">{isEdit ? 'Modifying security and sector access' : 'Onboarding new academic operative'}</p>
+                            <h2 className="text-4xl font-black tracking-tight leading-none uppercase">{isEdit ? 'Edit Lecturer' : 'Register Lecturer'}</h2>
+                            <p className="text-indigo-100/80 text-[10px] font-black uppercase tracking-[0.2em]">{isEdit ? 'Update details and courses' : 'Create new lecturer account'}</p>
                         </div>
                         <button onClick={() => onClose(false)} className="p-4 hover:bg-white/20 rounded-2xl transition-all active:scale-95 group">
                             <svg className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -154,13 +154,13 @@ function AdminLecturerModal({ lecturer, onClose = () => {}, onSuccess = () => {}
                     <form onSubmit={handleSubmit} className="space-y-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Personnel Name</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
                                 <input 
                                     type="text" 
                                     name="name" 
                                     value={formData.name} 
                                     onChange={handleChange} 
-                                    placeholder="e.g. Dr. Arthur Vectra"
+                                    placeholder="e.g. Dr. John Doe"
                                     className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 rounded-2xl outline-none transition-all font-bold text-gray-700 placeholder:text-gray-300"
                                     required 
                                     disabled={isSaving} 
@@ -168,13 +168,13 @@ function AdminLecturerModal({ lecturer, onClose = () => {}, onSuccess = () => {}
                             </div>
 
                             <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Secure Email Access</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
                                 <input 
                                     type="email" 
                                     name="email" 
                                     value={formData.email} 
                                     onChange={handleChange} 
-                                    placeholder="vectra@platform.edu"
+                                    placeholder="lecturer@lms.com"
                                     className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 rounded-2xl outline-none transition-all font-bold text-gray-700 placeholder:text-gray-300"
                                     required 
                                     disabled={isSaving} 
@@ -184,7 +184,7 @@ function AdminLecturerModal({ lecturer, onClose = () => {}, onSuccess = () => {}
 
                         {!isEdit && (
                             <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Initial Encryption Key (Password)</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Password</label>
                                 <input 
                                     type="password" 
                                     name="password" 
@@ -200,7 +200,7 @@ function AdminLecturerModal({ lecturer, onClose = () => {}, onSuccess = () => {}
                         )}
 
                         <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Sector Assignments (Multi-Select)</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Assign Courses</label>
                             <div className="relative">
                                 <select 
                                     name="assignedCourseIds" 
@@ -211,9 +211,9 @@ function AdminLecturerModal({ lecturer, onClose = () => {}, onSuccess = () => {}
                                     disabled={isCoursesLoading || isSaving}
                                 >
                                     {isCoursesLoading ? (
-                                        <option disabled>Parsing Sector Data...</option>
+                                        <option disabled>Loading Courses...</option>
                                     ) : allCourses.length === 0 ? (
-                                        <option disabled>No Sectors Identified</option>
+                                        <option disabled>No courses found</option>
                                     ) : (
                                         allCourses.map(course => (
                                             <option key={course.id} value={course.id} className="py-2 px-4 rounded-xl checked:bg-indigo-600 checked:text-white my-1 cursor-pointer">
@@ -224,8 +224,8 @@ function AdminLecturerModal({ lecturer, onClose = () => {}, onSuccess = () => {}
                                 </select>
                             </div>
                             <div className="flex justify-between items-center px-4 mt-2">
-                                <p className="text-[9px] font-black text-gray-300 uppercase italic">Hold CTRL/CMD for Multi-Lock</p>
-                                <span className="text-[10px] font-black text-indigo-500 uppercase">{formData.assignedCourseIds.length} Sectors Active</span>
+                                <p className="text-[9px] font-black text-gray-300 uppercase italic">Hold CTRL/CMD to select multiple</p>
+                                <span className="text-[10px] font-black text-indigo-500 uppercase">{formData.assignedCourseIds.length} Courses Selected</span>
                             </div>
                         </div>
 
@@ -236,7 +236,7 @@ function AdminLecturerModal({ lecturer, onClose = () => {}, onSuccess = () => {}
                                 className="flex-1 py-5 px-6 bg-gray-50 text-gray-400 font-black rounded-3xl hover:bg-gray-100 transition-colors uppercase tracking-widest text-[10px] border border-gray-200"
                                 disabled={isSaving}
                             >
-                                Abort
+                                Cancel
                             </button>
                             <button 
                                 type="submit" 
@@ -245,11 +245,10 @@ function AdminLecturerModal({ lecturer, onClose = () => {}, onSuccess = () => {}
                             >
                                 {isSaving ? (
                                     <>
-                                        <svg className="animate-spin h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                        Synchronizing Hub...
+                                        Saving...
                                     </>
                                 ) : (
-                                    isEdit ? 'Sync Personnel Data' : 'Authorize New Personnel'
+                                    isEdit ? 'Save Changes' : 'Create Account'
                                 )}
                             </button>
                         </div>

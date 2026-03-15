@@ -38,7 +38,7 @@ function AdminDashboard({
                         <LogoContainer /> 
                         <span className="text-2xl font-black text-indigo-600 hidden md:block ml-3 tracking-wide mt-1">LMS</span> 
                     </div>
-                    <h1 className="text-2xl md:text-3xl font-bold text-gray-800 md:ml-4 mt-2 md:mt-0 order-3 md:order-2">Platform Administration Center ⚙️</h1>
+                    <h1 className="text-2xl md:text-3xl font-bold text-gray-800 md:ml-4 mt-2 md:mt-0 order-3 md:order-2">Admin Dashboard ⚙️</h1>
                 </div>
                 
                 <button onClick={handleLogout} className="md:order-3 order-2 mt-2 md:mt-0 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg shadow-md transition-colors text-sm">
@@ -56,9 +56,9 @@ function AdminDashboard({
                 {/* 1. Manage Lecturers (C.R.U.D.) */}
                 <div className="bg-white p-6 border border-gray-200 rounded-xl shadow-sm flex flex-col justify-between">
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-800 mb-4">Manage Lecturers (C.R.U.D.) 🧑‍🏫</h2>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-4">Manage Lecturers 🧑‍🏫</h2>
                         <p className="text-gray-600 font-medium mb-2">
-                            **Total Lecturers Available:** <span className="text-gray-900 font-bold ml-1 text-lg">
+                            Total Lecturers: <span className="text-gray-900 font-bold ml-1 text-lg">
                                 {totalLecturers}
                             </span>
                         </p>
@@ -74,12 +74,12 @@ function AdminDashboard({
                     <div>
                         <h2 className="text-2xl font-bold text-gray-800 mb-4">Manage Course Catalog 📚</h2>
                         <p className="text-gray-600 font-medium mb-2">
-                            **Total Active Courses:** <span className="text-gray-900 font-bold ml-1 text-lg">
+                            Total Active Courses: <span className="text-gray-900 font-bold ml-1 text-lg">
                                 {totalCourses}
                             </span>
                         </p>
                         <p className="text-gray-600 font-medium mb-2">
-                            **Courses Needing Lecturer:** <span className={`font-bold ml-1 text-lg ${unassignedCourses > 0 ? 'text-red-500' : 'text-gray-900'}`}>
+                            Courses Needing Lecturer: <span className={`font-bold ml-1 text-lg ${unassignedCourses > 0 ? 'text-red-500' : 'text-gray-900'}`}>
                                 {unassignedCourses}
                             </span>
                         </p>

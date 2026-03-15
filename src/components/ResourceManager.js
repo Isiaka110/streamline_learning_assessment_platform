@@ -72,7 +72,7 @@ const ResourceManager = ({ courseId, courseCode }) => {
                 fetchResources(); 
             } else {
                 const data = await res.json().catch(() => ({}));
-                setError(data.message || 'Failed to delete dynamic asset.');
+                setError(data.message || 'Failed to delete resource.');
             }
         } catch (err) {
             console.error('Delete Resource Error:', err);
@@ -92,10 +92,10 @@ const ResourceManager = ({ courseId, courseCode }) => {
                 <div className="relative z-10 space-y-1">
                     <div className="flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 italic">Sector Asset Inventory</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 italic">Course Materials</span>
                     </div>
                     <h2 className="text-3xl font-black tracking-tighter uppercase italic italic-shadow">
-                        Material Repository <span className="text-indigo-500">[{courseCode}]</span>
+                        Resources <span className="text-indigo-500">[{courseCode}]</span>
                     </h2>
                 </div>
                 <button 
@@ -103,7 +103,7 @@ const ResourceManager = ({ courseId, courseCode }) => {
                     className="relative z-10 px-8 py-4 bg-indigo-600 hover:bg-white hover:text-indigo-600 text-white font-black rounded-2xl shadow-xl shadow-indigo-900/20 transition-all transform active:scale-95 flex items-center gap-3 uppercase tracking-widest text-[10px] group"
                 >
                     <svg className="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4"></path></svg>
-                    Inject New Asset
+                    Upload Resource
                 </button>
             </div>
             

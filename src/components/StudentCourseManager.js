@@ -63,7 +63,7 @@ function StudentCourseManager({ courses, fetchEnrolledCourses, studentId }) {
                         onClick={() => setDetailTab('communication')} 
                         className={`px-5 py-3 font-medium whitespace-nowrap transition-colors border-b-2 -mb-[2px] ${detailTab === 'communication' ? 'text-indigo-600 border-indigo-600 bg-indigo-50/50' : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300 hover:bg-gray-50'}`}
                     >
-                        Communication 💬
+                        Messages 💬
                     </button>
                 </div>
 
@@ -82,7 +82,7 @@ function StudentCourseManager({ courses, fetchEnrolledCourses, studentId }) {
                     )}
                     {detailTab === 'communication' && (
                         <>
-                            <h4 className="text-xl font-bold text-gray-800 border-b border-gray-200 pb-3 mb-5">Direct Communication / Course Feedback</h4>
+                            <h4 className="text-xl font-bold text-gray-800 border-b border-gray-200 pb-3 mb-5">Course Messages</h4>
                             {lecturerId ? ( // Only show communication if a lecturer ID is available
                                 <CourseCommentThread 
                                     courseId={selectedCourse.id}
@@ -90,7 +90,7 @@ function StudentCourseManager({ courses, fetchEnrolledCourses, studentId }) {
                                     otherUserId={lecturerId} 
                                 />
                             ) : (
-                                <p className="p-4 bg-blue-50 text-blue-800 border-l-4 border-blue-500 rounded-md bg-opacity-80">No lecturer assigned for direct communication in this course.</p>
+                                <p className="p-4 bg-blue-50 text-blue-800 border-l-4 border-blue-500 rounded-md bg-opacity-80">No lecturer assigned to this course yet.</p>
                             )}
                         </>
                     )}
@@ -154,7 +154,7 @@ function StudentCourseManager({ courses, fetchEnrolledCourses, studentId }) {
                                         Lecturer: <span className="font-medium text-gray-700">{lecturerNameCard}</span>
                                     </p>
                                     <button className="w-full py-2.5 bg-indigo-50 group-hover:bg-indigo-600 text-indigo-700 group-hover:text-white font-semibold rounded-lg transition-colors border border-indigo-100 group-hover:border-indigo-600 shadow-sm">
-                                        View Course Details & Work
+                                        Open Course
                                     </button>
                                 </div>
                             </div>

@@ -7,8 +7,8 @@ function AssignmentTable({ assignments, onEdit, onDelete, onGrade }) {
                 <div className="w-16 h-16 bg-white rounded-3xl shadow-lg flex items-center justify-center text-gray-200 mx-auto mb-6">
                     <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                 </div>
-                <p className="text-xl font-black text-gray-300 italic tracking-tight">No assessment directives established.</p>
-                <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mt-2 animate-bounce">Awaiting New Assignment Protocol</p>
+                <p className="text-xl font-black text-gray-300 italic tracking-tight">No assignments created yet.</p>
+                <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mt-2 animate-bounce">Awaiting New Assignment</p>
             </div>
         );
     }
@@ -20,11 +20,11 @@ function AssignmentTable({ assignments, onEdit, onDelete, onGrade }) {
                 <table className="w-full border-separate border-spacing-0">
                     <thead>
                         <tr className="bg-gray-900/5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] text-left">
-                            <th className="py-6 px-10 rounded-tl-[40px]">Strategic Title</th>
-                            <th className="py-6 px-10 text-center">Deadline Protocol</th>
-                            <th className="py-6 px-10 text-center">Inbound Artifacts</th>
-                            <th className="py-6 px-10 text-center">Pending Review</th>
-                            <th className="py-6 px-10 text-right rounded-tr-[40px]">Operational Commands</th>
+                            <th className="py-6 px-10 rounded-tl-[40px]">Assignment Title</th>
+                            <th className="py-6 px-10 text-center">Due Date</th>
+                            <th className="py-6 px-10 text-center">Submissions</th>
+                            <th className="py-6 px-10 text-center">Pending Grade</th>
+                            <th className="py-6 px-10 text-right rounded-tr-[40px]">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100/50">
@@ -39,7 +39,7 @@ function AssignmentTable({ assignments, onEdit, onDelete, onGrade }) {
                                             </span>
                                             <div className="flex items-center gap-2 mt-2 opacity-60">
                                                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Active Operative</span>
+                                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Active</span>
                                             </div>
                                         </div>
                                     </td>
@@ -48,7 +48,7 @@ function AssignmentTable({ assignments, onEdit, onDelete, onGrade }) {
                                             <span className="text-sm font-black text-gray-700 group-hover:text-indigo-700">
                                                 {new Date(assignment.dueDate).toLocaleDateString('en-GB')}
                                             </span>
-                                            <span className="text-[9px] font-black text-gray-300 uppercase tracking-tighter mt-0.5">Termination Date</span>
+                                            <span className="text-[9px] font-black text-gray-300 uppercase tracking-tighter mt-0.5">Due Date</span>
                                         </div>
                                     </td>
                                     <td className="py-8 px-10 text-center text-2xl font-black text-gray-900 tabular-nums">
@@ -65,20 +65,20 @@ function AssignmentTable({ assignments, onEdit, onDelete, onGrade }) {
                                                 onClick={() => onGrade(assignment)} 
                                                 className="px-6 py-3 bg-indigo-600 text-white font-black rounded-2xl shadow-xl shadow-indigo-100 hover:bg-black transition-all hover:scale-105 active:scale-95 uppercase tracking-widest text-[10px]"
                                             >
-                                                Assess Data
+                                                Grade Submissions
                                             </button>
                                             <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity translate-x-4 group-hover:translate-x-0 duration-300">
                                                 <button 
                                                     onClick={() => onEdit(assignment)} 
                                                     className="p-3 bg-white border border-gray-100 text-amber-500 hover:bg-amber-500 hover:text-white rounded-2xl shadow-xl shadow-gray-100 hover:shadow-amber-100 transition-all active:scale-90"
-                                                    title="Modify Directives"
+                                                    title="Edit"
                                                 >
                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                                 </button>
                                                 <button 
                                                     onClick={() => onDelete(assignment.id, assignment.title)} 
                                                     className="p-3 bg-white border border-gray-100 text-rose-500 hover:bg-rose-500 hover:text-white rounded-2xl shadow-xl shadow-gray-100 hover:shadow-rose-100 transition-all active:scale-90"
-                                                    title="Erase Directive"
+                                                    title="Delete"
                                                 >
                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                                 </button>
@@ -101,7 +101,7 @@ function AssignmentTable({ assignments, onEdit, onDelete, onGrade }) {
                             <div className="flex justify-between items-start">
                                 <div className="space-y-1">
                                     <h3 className="text-xl font-black text-gray-900 tracking-tight leading-none italic">{assignment.title}</h3>
-                                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest italic">Directive ID: {assignment.id.substring(0,6)}</p>
+                                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest italic">ID: {assignment.id.substring(0,6)}</p>
                                 </div>
                                 <div className={`px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest italic ${needsGrading > 0 ? 'bg-rose-50 text-rose-500 border border-rose-100 animate-pulse' : 'bg-emerald-50 text-emerald-500 border border-emerald-100'}`}>
                                     {needsGrading > 0 ? `${needsGrading} Pending` : 'All Graded'}
@@ -118,7 +118,7 @@ function AssignmentTable({ assignments, onEdit, onDelete, onGrade }) {
                                     <p className="text-lg font-black text-gray-900 leading-none">{assignment.submissions || 0}</p>
                                 </div>
                                 <div className="text-center">
-                                    <p className="text-[7px] font-black text-gray-400 uppercase tracking-widest italic mb-1">Validated</p>
+                                    <p className="text-[7px] font-black text-gray-400 uppercase tracking-widest italic mb-1">Graded</p>
                                     <p className="text-lg font-black text-emerald-600 leading-none">{assignment.graded || 0}</p>
                                 </div>
                             </div>

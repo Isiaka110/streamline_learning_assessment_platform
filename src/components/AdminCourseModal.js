@@ -88,7 +88,7 @@ function AdminCourseModal({ course, onClose, onSuccess }) {
             if (res.ok) {
                 onSuccess(true); 
             } else {
-                setError(data.message || `Failed to ${isEdit ? 'update' : 'create'} sector.`);
+                setError(data.message || `Failed to ${isEdit ? 'update' : 'create'} course.`);
             }
 
         } catch (err) {
@@ -105,8 +105,8 @@ function AdminCourseModal({ course, onClose, onSuccess }) {
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full translate-x-10 -translate-y-10 blur-3xl"></div>
                     <div className="relative z-10 flex justify-between items-end">
                         <div className="space-y-2">
-                            <h2 className="text-4xl font-black tracking-tight leading-none uppercase">{isEdit ? 'Reconfigure Sector' : 'Initialize Sector'}</h2>
-                            <p className="text-indigo-100/80 text-[10px] font-black uppercase tracking-[0.2em]">{isEdit ? 'Updating core course matrices' : 'Establishing new academic domain'}</p>
+                            <h2 className="text-4xl font-black tracking-tight leading-none uppercase">{isEdit ? 'Edit Course' : 'Create Course'}</h2>
+                            <p className="text-indigo-100/80 text-[10px] font-black uppercase tracking-[0.2em]">{isEdit ? 'Update course details' : 'Add a new course to the catalog'}</p>
                         </div>
                         <button onClick={() => onClose(false)} className="p-4 hover:bg-white/20 rounded-2xl transition-all active:scale-95 group">
                             <svg className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -124,7 +124,7 @@ function AdminCourseModal({ course, onClose, onSuccess }) {
                     <form onSubmit={handleSubmit} className="space-y-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Sector Code</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Course Code</label>
                                 <input 
                                     type="text" 
                                     name="code" 
@@ -138,7 +138,7 @@ function AdminCourseModal({ course, onClose, onSuccess }) {
                             </div>
 
                             <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Domain Title</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Course Title</label>
                                 <input 
                                     type="text" 
                                     name="title" 
@@ -154,7 +154,7 @@ function AdminCourseModal({ course, onClose, onSuccess }) {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Cycle Semester</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Semester</label>
                                 <select
                                     name="semester"
                                     value={formData.semester}
@@ -163,14 +163,14 @@ function AdminCourseModal({ course, onClose, onSuccess }) {
                                     required
                                     disabled={isSaving}
                                 >
-                                    <option value="">Select Phase</option>
-                                    <option value="FIRST">Primary Phase (1st)</option>
-                                    <option value="SECOND">Secondary Phase (2nd)</option>
+                                    <option value="">Select Semester</option>
+                                    <option value="FIRST">1st Semester</option>
+                                    <option value="SECOND">2nd Semester</option>
                                 </select>
                             </div>
 
                             <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Temporal Year</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Year</label>
                                 <input 
                                     type="number" 
                                     name="year" 
@@ -188,19 +188,19 @@ function AdminCourseModal({ course, onClose, onSuccess }) {
                         </div>
 
                         <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Domain Narrative (Optional)</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Description (Optional)</label>
                             <textarea 
                                 name="description" 
                                 value={formData.description} 
                                 onChange={handleChange} 
-                                placeholder="Establish the core objectives and scope of this sector..."
+                                placeholder="Provide a brief overview of the course..."
                                 className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 rounded-2xl outline-none transition-all font-medium text-gray-700 min-h-[120px] resize-none placeholder:text-gray-300 shadow-inner"
                                 disabled={isSaving} 
                             />
                         </div>
 
                         <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Assigned Command Personnel (Lecturers)</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Assign Lecturers</label>
                             <div className="relative">
                                 <select 
                                     name="assignedLecturerIds" 
@@ -211,9 +211,9 @@ function AdminCourseModal({ course, onClose, onSuccess }) {
                                     disabled={isLecturersLoading || isSaving}
                                 >
                                     {isLecturersLoading ? (
-                                        <option disabled>Parsing Tactical Personnel...</option>
+                                        <option disabled>Loading Lecturers...</option>
                                     ) : allLecturers.length === 0 ? (
-                                        <option disabled>No Operatives Available</option>
+                                        <option disabled>No lecturers found</option>
                                     ) : (
                                         allLecturers.map(lec => (
                                             <option key={lec.id} value={lec.id} className="py-2 px-4 rounded-xl checked:bg-indigo-600 checked:text-white my-1 cursor-pointer">
@@ -224,8 +224,8 @@ function AdminCourseModal({ course, onClose, onSuccess }) {
                                 </select>
                             </div>
                             <div className="flex justify-between items-center px-4 mt-2">
-                                <p className="text-[9px] font-black text-gray-300 uppercase italic">Hold CTRL/CMD for Multi-Assignment</p>
-                                <span className="text-[10px] font-black text-indigo-500 uppercase">{formData.assignedLecturerIds.length} Personnel Assigned</span>
+                                <p className="text-[9px] font-black text-gray-300 uppercase italic">Hold CTRL/CMD to select multiple</p>
+                                <span className="text-[10px] font-black text-indigo-500 uppercase">{formData.assignedLecturerIds.length} Lecturers Selected</span>
                             </div>
                         </div>
 
@@ -236,7 +236,7 @@ function AdminCourseModal({ course, onClose, onSuccess }) {
                                 className="flex-1 py-5 px-6 bg-gray-50 text-gray-400 font-black rounded-3xl hover:bg-gray-100 transition-colors uppercase tracking-widest text-[10px] border border-gray-200"
                                 disabled={isSaving}
                             >
-                                Abort
+                                Cancel
                             </button>
                             <button 
                                 type="submit" 
@@ -249,7 +249,7 @@ function AdminCourseModal({ course, onClose, onSuccess }) {
                                         Syncing Domain...
                                     </>
                                 ) : (
-                                    isEdit ? 'Sync Domain Parameters' : 'Authorize New Domain'
+                                    isEdit ? 'Save Changes' : 'Create Course'
                                 )}
                             </button>
                         </div>

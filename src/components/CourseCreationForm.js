@@ -50,15 +50,15 @@ const CourseCreationForm = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage(`SUCCESS: Domain "${data.course.title}" authorized.`);
+        setMessage(`SUCCESS: Course "${data.course.title}" created.`);
         setIsError(false);
         resetForm(); 
       } else {
-        setMessage(`FAILURE: ${data.message || 'Domain initialization failed.'}`);
+        setMessage(`FAILURE: ${data.message || 'Course creation failed.'}`);
         setIsError(true);
       }
     } catch (error) {
-      setMessage('CRITICAL: Unexpected uplink disruption.');
+      setMessage('ERROR: Network error occurred.');
       setIsError(true);
     } finally {
       setLoading(false);
@@ -73,10 +73,10 @@ const CourseCreationForm = () => {
           <div className="relative z-10 space-y-3">
              <div className="flex items-center gap-3">
                 <div className="w-2 h-2 rounded-full bg-indigo-500 animate-ping"></div>
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 italic">Sector Initialization Unit</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 italic">Course Creator</span>
              </div>
-             <h2 className="text-5xl font-black tracking-tighter leading-none uppercase italic italic-shadow">Start New <span className="text-indigo-500">Domain</span></h2>
-             <p className="text-gray-400 font-bold text-xs uppercase tracking-widest max-w-sm">Establish new academic parameters and strategic curriculum matrices.</p>
+             <h2 className="text-5xl font-black tracking-tighter leading-none uppercase italic italic-shadow">Create New <span className="text-indigo-500">Course</span></h2>
+             <p className="text-gray-400 font-bold text-xs uppercase tracking-widest max-w-sm">Setup new courses and curriculum details.</p>
           </div>
         </div>
         
@@ -96,7 +96,7 @@ const CourseCreationForm = () => {
 
           <form onSubmit={handleSubmit} className="space-y-10">
             <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-2 italic">Strategic Domain Title</label>
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-2 italic">Course Title</label>
               <input
                 type="text"
                 value={title}
@@ -110,7 +110,7 @@ const CourseCreationForm = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-2 italic">Sector Logic Code</label>
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-2 italic">Course Code</label>
                 <input
                   type="text"
                   value={code}
@@ -124,7 +124,7 @@ const CourseCreationForm = () => {
               </div>
 
               <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-2 italic">Operational Phase</label>
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-2 italic">Semester</label>
                 <div className="relative">
                   <select 
                     value={semester}
@@ -133,9 +133,9 @@ const CourseCreationForm = () => {
                     disabled={loading}
                     className="w-full px-8 py-5 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-600 focus:ring-8 focus:ring-indigo-50 rounded-[28px] outline-none transition-all font-black text-gray-700 appearance-none cursor-pointer shadow-inner uppercase italic text-sm"
                   >
-                    <option value="" disabled>-- SELECT PHASE --</option>
-                    <option value="FIRST">PRIMARY PHASE (1ST SEM)</option>
-                    <option value="SECOND">SECONDARY PHASE (2ND SEM)</option>
+                    <option value="" disabled>-- SELECT SEMESTER --</option>
+                    <option value="FIRST">FIRST SEMESTER</option>
+                    <option value="SECOND">SECOND SEMESTER</option>
                   </select>
                   <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-indigo-600">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7"></path></svg>
@@ -146,7 +146,7 @@ const CourseCreationForm = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-2 italic">Temporal Vector (Year)</label>
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-2 italic">Year</label>
                 <input
                   type="number"
                   value={year}
@@ -161,13 +161,13 @@ const CourseCreationForm = () => {
             </div>
 
             <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-2 italic">Domain Narrative Overview</label>
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-2 italic">Description</label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 disabled={loading}
                 rows="5"
-                placeholder="Establish the core objectives and tactical scope of this domain..."
+                placeholder="Enter a brief course description..."
                 className="w-full px-8 py-6 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-600 focus:ring-8 focus:ring-indigo-50 rounded-[32px] outline-none transition-all resize-none shadow-inner font-medium text-gray-700 placeholder:text-gray-300 italic"
               />
             </div>
@@ -179,12 +179,11 @@ const CourseCreationForm = () => {
             >
               {loading ? (
                 <>
-                  <svg className="animate-spin h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                  Initializing Domain Matrix...
+                  Saving...
                 </>
               ) : (
                 <>
-                  Authorize Domain
+                  Create Course
                   <svg className="w-6 h-6 group-hover:translate-x-2 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
                 </>
               )}

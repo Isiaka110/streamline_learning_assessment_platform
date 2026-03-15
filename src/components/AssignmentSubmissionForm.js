@@ -45,17 +45,17 @@ const AssignmentSubmissionForm = ({ assignmentId, onClose, onSuccess }) => {
             const data = await res.json();
 
             if (res.ok) {
-                setSuccessMessage(data.message || 'Artifact successfully synchronized with command.');
+                setSuccessMessage(data.message || 'Assignment submitted successfully.');
                 if (onSuccess) {
                     onSuccess();
                 }
                 setTimeout(onClose, 2000); 
             } else {
-                setError(data.message || 'Submission sequence failure.');
+                setError(data.message || 'Failed to submit assignment.');
             }
         } catch (err) {
             console.error('Submission Error:', err);
-            setError('Network uplink failure.');
+            setError('Network error during submission.');
         } finally {
             setIsLoading(false);
         }
@@ -67,8 +67,8 @@ const AssignmentSubmissionForm = ({ assignmentId, onClose, onSuccess }) => {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full translate-x-10 -translate-y-10 blur-3xl"></div>
                 <div className="relative z-10 flex justify-between items-end">
                     <div className="space-y-2">
-                        <h2 className="text-4xl font-black tracking-tight leading-none uppercase">Deploy Artifact</h2>
-                        <p className="text-indigo-100/80 text-[10px] font-black uppercase tracking-[0.2em]">Assignment Submission Protocol</p>
+                        <h2 className="text-4xl font-black tracking-tight leading-none uppercase">Submit Assignment</h2>
+                        <p className="text-indigo-100/80 text-[10px] font-black uppercase tracking-[0.2em]">Upload your work</p>
                     </div>
                 </div>
             </div>
@@ -88,18 +88,18 @@ const AssignmentSubmissionForm = ({ assignmentId, onClose, onSuccess }) => {
 
                 <form onSubmit={handleSubmit} className="space-y-8">
                     <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Submission Narrative</label>
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Your Message</label>
                         <textarea
                             value={submissionText}
                             onChange={(e) => setSubmissionText(e.target.value)}
-                            placeholder="Provide a detailed explanation or response for this artifact..."
+                            placeholder="Provide any additional details or notes about your submission..."
                             className="w-full px-8 py-6 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 rounded-[32px] outline-none transition-all font-medium text-gray-700 min-h-[180px] resize-none placeholder:text-gray-300 shadow-inner"
                             disabled={isLoading || !!successMessage}
                         />
                     </div>
 
                     <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Attached Payload (Optional)</label>
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Upload File (Optional)</label>
                         <div className="relative group/file">
                             <input 
                                 type="file" 
@@ -117,7 +117,7 @@ const AssignmentSubmissionForm = ({ assignmentId, onClose, onSuccess }) => {
                             className="flex-1 py-5 px-6 bg-gray-50 text-gray-400 font-black rounded-3xl hover:bg-gray-100 transition-colors uppercase tracking-widest text-[10px] border border-gray-200"
                             disabled={isLoading}
                         >
-                            Abort
+                            Cancel
                         </button>
                         <button 
                             type="submit" 
@@ -127,13 +127,13 @@ const AssignmentSubmissionForm = ({ assignmentId, onClose, onSuccess }) => {
                             {isLoading ? (
                                 <>
                                     <svg className="animate-spin h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                    Transmitting...
+                                    Submitting...
                                 </>
                             ) : successMessage ? (
-                                'Sync Complete'
+                                'Submitted'
                             ) : (
                                 <>
-                                    Deploy Artifact
+                                    Submit Assignment
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
                                 </>
                             )}
