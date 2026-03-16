@@ -1,6 +1,6 @@
 // pages/api/lecturer/assignments/[assignmentId].js
 import { checkLecturerCourseAccess } from '@api/utils/auth-check'; // Adjust path
-import prisma from '@api/prisma'; // Adjust path
+import prisma from '@lib/prisma'; // Adjust path
 
 export default async function handler(req, res) {
     const { assignmentId } = req.query; // Get assignmentId from dynamic route

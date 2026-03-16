@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image'; // 🔑 1. IMPORT Next.js Image Component
-import prisma from '@api/prisma'; // Adjust path as needed
+import prisma from '@lib/prisma'; // Adjust path as needed
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@api/auth/[...nextauth]';
 import { UserRole } from '@prisma/client';
@@ -302,7 +302,7 @@ export default AssignmentGradingPage;
 
 // import React, { useState, useEffect, useCallback } from 'react';
 // import { useRouter } from 'next/router';
-// import prisma from '@api/prisma'; // Adjust path as needed
+// import prisma from '@lib/prisma'; // Adjust path as needed
 // import { getServerSession } from 'next-auth/next';
 // import { authOptions } from '@api/auth/[...nextauth]';
 // import { UserRole } from '@prisma/client';

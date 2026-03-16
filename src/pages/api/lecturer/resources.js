@@ -1,10 +1,10 @@
 // File: pages/api/lecturer/resources.js
 
-import prisma from '@api/prisma'; 
+import prisma from '@lib/prisma'; 
 import { UserRole } from '@prisma/client';
 import { getServerSession } from 'next-auth/next';
 // 🔑 ADJUSTMENT: Assuming authOptions is located one level up in the auth folder
-import { authOptions } from '../auth/[...nextauth]'; 
+import { authOptions } from '@api/auth/[...nextauth]'; 
 import { promises as fs } from 'fs';
 import path from 'path';
 import formidable from 'formidable';

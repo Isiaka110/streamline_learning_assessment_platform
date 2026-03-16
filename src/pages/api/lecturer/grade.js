@@ -1,6 +1,6 @@
 // pages/api/lecturer/grade.js
 import { checkLecturerCourseAccess } from '@api/utils/auth-check';
-import prisma from '@api/prisma';
+import prisma from '@lib/prisma';
 
 export default async function handler(req, res) {
     // We get courseId from the submission's related assignment

@@ -1,6 +1,6 @@
 // pages/api/admin/users.js
 
-import prisma from '@api/prisma'; // Adjust path if needed
+import prisma from '@lib/prisma'; // Adjust path if needed
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@api/auth/[...nextauth]';
 import { UserRole } from '@prisma/client';

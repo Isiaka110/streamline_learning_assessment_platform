@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@api/auth/[...nextauth]';
-import prisma from '@api/prisma';
+import prisma from '@lib/prisma';
 import { UserRole } from '@prisma/client';
 
 export default async function handler(req, res) {
@@ -104,7 +104,7 @@ export default async function handler(req, res) {
 // // pages/api/admin/courses/index.js
 // import { getServerSession } from 'next-auth/next';
 // import { authOptions } from '@api/auth/[...nextauth]';
-// import prisma from '@api/prisma';
+// import prisma from '@lib/prisma';
 // import { UserRole } from '@prisma/client';
 
 

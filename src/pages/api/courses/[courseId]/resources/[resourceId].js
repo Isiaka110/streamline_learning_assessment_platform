@@ -2,7 +2,7 @@
 
 import { getSession } from 'next-auth/react'; 
 import { UserRole } from '@prisma/client';
-import prisma from '@api/prisma'; 
+import prisma from '@lib/prisma'; 
 import { uploadFile } from '@lib/file-handler'; 
 import fs from 'fs'; 
 import path from 'path';

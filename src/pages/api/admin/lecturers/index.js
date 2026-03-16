@@ -1,8 +1,8 @@
 // File: pages/api/admin/lecturers/index.js (UPDATED - Simplified GET and Corrected Relationship)
 
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../../auth/[...nextauth]'; 
-import prisma from '@/lib/prisma';
+import { authOptions } from '@api/auth/[...nextauth]'; 
+import prisma from '@lib/prisma';
 import { UserRole } from '@prisma/client'; 
 import { hash } from 'bcryptjs'; 
 

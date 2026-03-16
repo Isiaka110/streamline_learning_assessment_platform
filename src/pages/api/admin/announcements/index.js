@@ -1,6 +1,6 @@
 // pages/api/admin/announcements/index.js
 
-import prisma from '@api/prisma'; // Adjust path as per your project structure
+import prisma from '@lib/prisma'; // Adjust path as per your project structure
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@api/auth/[...nextauth]'; // Adjust path as per your project structure
 import { UserRole } from '@prisma/client';

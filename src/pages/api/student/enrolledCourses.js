@@ -1,6 +1,6 @@
 // pages/api/student/enrolledCourses.js
 
-import prisma from '@api/prisma';
+import prisma from '@lib/prisma';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@api/auth/[...nextauth]';
 import { UserRole } from '@prisma/client';

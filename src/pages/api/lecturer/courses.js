@@ -2,7 +2,7 @@
 
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@api/auth/[...nextauth]'; // Adjust path
-import prisma from '@api/prisma'; // Adjust path
+import prisma from '@lib/prisma'; // Adjust path
 import { UserRole } from '@prisma/client'; 
 
 export default async function handler(req, res) {
@@ -52,7 +52,7 @@ export default async function handler(req, res) {
 
 // import { PrismaClient, UserRole } from '@prisma/client';
 // import { getServerSession } from 'next-auth/next';
-// import { authOptions } from '../auth/[...nextauth]';
+// import { authOptions } from '@api/auth/[...nextauth]';
 
 // const prisma = global.prisma || new PrismaClient();
 

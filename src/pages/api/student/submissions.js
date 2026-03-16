@@ -1,6 +1,6 @@
 // pages/api/student/submissions.js (Verify this file)
 
-import prisma from '@api/prisma';
+import prisma from '@lib/prisma';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@api/auth/[...nextauth]';
 import { UserRole } from '@prisma/client';

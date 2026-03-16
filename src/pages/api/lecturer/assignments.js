@@ -1,4 +1,4 @@
-import prisma from '@api/prisma'; 
+import prisma from '@lib/prisma'; 
 import { checkLecturerCourseAccess } from '@api/utils/auth-check';
 
 export default async function handler(req, res) {

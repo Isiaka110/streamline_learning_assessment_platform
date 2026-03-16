@@ -1,9 +1,9 @@
 // File: pages/api/lecturer/courses/[courseId]/students.js
 
-import prisma from '@api/prisma'; 
+import prisma from '@lib/prisma'; 
 import { UserRole } from '@prisma/client';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../../../auth/[...nextauth]'; 
+import { authOptions } from '@api/auth/[...nextauth]'; 
 
 /**
  * Checks if the authenticated user is a LECTURER and is assigned to the course.

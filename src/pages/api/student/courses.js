@@ -1,6 +1,6 @@
 // pages/api/student/courses.js
 
-import prisma from '@/lib/prisma'; // Adjust path if needed
+import prisma from '@lib/prisma'; // Adjust path if needed
 import { UserRole } from '@prisma/client';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@api/auth/[...nextauth]'; // Adjust path if needed

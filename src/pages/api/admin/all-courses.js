@@ -1,6 +1,6 @@
 import { PrismaClient, UserRole } from '@prisma/client';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../auth/[...nextauth]'; 
+import { authOptions } from '@api/auth/[...nextauth]'; 
 
 const prisma = global.prisma || new PrismaClient();
 if (process.env.NODE_ENV !== 'production') global.prisma = prisma;

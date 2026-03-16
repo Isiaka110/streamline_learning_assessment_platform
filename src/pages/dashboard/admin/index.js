@@ -4,7 +4,7 @@ import { withAuthGuard } from '@components/AuthGuard';
 import LogoContainer from '@components/LogoContainer';
 import { UserRole } from '@prisma/client';
 import Link from 'next/link';
-import prisma from '@api/prisma'; 
+import prisma from '@lib/prisma'; 
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@api/auth/[...nextauth]'; 
 

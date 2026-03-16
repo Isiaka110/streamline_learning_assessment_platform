@@ -1,6 +1,6 @@
 // pages/api/lecturer/students.js
 import { checkLecturerCourseAccess } from '@api/utils/auth-check';
-import prisma from '@api/prisma';
+import prisma from '@lib/prisma';
 import { UserRole } from '@prisma/client';
 
 export default async function handler(req, res) {
