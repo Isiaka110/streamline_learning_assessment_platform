@@ -1,45 +1,74 @@
-// pages/api/auth/[...nextauth].js (Corrected)
+// pages/api/auth/[...nextauth].js 
 
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { PrismaClient } from '@prisma/client';
-// ❌ REMOVE THE ADAPTER IMPORT: import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import prisma from '@api/prisma';
 import bcrypt from 'bcryptjs';
 
-const prisma = new PrismaClient();
-
 export const authOptions = {
-    // ❌ FIX: Remove the adapter line if using JWT strategy
-    // adapter: PrismaAdapter(prisma), 
-    
-    // ✅ Keep JWT strategy as it's necessary for role passing in callbacks
-    session: { strategy: 'jwt' }, 
-    
+    session: { 
+        strategy: 'jwt',
+        maxAge: 30 * 24 * 60 * 60, // 30 days
+    }, 
     providers: [
-        // ... (CredentialsProvider remains the same)
         CredentialsProvider({
             name: 'Credentials', 
-            credentials: { email: { label: 'Email' }, password: { label: 'Password' } },
+            credentials: { 
+                email: { label: 'Email', type: 'email' }, 
+                password: { label: 'Password', type: 'password' } 
+            },
             async authorize(credentials) {
-                const user = await prisma.user.findUnique({ where: { email: credentials.email } });
-                if (user && await bcrypt.compare(credentials.password, user.password)) {
-                    return { id: user.id, name: user.name, email: user.email, role: user.role };
+                if (!credentials?.email || !credentials?.password) return null;
+                
+                try {
+                    const user = await prisma.user.findUnique({ 
+                        where: { email: credentials.email.toLowerCase() } 
+                    });
+                    
+                    if (user && await bcrypt.compare(credentials.password, user.password)) {
+                        return { 
+                            id: user.id, 
+                            name: user.name, 
+                            email: user.email, 
+                            role: user.role 
+                        };
+                    }
+                } catch (error) {
+                    console.error("Auth authorize error:", error);
                 }
                 return null;
             },
         }),
     ],
-    pages: { signIn: '/auth/signin', error: '/auth/signin' },
-    
-    // The rest of the config is correct for passing role data
+    pages: { 
+        signIn: '/auth/signin', 
+        error: '/auth/signin',
+    },
     callbacks: {
-        async jwt({ token, user }) { if (user) { token.id = user.id; token.role = user.role; } return token; },
-        async session({ session, token }) { if (token) { session.user.id = token.id; session.user.role = token.role; } return session; },
+        async jwt({ token, user }) { 
+            if (user) { 
+                token.id = user.id; 
+                token.role = user.role; 
+            } 
+            return token; 
+        },
+        async session({ session, token }) { 
+            if (token) { 
+                session.user.id = token.id; 
+                session.user.role = token.role; 
+            } 
+            return session; 
+        },
+        async redirect({ url, baseUrl }) {
+            // Allows relative callback URLs
+            if (url.startsWith("/")) return `${baseUrl}${url}`;
+            // Allows callback URLs on the same origin
+            else if (new URL(url).origin === baseUrl) return url;
+            return baseUrl;
+        }
     },
     secret: process.env.NEXTAUTH_SECRET,
+    debug: process.env.NODE_ENV === 'development',
 };
 
-const authHandler = NextAuth(authOptions);
-export default async function handler(req, res) {
-    await authHandler(req, res);
-}
+export default NextAuth(authOptions);
