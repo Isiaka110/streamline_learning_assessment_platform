@@ -47,14 +47,15 @@ export default function SignInPage() {
   const displayError = error || urlError;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-blue-900 to-indigo-800 text-white font-sans flex flex-col items-center justify-start sm:justify-center p-4 sm:p-6 bg-fixed overflow-y-auto">
+    <div className="min-h-screen w-screen bg-gradient-to-br from-indigo-900 via-blue-900 to-indigo-800 text-white font-sans flex flex-col items-center justify-start py-8 px-4 sm:justify-center sm:py-6 sm:px-6 overflow-x-hidden">
       <Head>
         <title>Sign In | Streamline LMS</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
       </Head>
 
       {/* Decorative background elements */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+      <div className="fixed top-1/4 left-1/4 w-[50vw] h-[50vw] bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none -z-10 animate-pulse"></div>
+      <div className="fixed bottom-1/4 right-1/4 w-[50vw] h-[50vw] bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none -z-10 animate-pulse"></div>
 
       <div className="w-full max-w-md animate-fade-in">
         <div className="flex justify-center mb-6 sm:mb-12">
@@ -153,9 +154,13 @@ export default function SignInPage() {
             </form>
           </div>
 
-          <div className="p-8 sm:p-12 bg-white/5 border-t border-white/10 text-center">
+          <div className="p-8 sm:p-12 bg-white/5 border-t border-white/10 text-center relative z-20">
             <p className="text-blue-100/60 text-sm font-medium mb-1">New to the platform?</p>
-            <Link href="/auth/signup" id="signup-link" className="inline-block mt-2 px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-cyan-400 hover:text-white font-black text-xs uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-xl shadow-black/20">
+            <Link 
+              href="/auth/signup" 
+              id="signup-link" 
+              className="inline-block mt-4 w-full px-8 py-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-2xl text-cyan-400 hover:text-white font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-black/20 cursor-pointer text-center"
+            >
               Create New Account
             </Link>
           </div>
