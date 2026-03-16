@@ -1,14 +1,12 @@
-// pages/api/auth/[...nextauth].js 
-
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import prisma from '@api/prisma';
+import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
 export const authOptions = {
     session: { 
         strategy: 'jwt',
-        maxAge: 30 * 24 * 60 * 60, // 30 days
+        maxAge: 30 * 24 * 60 * 60,
     }, 
     providers: [
         CredentialsProvider({
@@ -53,16 +51,14 @@ export const authOptions = {
             return token; 
         },
         async session({ session, token }) { 
-            if (token) { 
+            if (token && session.user) { 
                 session.user.id = token.id; 
                 session.user.role = token.role; 
             } 
             return session; 
         },
         async redirect({ url, baseUrl }) {
-            // Allows relative callback URLs
             if (url.startsWith("/")) return `${baseUrl}${url}`;
-            // Allows callback URLs on the same origin
             else if (new URL(url).origin === baseUrl) return url;
             return baseUrl;
         }
@@ -71,4 +67,6 @@ export const authOptions = {
     debug: process.env.NODE_ENV === 'development',
 };
 
-export default NextAuth(authOptions);
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };
+export default handler;

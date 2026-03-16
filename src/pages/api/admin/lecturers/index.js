@@ -2,7 +2,7 @@
 
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../auth/[...nextauth]'; 
-import prisma from '../../prisma';
+import prisma from '@/lib/prisma';
 import { UserRole } from '@prisma/client'; 
 import { hash } from 'bcryptjs'; 
 

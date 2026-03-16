@@ -2,7 +2,7 @@ import { UserRole } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from './auth/[...nextauth]';
-import prisma from './prisma'; 
+import prisma from '@/lib/prisma'; 
 
 
 export default async function handler(req, res) {
