@@ -1,20 +1,19 @@
-import { getSession } from 'next-auth/react';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '../api/auth/[...nextauth]';
 import { UserRole } from '@prisma/client';
 
 export default function DashboardRedirect() {
-  // This component will rarely render anything visible 
-  // because the server-side redirection is so fast.
   return (
-    <div style={{ padding: '50px', textAlign: 'center' }}>
+    <div style={{ padding: '50px', textAlign: 'center', background: '#0f172a', minHeight: '100-vh', color: 'white' }}>
       <h1>Redirecting to your dashboard...</h1>
-      <p>Please wait.</p>
+      <p>Initializing secure session.</p>
     </div>
   );
 }
 
 // CRUCIAL: Server-side redirection based on role
 export async function getServerSideProps(context) {
-  const session = await getSession(context);
+  const session = await getServerSession(context.req, context.res, authOptions);
 
   // 1. Unauthenticated check (always redirect to login)
   if (!session) {

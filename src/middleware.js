@@ -7,17 +7,15 @@ export default withAuth(
     const pathname = req.nextUrl.pathname;
 
     // --- CORS Headers ---
-    // If the request is for an API route, add CORS headers
     if (pathname.startsWith("/api")) {
       res.headers.append("Access-Control-Allow-Credentials", "true");
-      res.headers.append("Access-Control-Allow-Origin", "*"); // Consider restrictive origin for production
+      res.headers.append("Access-Control-Allow-Origin", "*"); 
       res.headers.append("Access-Control-Allow-Methods", "GET,DELETE,PATCH,POST,PUT,OPTIONS");
       res.headers.append(
         "Access-Control-Allow-Headers",
         "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
       );
 
-      // Handle preflight requests
       if (req.method === "OPTIONS") {
         return new NextResponse(null, {
           status: 200,
@@ -53,10 +51,11 @@ export default withAuth(
       authorized: ({ token, req }) => {
         const pathname = req.nextUrl.pathname;
         
-        // Public pages
+        // Public pages & Auth internals
         if (
           pathname === "/" || 
           pathname.startsWith("/auth") || 
+          pathname.startsWith("/api/auth") || // <--- EXTREMELY IMPORTANT
           pathname.startsWith("/api/users") || 
           pathname.startsWith("/_next") ||
           pathname.startsWith("/static") ||
@@ -74,7 +73,12 @@ export default withAuth(
 
 export const config = {
   matcher: [
-    "/((?!api/auth|_next/static|_next/image|favicon.ico).*)",
-    "/api/:path*", // Explicitly match API routes for CORS
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    "/((?!_next/static|_next/image|favicon.ico).*)",
   ],
 };
