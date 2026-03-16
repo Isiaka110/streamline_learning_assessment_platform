@@ -3,15 +3,37 @@ import { NextResponse } from "next/server";
 
 export default withAuth(
   function middleware(req) {
-    const token = req.nextauth.token;
+    const res = NextResponse.next();
     const pathname = req.nextUrl.pathname;
 
-    // If the user is authenticated, redirect them away from auth pages
+    // --- CORS Headers ---
+    // If the request is for an API route, add CORS headers
+    if (pathname.startsWith("/api")) {
+      res.headers.append("Access-Control-Allow-Credentials", "true");
+      res.headers.append("Access-Control-Allow-Origin", "*"); // Consider restrictive origin for production
+      res.headers.append("Access-Control-Allow-Methods", "GET,DELETE,PATCH,POST,PUT,OPTIONS");
+      res.headers.append(
+        "Access-Control-Allow-Headers",
+        "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+      );
+
+      // Handle preflight requests
+      if (req.method === "OPTIONS") {
+        return new NextResponse(null, {
+          status: 200,
+          headers: res.headers,
+        });
+      }
+    }
+
+    const token = req.nextauth.token;
+
+    // 1. If the user is authenticated, redirect them away from auth pages
     if (token && pathname.startsWith("/auth")) {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
 
-    // Role-based access control
+    // 2. Role-based access control
     if ((pathname.startsWith("/dashboard/admin") || pathname.startsWith("/admin")) && token?.role !== "ADMIN") {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
@@ -24,7 +46,7 @@ export default withAuth(
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
 
-    return NextResponse.next();
+    return res;
   },
   {
     callbacks: {
@@ -52,13 +74,7 @@ export default withAuth(
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api/auth (auth check)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
     "/((?!api/auth|_next/static|_next/image|favicon.ico).*)",
+    "/api/:path*", // Explicitly match API routes for CORS
   ],
 };
