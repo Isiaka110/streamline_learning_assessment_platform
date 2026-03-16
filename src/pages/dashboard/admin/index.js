@@ -18,7 +18,7 @@ function AdminDashboard({
 }) {
 
     const handleLogout = () => {
-        signOut({ callbackUrl: '/' }); 
+        signOut({ callbackUrl: '/auth/signin' }); 
     };
     
     if (error) {
@@ -96,8 +96,8 @@ function AdminDashboard({
                         <h2 className="text-2xl font-bold text-gray-800 mb-4">System-Wide Announcements 📣</h2>
                         <p className="text-gray-600 mb-6 border-b border-blue-200/50 pb-4">Push critical updates and notifications to all platform users.</p>
                     </div>
-                    <Link href="/admin/compose-announcement" className="text-center md:self-start md:px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors shadow-md shadow-blue-500/20">
-                        Compose New Platform Announcement
+                    <Link href="/dashboard/admin/announcements" className="text-center md:self-start md:px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors shadow-md shadow-blue-500/20">
+                        Manage Platform Announcements
                     </Link>
                 </div>
 

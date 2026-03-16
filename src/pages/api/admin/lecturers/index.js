@@ -1,8 +1,8 @@
 // File: pages/api/admin/lecturers/index.js (UPDATED - Simplified GET and Corrected Relationship)
 
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@api/auth/[...nextauth]'; // Adjust path as needed
-import prisma from '@api/prisma'; // Adjust path as needed
+import { authOptions } from '../../auth/[...nextauth]'; 
+import prisma from '../../prisma';
 import { UserRole } from '@prisma/client'; 
 import { hash } from 'bcryptjs'; 
 
@@ -43,25 +43,17 @@ export default async function handler(req, res) {
             });
 
             // Ensure null names/emails are handled for serialization safety
-            const serializableLecturers = lecturers.map(l => ({
-                ...l,
-                name: l.name ?? 'N/A', 
-                email: l.email ?? 'N/A',
-                // Rename taughtCourses back to 'courses' for client-side compatibility 
-                // if the client component expects 'courses'. 
-                // If the client component expects 'taughtCourses', remove this line.
-                courses: l.taughtCourses, 
-                // We'll keep the client logic expecting 'courses' as a convention
-                // but you may need to check your AdminLecturerTable.js
-            }));
-
-            // Sending back 'serializableLecturers' which has the courses under the 'courses' key (if renamed above)
-            // or the original 'lecturers' which has the courses under the 'taughtCourses' key.
-            // Based on the prior component code, the client expects 'courses'.
-            return res.status(200).json(serializableLecturers.map(l => {
+            const serializableLecturers = lecturers.map(l => {
                 const { taughtCourses, ...rest } = l;
-                return { ...rest, courses: taughtCourses };
-            }));
+                return {
+                    ...rest,
+                    name: l.name ?? 'N/A', 
+                    email: l.email ?? 'N/A',
+                    courses: taughtCourses || [],
+                };
+            });
+
+            return res.status(200).json(serializableLecturers);
 
         } catch (error) {
             console.error('API Error (GET /admin/lecturers):', error);

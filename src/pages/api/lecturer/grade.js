@@ -9,9 +9,9 @@ export default async function handler(req, res) {
         return res.status(405).end(`Method ${req.method} Not Allowed`);
     }
     
-    const { submissionId, gradeValue } = req.body;
+    const { submissionId, grade, feedback } = req.body;
 
-    if (!submissionId || gradeValue === undefined || gradeValue === null) {
+    if (!submissionId || grade === undefined || grade === null) {
         return res.status(400).json({ message: 'Missing submission ID or grade value.' });
     }
 
@@ -43,10 +43,9 @@ export default async function handler(req, res) {
         const updatedSubmission = await prisma.submission.update({
             where: { id: submissionId },
             data: { 
-                grade: parseInt(gradeValue),
+                grade: parseInt(grade),
+                feedback: feedback || null,
                 gradedAt: new Date(),
-                // Optionally link the grader's ID (the lecturer's ID)
-                grader: { connect: { id: session.user.id } }
             },
         });
 

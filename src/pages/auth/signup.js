@@ -69,7 +69,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-blue-900 to-indigo-800 text-white font-sans flex items-center justify-center p-6 bg-fixed">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-blue-900 to-indigo-800 text-white font-sans flex flex-col items-center justify-start sm:justify-center p-4 sm:p-6 bg-fixed overflow-y-auto">
       <Head>
         <title>Student Registration | Streamline LMS</title>
       </Head>
@@ -79,21 +79,24 @@ export default function RegisterPage() {
       <div className="absolute bottom-1/3 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none"></div>
 
       <div className="w-full max-w-md animate-fade-in">
-        <div className="flex justify-center mb-6 sm:mb-10">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-tr from-cyan-400 to-blue-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg shadow-cyan-500/30 group-hover:scale-110 transition-transform duration-300">
-              <span className="font-bold text-xl sm:text-2xl tracking-tighter text-white">S</span>
+        <div className="flex justify-center mb-6 sm:mb-12">
+          <Link href="/" className="flex items-center gap-3 group transition-transform hover:scale-105">
+            <div className="w-10 h-10 sm:w-14 sm:h-14 bg-gradient-to-tr from-cyan-400 to-blue-600 rounded-xl sm:rounded-[1.25rem] flex items-center justify-center shadow-2xl shadow-cyan-500/40 group-hover:shadow-cyan-400/60 transition-all duration-300">
+              <span className="font-black text-2xl sm:text-3xl tracking-tighter text-white italic">S</span>
             </div>
-            <span className="text-xl sm:text-2xl font-bold tracking-wider text-white">Streamline<span className="text-cyan-400">LMS</span></span>
+            <div className="flex flex-col">
+              <span className="text-xl sm:text-3xl font-black tracking-tighter text-white leading-none uppercase italic">Streamline</span>
+              <span className="text-[10px] sm:text-xs font-black tracking-[0.3em] text-cyan-400 uppercase leading-none mt-1">Learning Hub</span>
+            </div>
           </Link>
         </div>
 
         <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl sm:rounded-[2.5rem] shadow-2xl overflow-hidden relative group">
           <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-50"></div>
           
-          <div className="p-6 sm:p-10 relative z-10">
-            <h1 className="text-2xl sm:text-3xl font-extrabold mb-2 text-white text-center leading-tight">Student Registration</h1>
-            <p className="text-blue-200/60 mb-6 sm:mb-8 text-center text-xs sm:text-sm font-medium tracking-wide">Join the future of academic management</p>
+          <div className="p-6 sm:p-12 relative z-10">
+            <h1 className="text-2xl sm:text-4xl font-extrabold mb-2 text-white text-center leading-tight tracking-tight">Student Registration</h1>
+            <p className="text-blue-200/60 mb-6 sm:mb-10 text-center text-[10px] sm:text-sm font-bold uppercase tracking-[0.2em]">Join the future of academic management</p>
             
             {message && (
               <div className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl text-center mb-6 sm:mb-8 border transition-all ${isError ? 'bg-rose-500/10 text-rose-200 border-rose-500/20 animate-shake' : 'bg-emerald-500/10 text-emerald-200 border-emerald-500/20'}`}>
@@ -165,9 +168,11 @@ export default function RegisterPage() {
 
               <button 
                 type="submit" 
+                id="signup-submit-btn"
                 disabled={loading || !formData.email || !formData.password || !formData.name} 
-                className="w-full py-3.5 sm:py-4 px-6 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl sm:rounded-2xl shadow-xl shadow-blue-500/20 hover:shadow-cyan-400/30 transition-all duration-300 transform hover:-translate-y-1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed group relative overflow-hidden mt-2"
+                className="w-full py-4 sm:py-5 px-6 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl sm:rounded-2xl shadow-xl shadow-blue-500/20 hover:shadow-cyan-400/30 transition-all duration-300 transform hover:-translate-y-1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed group relative overflow-hidden mt-4"
               >
+                <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <span className="relative z-10 flex items-center justify-center gap-2 text-sm sm:text-base">
                   {loading ? (
                     <>
@@ -177,7 +182,7 @@ export default function RegisterPage() {
                   ) : (
                     <>
                       Register as Student
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                      <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
                     </>
                   )}
                 </span>
@@ -185,14 +190,22 @@ export default function RegisterPage() {
             </form>
           </div>
 
-          <div className="p-6 sm:p-8 bg-white/5 border-t border-white/10 text-center">
-            <p className="text-blue-100/40 text-xs sm:text-sm font-medium">
-              Already have an account? 
-              <Link href="/auth/signin" className="text-cyan-400 hover:text-cyan-300 font-bold ml-2 underline decoration-cyan-400/30 underline-offset-4 decoration-2 hover:decoration-cyan-400 transition-all">
-                Sign In
-              </Link>
-            </p>
+          <div className="p-8 sm:p-12 bg-white/5 border-t border-white/10 text-center">
+            <p className="text-blue-100/60 text-sm font-medium mb-1">Already have an account?</p>
+            <Link href="/auth/signin" id="signin-link" className="inline-block mt-2 px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-cyan-400 hover:text-white font-black text-xs uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-xl shadow-black/20">
+              Sign In Now
+            </Link>
           </div>
+        </div>
+        
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8 px-4">
+           <p className="text-blue-200/30 text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] text-center sm:text-left leading-relaxed">
+             Safe & Secure Academic Infrastructure
+           </p>
+           <div className="hidden sm:block h-3 w-[1px] bg-white/10"></div>
+           <Link href="/" className="text-blue-200/30 text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] hover:text-cyan-400 transition-colors">
+              Return Home
+           </Link>
         </div>
       </div>
 

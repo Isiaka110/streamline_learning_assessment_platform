@@ -1,14 +1,8 @@
-// pages/api/users.js - Enhanced for robust error handling
-
-import { PrismaClient, UserRole } from '@prisma/client';
+import { UserRole } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-// NOTE: getSession from 'next-auth/react' is correct for API routes in Pages Router
-import { getSession } from 'next-auth/react'; 
-
-// Use globalThis to reuse the PrismaClient instance across hot reloads 
-// (Good practice for Next.js to prevent "Too many clients" errors)
-const prisma = global.prisma || new PrismaClient();
-if (process.env.NODE_ENV !== 'production') global.prisma = prisma;
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from './auth/[...nextauth]';
+import prisma from './prisma'; 
 
 
 export default async function handler(req, res) {
@@ -19,7 +13,7 @@ export default async function handler(req, res) {
   const { name, email, password, role } = req.body;
   
   // 1. Get Session for Authorization Check
-  const session = await getSession({ req });
+  const session = await getServerSession(req, res, authOptions);
   const isAdminRequest = session?.user?.role === UserRole.ADMIN;
   
   let finalRole = UserRole.STUDENT; // Default role for all self-registrations

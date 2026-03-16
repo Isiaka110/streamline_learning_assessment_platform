@@ -18,35 +18,35 @@ function StudentAssignmentGrades({ courses }) {
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
                     <div className="space-y-4">
                         <div className="flex items-center gap-2">
-                            <span className="px-3 py-1 bg-white/20 text-white rounded-full text-[10px] font-black uppercase tracking-widest border border-white/10 backdrop-blur-sm">Intelligence Briefing</span>
+                            <span className="px-3 py-1 bg-white/20 text-white rounded-full text-[10px] font-black uppercase tracking-widest border border-white/10 backdrop-blur-sm">Academic Update</span>
                         </div>
-                        <h3 className="text-4xl font-black text-white tracking-tighter leading-none">Assessment Overview</h3>
+                        <h3 className="text-4xl font-black text-white tracking-tighter leading-none">Assignment Overview</h3>
                         <p className="text-indigo-100/80 text-lg font-medium max-w-xl">
-                            Strategic analysis indicates <strong className="text-white underline decoration-rose-500 decoration-4 underline-offset-8">{assignmentsDueThisWeek} pending operations</strong> requiring immediate activation this cycle.
+                            You have <strong className="text-white underline decoration-rose-500 decoration-4 underline-offset-8">{assignmentsDueThisWeek} pending assignments</strong> that need your attention.
                         </p>
                     </div>
                     <button className="px-10 py-5 bg-white text-indigo-600 font-black rounded-3xl shadow-2xl hover:bg-black hover:text-white transition-all hover:scale-105 active:scale-95 uppercase tracking-widest text-[10px] whitespace-nowrap">
-                        Audit All Deadlines
+                        View Deadlines
                     </button>
                 </div>
             </div>
 
             <div className="space-y-8">
                 <div className="flex items-center justify-between px-2">
-                    <h3 className="text-3xl font-black text-gray-900 tracking-tighter uppercase shrink-0">Performance Analytics</h3>
+                    <h3 className="text-3xl font-black text-gray-900 tracking-tighter uppercase shrink-0">Your Grades</h3>
                     <div className="h-px bg-gray-100 flex-1 mx-8 hidden md:block"></div>
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] whitespace-nowrap">Submissions & Grade Matrix</p>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] whitespace-nowrap">Recent Submissions</p>
                 </div>
 
                 <div className="overflow-hidden bg-white rounded-[40px] shadow-2xl shadow-gray-100 border border-gray-100">
                     <table className="w-full border-separate border-spacing-0">
                         <thead>
                             <tr className="bg-gray-50 text-[10px] font-black text-gray-400 uppercase tracking-widest text-left">
-                                <th className="py-6 px-8 rounded-tl-[40px]">Directive</th>
-                                <th className="py-6 px-8">Operational Title</th>
-                                <th className="py-6 px-8">Termination</th>
+                                <th className="py-6 px-8 rounded-tl-[40px]">Course</th>
+                                <th className="py-6 px-8">Assignment</th>
+                                <th className="py-6 px-8">Due Date</th>
                                 <th className="py-6 px-8">Status</th>
-                                <th className="py-6 px-8 text-center">Outcome</th>
+                                <th className="py-6 px-8 text-center">Grade</th>
                                 <th className="py-6 px-8 text-right rounded-tr-[40px]">Actions</th>
                             </tr>
                         </thead>
@@ -64,7 +64,6 @@ function StudentAssignmentGrades({ courses }) {
                                     <td className="py-8 px-8 whitespace-nowrap">
                                         <div className="flex flex-col">
                                             <span className="text-sm font-black text-gray-700">{new Date(assignment.dueDate).toLocaleDateString('en-GB')}</span>
-                                            <span className="text-[9px] font-black text-gray-300 uppercase mt-0.5">Cycle End</span>
                                         </div>
                                     </td>
                                     <td className="py-8 px-8">
@@ -89,7 +88,7 @@ function StudentAssignmentGrades({ courses }) {
                                         <div className="flex gap-2 justify-end opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0">
                                             {assignment.status === 'Pending Submission' && (
                                                 <button className="px-5 py-2.5 bg-indigo-600 text-white font-black rounded-xl shadow-lg shadow-indigo-100 hover:bg-black transition-all hover:scale-105 uppercase tracking-widest text-[9px]">
-                                                    Deploy
+                                                    Submit
                                                 </button>
                                             )}
                                             {assignment.grade && (

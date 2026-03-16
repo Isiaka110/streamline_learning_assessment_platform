@@ -1,12 +1,12 @@
-// File: pages/api/lecturer/assignments.js
-
 import prisma from '@api/prisma'; 
-// NOTE: Lecturer Access check function (like checkLecturerCourseAccess) should be imported/defined here
+import { checkLecturerCourseAccess } from '@api/utils/auth-check';
 
 export default async function handler(req, res) {
-    // NOTE: Perform authorization and lecturer access check here (omitted for brevity)
-    
     const { courseId, id: assignmentId } = req.query;
+    
+    // 🔑 SECURE: Authorize that the user is a LECTURER and teaches this course
+    const session = await checkLecturerCourseAccess(req, res, courseId);
+    if (!session) return; // Error response already sent by helper
     
     // --- METHOD HANDLERS ---
 

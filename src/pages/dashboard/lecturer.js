@@ -83,7 +83,7 @@ function LecturerDashboard() {
     }, [fetchLecturerCourses, fetchAnnouncements]);
 
     const handleLogout = () => {
-        signOut({ callbackUrl: '/' }); 
+        signOut({ callbackUrl: '/auth/signin' }); 
     };
     
     const handleCourseChange = (e) => {

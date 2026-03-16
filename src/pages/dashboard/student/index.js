@@ -71,7 +71,7 @@ function StudentDashboard() {
     }, [isSessionLoading, fetchEnrolledCourses, fetchAnnouncements]); 
 
     const handleLogout = () => {
-        signOut({ callbackUrl: '/' }); 
+        signOut({ callbackUrl: '/auth/signin' }); 
     };
 
     if (isSessionLoading) {

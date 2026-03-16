@@ -1,6 +1,7 @@
 import prisma from '@api/prisma';
 import { UserRole } from '@prisma/client';
-import { getSession } from 'next-auth/react';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@api/auth/[...nextauth]';
 import { uploadFile } from '@lib/file-handler';
 import path from 'path';
 
@@ -15,7 +16,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const session = await getSession({ req });
+  const session = await getServerSession(req, res, authOptions);
   const { assignmentId } = req.query;
 
   // 1. Check Authentication & Authorization
