@@ -8,11 +8,9 @@ import LogoContainer from '@components/LogoContainer';
 import LecturerCommunication from '@components/LecturerCommunication'; 
 import AnnouncementList from '@components/AnnouncementList'; 
 
-const mobileBreakpoint = 768;
-
 function LecturerDashboard() {
     const { data: session } = useSession();
-    const userName = session?.user?.name || "Lecturer"; 
+    const userName = session?.user?.name || "Instructor"; 
     const lecturerId = session?.user?.id; 
     
     const [courses, setCourses] = useState(null);
@@ -23,16 +21,6 @@ function LecturerDashboard() {
     const [announcements, setAnnouncements] = useState([]);
     const [loadingAnnouncements, setLoadingAnnouncements] = useState(true);
     const [errorAnnouncements, setErrorAnnouncements] = useState(null);
-    const [isMobile, setIsMobile] = useState(false);
-
-    useEffect(() => {
-        const checkMobile = () => {
-            setIsMobile(window.innerWidth < mobileBreakpoint);
-        };
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
 
     const fetchAnnouncements = useCallback(async () => {
         setLoadingAnnouncements(true);
@@ -43,11 +31,11 @@ function LecturerDashboard() {
             if (response.ok) {
                 setAnnouncements(data.announcements || []);
             } else {
-                setErrorAnnouncements(data.message || 'Failed to load announcements.');
+                setErrorAnnouncements(data.message || 'Broadcast feed unavailable.');
             }
         } catch (err) {
             console.error("Network error fetching announcements:", err);
-            setErrorAnnouncements('Network error fetching announcements.');
+            setErrorAnnouncements('Broadcast network error. Check connectivity.');
         } finally {
             setLoadingAnnouncements(false);
         }
@@ -65,12 +53,12 @@ function LecturerDashboard() {
                     setSelectedCourse(data.courses[0]); 
                 }
             } else {
-                setErrorCourses(data.message || 'Failed to fetch your courses.');
+                setErrorCourses(data.message || 'Module roster fetch failed.');
                 setCourses([]);
             }
         } catch (err) {
             console.error("Network error fetching courses:", err);
-            setErrorCourses('Network error fetching courses.');
+            setErrorCourses('Module registry synchronization error.');
             setCourses([]);
         } finally {
             setLoadingCourses(false);
@@ -94,110 +82,130 @@ function LecturerDashboard() {
 
     const isCourseSelected = !!selectedCourse;
 
+    const tabs = [
+        { id: 'announcements', label: 'Broadcasts', alwaysActive: true },
+        { id: 'assignments', label: 'Assessments', alwaysActive: false },
+        { id: 'resources', label: 'Resource Vault', alwaysActive: false },
+        { id: 'communication', label: 'Learner Comms', alwaysActive: false },
+    ];
+
     return (
-        <div className="min-h-screen bg-gray-50 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-x-hidden">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-4 border-b border-gray-200 gap-4">
-                <div className="flex items-center gap-3 w-full sm:w-auto"> 
-                    <div className="flex items-center shrink-0">
-                        <LogoContainer /> 
-                        <span className="text-xl sm:text-2xl font-black text-indigo-600 ml-2 tracking-wide mt-1">LMS</span> 
+        <div className="min-h-screen bg-background">
+
+            {/* Header */}
+            <div className="glass border-b border-foreground/10 px-6 py-6 sticky top-0 z-40">
+                <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div className="flex items-center gap-4"> 
+                        <div className="w-10 h-10 bg-foreground flex items-center justify-center flex-shrink-0">
+                            <span className="text-white font-black italic text-sm">SL</span>
+                        </div>
+                        <div>
+                            <h1 className="text-xl font-black italic uppercase tracking-tighter leading-none">Instructor Console</h1>
+                            <p className="text-[10px] font-bold text-accent uppercase tracking-widest mt-0.5">{userName} | FACULTY</p>
+                        </div>
                     </div>
-                    <div className="h-8 w-[2px] bg-gray-200 mx-1 sm:mx-2 hidden sm:block"></div>
-                    <h1 className="text-lg sm:text-2xl font-bold text-gray-800 truncate">Lecturer Dashboard: {userName}</h1>
+                    <button onClick={handleLogout} className="btn-rect-outline px-4 py-2 text-xs">
+                        System Logout
+                    </button>
                 </div>
-                <button onClick={handleLogout} className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg shadow-md transition-colors text-xs sm:text-sm self-end sm:self-auto">
-                    Logout 🚪
-                </button>
-            </div>
-            
-            <p className="text-gray-600 mb-8 border-b border-gray-200 pb-4 text-sm sm:text-base">Manage assignments, course resources, and student communications.</p>
-            
-            {/* Course Selector */}
-            <div className="mb-6 flex flex-col md:flex-row items-start md:items-center gap-3 sm:gap-4 p-4 bg-gray-100 border border-gray-200 rounded-xl">
-                <label htmlFor="course-select" className="font-bold text-gray-700 text-base sm:text-lg">Currently Managing:</label>
-                <select
-                    id="course-select"
-                    className="p-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 outline-none w-full md:w-80 text-sm sm:text-base"
-                    value={selectedCourse?.id || ''}
-                    onChange={handleCourseChange}
-                    disabled={!courses || courses.length === 0 || loadingCourses}
-                >
-                    {loadingCourses && <option value="">Loading courses...</option>}
-                    {!loadingCourses && courses?.length === 0 && <option value="">No courses assigned.</option>}
-                    {!loadingCourses && courses?.length > 0 && courses.map(course => (
-                        <option key={course.id} value={course.id}>
-                            {course.code} - {course.title}
-                        </option>
-                    ))}
-                </select>
             </div>
 
-            {/* Tab Navigation (Responsive) */}
-            <div className="flex overflow-x-auto whitespace-nowrap border-b-2 border-gray-200 mb-6 pb-1 -mx-2 px-2 md:mx-0 md:px-0 scrollbar-hide">
-                <button 
-                    onClick={() => setActiveTab('announcements')} 
-                    className={`px-4 py-3 shrink-0 font-semibold text-sm md:text-lg transition-colors border-b-2 ${activeTab === 'announcements' ? 'text-indigo-600 border-indigo-600' : 'text-gray-500 border-transparent hover:text-indigo-500 hover:border-indigo-300'}`}
-                >
-                    Announcements 📢
-                </button>
-                <button 
-                    onClick={() => setActiveTab('assignments')} 
-                    disabled={!isCourseSelected} 
-                    className={`px-4 py-3 shrink-0 font-semibold text-sm md:text-lg transition-colors border-b-2 disabled:opacity-50 disabled:cursor-not-allowed ${activeTab === 'assignments' ? 'text-indigo-600 border-indigo-600' : 'text-gray-500 border-transparent hover:text-indigo-500 hover:border-indigo-300'}`}
-                >
-                    Assignment & Grading 📝
-                </button>
-                <button 
-                    onClick={() => setActiveTab('resources')} 
-                    disabled={!isCourseSelected}
-                    className={`px-4 py-3 shrink-0 font-semibold text-sm md:text-lg transition-colors border-b-2 disabled:opacity-50 disabled:cursor-not-allowed ${activeTab === 'resources' ? 'text-indigo-600 border-indigo-600' : 'text-gray-500 border-transparent hover:text-indigo-500 hover:border-indigo-300'}`}
-                >
-                    Resource Management 📚
-                </button>
-                <button 
-                    onClick={() => setActiveTab('communication')} 
-                    disabled={!isCourseSelected}
-                    className={`px-4 py-3 shrink-0 font-semibold text-sm md:text-lg transition-colors border-b-2 disabled:opacity-50 disabled:cursor-not-allowed ${activeTab === 'communication' ? 'text-indigo-600 border-indigo-600' : 'text-gray-500 border-transparent hover:text-indigo-500 hover:border-indigo-300'}`}
-                >
-                    Student Communication 💬
-                </button>
-            </div>
-            
-            {/* Manager Components */}
-            <div className="md:p-4 break-words">
-                {activeTab === 'announcements' && (
-                    <AnnouncementList 
-                        announcements={announcements}
-                        isLoading={loadingAnnouncements}
-                        error={errorAnnouncements}
-                    />
-                )}
-                
-                {isCourseSelected && (
-                    <>
-                        {activeTab === 'assignments' && (
-                            <AssignmentManager courseId={selectedCourse.id} courseCode={selectedCourse.code} />
+            <main className="max-w-7xl mx-auto px-6 py-12">
+                <div className="mb-10">
+                    <h2 className="text-3xl md:text-5xl mb-2">Module Operations</h2>
+                    <p className="text-secondary font-medium">Manage assessments, resource distribution, and learner communications.</p>
+                </div>
+
+                {/* Module Selector */}
+                <div className="mb-8 p-6 glass border-2 border-foreground/5">
+                    <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                        <label htmlFor="course-select" className="font-black text-[10px] uppercase tracking-widest whitespace-nowrap">
+                            Active Module Context:
+                        </label>
+                        <select
+                            id="course-select"
+                            className="flex-1 w-full md:w-auto p-3 border-2 border-foreground/20 bg-transparent font-bold text-sm focus:outline-none focus:border-accent transition-colors uppercase tracking-wider"
+                            value={selectedCourse?.id || ''}
+                            onChange={handleCourseChange}
+                            disabled={!courses || courses.length === 0 || loadingCourses}
+                        >
+                            {loadingCourses && <option value="">Indexing modules...</option>}
+                            {!loadingCourses && courses?.length === 0 && <option value="">No modules assigned.</option>}
+                            {!loadingCourses && courses?.length > 0 && courses.map(course => (
+                                <option key={course.id} value={course.id}>
+                                    [{course.code}] {course.title}
+                                </option>
+                            ))}
+                        </select>
+
+                        {selectedCourse && (
+                            <div className="hidden md:flex items-center gap-2 px-4 py-3 bg-accent/10 border-l-4 border-accent">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-accent">Module Active</span>
+                            </div>
                         )}
-                        {activeTab === 'resources' && (
-                            <ResourceManager courseId={selectedCourse.id} courseCode={selectedCourse.code} />
-                        )}
-                        {activeTab === 'communication' && (
-                            <LecturerCommunication 
-                                lecturerId={lecturerId} 
-                                courseId={selectedCourse.id} 
-                                courseCode={selectedCourse.code} 
+                    </div>
+                </div>
+
+                {/* Tab Navigation */}
+                <div className="flex gap-2 mb-8 overflow-x-auto pb-2 flex-wrap">
+                    {tabs.map(tab => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            disabled={!tab.alwaysActive && !isCourseSelected}
+                            className={`btn-rect transition-all text-xs disabled:opacity-30 disabled:cursor-not-allowed whitespace-nowrap 
+                                ${activeTab === tab.id ? 'bg-foreground text-white border-foreground' : 'bg-transparent text-secondary border-foreground/20 hover:border-foreground/60'}`}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Content Panel */}
+                <div className="glass border-2 border-foreground/5 p-1 min-h-[500px]">
+                    <div className="bg-white/50 p-6 md:p-10 h-full border border-white/40">
+
+                        {activeTab === 'announcements' && (
+                            <AnnouncementList 
+                                announcements={announcements}
+                                isLoading={loadingAnnouncements}
+                                error={errorAnnouncements}
                             />
                         )}
-                    </>
-                )}
-                
-                {!isCourseSelected && activeTab !== 'announcements' && courses?.length > 0 && (
-                    <p className="p-6 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-center font-medium">Please select a course from the dropdown above to begin management.</p>
-                )}
-                {courses?.length === 0 && !loadingCourses && (
-                    <p className="p-6 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-center font-medium">You have not been assigned any courses yet. Please contact an administrator.</p>
-                )}
-            </div>
+
+                        {isCourseSelected && (
+                            <>
+                                {activeTab === 'assignments' && (
+                                    <AssignmentManager courseId={selectedCourse.id} courseCode={selectedCourse.code} />
+                                )}
+                                {activeTab === 'resources' && (
+                                    <ResourceManager courseId={selectedCourse.id} courseCode={selectedCourse.code} />
+                                )}
+                                {activeTab === 'communication' && (
+                                    <LecturerCommunication 
+                                        lecturerId={lecturerId} 
+                                        courseId={selectedCourse.id} 
+                                        courseCode={selectedCourse.code} 
+                                    />
+                                )}
+                            </>
+                        )}
+
+                        {!isCourseSelected && activeTab !== 'announcements' && courses?.length > 0 && (
+                            <div className="py-20 text-center border-2 border-dashed border-foreground/10">
+                                <p className="text-2xl font-black italic uppercase opacity-20 mb-4">No Module Selected</p>
+                                <p className="text-secondary text-sm font-medium">Select a module context above to begin management.</p>
+                            </div>
+                        )}
+                        {courses?.length === 0 && !loadingCourses && (
+                            <div className="py-20 text-center border-2 border-dashed border-foreground/10">
+                                <p className="text-2xl font-black italic uppercase opacity-20 mb-4">No Modules Assigned</p>
+                                <p className="text-secondary text-sm font-medium">Contact the System Administrator to be assigned to a module.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </main>
         </div>
     );
 }

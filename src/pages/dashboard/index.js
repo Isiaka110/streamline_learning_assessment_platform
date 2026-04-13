@@ -4,9 +4,13 @@ import { UserRole } from '@prisma/client';
 
 export default function DashboardRedirect() {
   return (
-    <div style={{ padding: '50px', textAlign: 'center', background: '#0f172a', minHeight: '100-vh', color: 'white' }}>
-      <h1>Redirecting to your dashboard...</h1>
-      <p>Initializing secure session.</p>
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="text-center space-y-4">
+        <div className="w-12 h-12 border-4 border-accent border-t-transparent animate-spin mx-auto"></div>
+        <p className="text-xs font-black uppercase tracking-widest text-accent italic">
+          Resolving Role Permissions...
+        </p>
+      </div>
     </div>
   );
 }
@@ -15,14 +19,12 @@ export default function DashboardRedirect() {
 export async function getServerSideProps(context) {
   const session = await getServerSession(context.req, context.res, authOptions);
 
-  // 1. Unauthenticated check (always redirect to login)
   if (!session) {
     return {
       redirect: { destination: '/auth/signin', permanent: false },
     };
   }
 
-  // 2. Role-based redirection
   const role = session.user.role;
   let destination;
 
@@ -37,16 +39,14 @@ export async function getServerSideProps(context) {
       destination = '/dashboard/admin';
       break;
     default:
-      // Fallback for unhandled roles
       destination = '/unauthorized'; 
       break;
   }
 
-  // 3. Perform the server-side redirect
   return {
     redirect: {
       destination: destination,
-      permanent: false, // Use temporary redirect (302)
+      permanent: false,
     },
   };
 }

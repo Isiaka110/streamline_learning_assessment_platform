@@ -10,7 +10,7 @@ function StudentDashboard() {
     const { data: session, status } = useSession();
     const isSessionLoading = status === 'loading'; 
 
-    const userName = session?.user?.name || "Student"; 
+    const userName = session?.user?.name || "Learner"; 
     
     const [enrolledCourses, setEnrolledCourses] = useState(null);
     const [loadingCourses, setLoadingCourses] = useState(true);
@@ -31,11 +31,11 @@ function StudentDashboard() {
             if (response.ok) {
                 setAnnouncements(data.announcements || []);
             } else {
-                setErrorAnnouncements(data.message || 'Failed to load announcements.');
+                setErrorAnnouncements(data.message || 'Institutional communication unavailable.');
             }
         } catch (err) {
             console.error("Network error fetching announcements:", err);
-            setErrorAnnouncements('Network error fetching announcements.');
+            setErrorAnnouncements('Connectivity error. Re-authenticating...');
         } finally {
             setLoadingAnnouncements(false);
         }
@@ -51,12 +51,12 @@ function StudentDashboard() {
             if (response.ok) {
                 setEnrolledCourses(data.courses || []);
             } else {
-                setErrorCourses(data.message || 'Failed to fetch enrolled courses.');
+                setErrorCourses(data.message || 'Failed to retrieve module data.');
                 setEnrolledCourses([]);
             }
         } catch (err) {
             console.error("Network error fetching courses:", err);
-            setErrorCourses('Network error fetching courses. Check API server status.');
+            setErrorCourses('Module database synchronization failed.');
             setEnrolledCourses([]);
         } finally {
             setLoadingCourses(false);
@@ -75,78 +75,103 @@ function StudentDashboard() {
     };
 
     if (isSessionLoading) {
-        return <div className="min-h-screen flex items-center justify-center bg-gray-50"><p className="text-xl font-semibold text-blue-600 animate-pulse">Initializing session and loading dashboard...</p></div>;
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-background">
+                <div className="text-center space-y-4">
+                    <div className="w-12 h-12 border-4 border-accent border-t-transparent animate-spin mx-auto"></div>
+                    <p className="text-xs font-black uppercase tracking-widest text-accent italic">Synchronizing Ecosystem...</p>
+                </div>
+            </div>
+        );
     }
 
 
     return (
-        <div className="min-h-screen bg-gray-50 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-x-hidden">
-            
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-4 border-b border-gray-200 gap-4">
-                <div className="flex items-center gap-3 w-full sm:w-auto"> 
-                    <div className="flex items-center shrink-0">
-                        <LogoContainer /> 
-                        <span className="text-xl sm:text-2xl font-black text-indigo-600 ml-2 tracking-wide mt-1">LMS</span> 
+        <div className="min-h-screen bg-background">
+            {/* Header Hub */}
+            <div className="glass border-b border-foreground/10 px-6 py-6 sticky top-0 z-40">
+                <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                    <div className="flex items-center gap-4"> 
+                        <div className="w-10 h-10 bg-foreground flex items-center justify-center">
+                            <span className="text-white font-black italic">SL</span>
+                        </div>
+                        <div>
+                            <h1 className="text-xl font-black italic uppercase tracking-tighter">Academic Hub</h1>
+                            <p className="text-[10px] font-bold text-accent uppercase tracking-widest">{userName} | 001-ALPHA</p>
+                        </div>
                     </div>
-                    <div className="h-8 w-[2px] bg-gray-200 mx-1 sm:mx-2 hidden sm:block"></div>
-                    <h1 className="text-lg sm:text-2xl font-bold text-gray-800 truncate">Learning Hub: {userName}</h1>
+                    
+                    <button onClick={handleLogout} className="btn-rect-outline px-4 py-2 text-xs">
+                         System Logout
+                    </button>
+                </div>
+            </div>
+
+            <main className="max-w-7xl mx-auto px-6 py-12">
+                <div className="mb-12">
+                   <h2 className="text-3xl md:text-5xl mb-2">Module Management</h2>
+                   <p className="text-secondary font-medium tracking-tight">Active enrollment paths and institutional broadcasts.</p>
                 </div>
                 
-                <button onClick={handleLogout} className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg shadow-md transition-colors text-xs sm:text-sm self-end sm:self-auto">
-                    Logout 🚪
-                </button>
-            </div>
-            
-            <p className="text-gray-600 mb-8 border-b border-gray-200 pb-4">Centralizing your courses, assessments, and communications.</p>
-            
-            {/* Tab Navigation (Responsive) */}
-            <div className="flex overflow-x-auto whitespace-nowrap border-b-2 border-gray-200 mb-6 pb-1 -mx-2 px-2 md:mx-0 md:px-0 scrollbar-hide">
-                <button 
-                    onClick={() => setActiveTab('announcements')} 
-                    className={`px-4 py-3 shrink-0 font-semibold text-sm md:text-lg transition-colors border-b-2 ${activeTab === 'announcements' ? 'text-indigo-600 border-indigo-600' : 'text-gray-500 border-transparent hover:text-indigo-500 hover:border-indigo-300'}`}
-                >
-                    Announcements 📢
-                </button>
-                <button 
-                    onClick={() => setActiveTab('courses')} 
-                    className={`px-4 py-3 shrink-0 font-semibold text-sm md:text-lg transition-colors border-b-2 ${activeTab === 'courses' ? 'text-indigo-600 border-indigo-600' : 'text-gray-500 border-transparent hover:text-indigo-500 hover:border-indigo-300'}`}
-                >
-                    My Courses 📚
-                </button>
-            </div>
-            
-            {/* Tab Content Area */}
-            <div className="md:p-4 bg-white md:rounded-xl md:shadow-sm min-h-[400px] break-words">
-                {/* Render Announcements */}
-                {activeTab === 'announcements' && (
-                    <AnnouncementList 
-                        announcements={announcements}
-                        isLoading={loadingAnnouncements}
-                        error={errorAnnouncements}
-                    />
-                )}
-
-                {activeTab === 'courses' && (
-                    <>
-                        {(loadingCourses || isSessionLoading) && <p className="text-center py-8 text-lg text-blue-500 animate-pulse">Loading your course data...</p>}
-                        {errorCourses && <p className="p-4 bg-red-100 text-red-700 border border-red-300 rounded-lg mb-5">Error: {errorCourses}</p>}
-
-                        {!loadingCourses && !errorCourses && enrolledCourses && (
-                            <StudentCourseManager 
-                                courses={enrolledCourses} 
-                                fetchEnrolledCourses={fetchEnrolledCourses}
-                                studentId={session?.user?.id}
+                {/* Tab Navigation */}
+                <div className="flex gap-4 mb-8 overflow-x-auto pb-2">
+                    <button 
+                        onClick={() => setActiveTab('announcements')} 
+                        className={`btn-rect transition-all ${activeTab === 'announcements' ? 'bg-foreground text-white border-foreground' : 'bg-transparent text-secondary border-transparent hover:border-foreground/20'}`}
+                    >
+                        Broadcasts
+                    </button>
+                    <button 
+                        onClick={() => setActiveTab('courses')} 
+                        className={`btn-rect transition-all ${activeTab === 'courses' ? 'bg-foreground text-white border-foreground' : 'bg-transparent text-secondary border-transparent hover:border-foreground/20'}`}
+                    >
+                        Active Modules
+                    </button>
+                </div>
+                
+                {/* Content Area */}
+                <div className="glass p-1 border-2 border-foreground/5 min-h-[500px]">
+                    <div className="bg-white/50 p-6 md:p-10 h-full border border-white/40">
+                        {activeTab === 'announcements' && (
+                            <AnnouncementList 
+                                announcements={announcements}
+                                isLoading={loadingAnnouncements}
+                                error={errorAnnouncements}
                             />
                         )}
-                        {!loadingCourses && !errorCourses && enrolledCourses?.length === 0 && (
-                            <div className="p-6 bg-blue-50 text-blue-700 border border-blue-200 rounded-xl text-center">
-                                <p className="font-semibold text-lg mb-2">You are not currently enrolled in any courses.</p>
-                                <p>Check available courses or contact an administrator.</p>
-                            </div>
+
+                        {activeTab === 'courses' && (
+                            <>
+                                {(loadingCourses || isSessionLoading) && (
+                                    <div className="py-20 text-center">
+                                        <div className="w-8 h-8 border-2 border-primary border-t-transparent animate-spin mx-auto mb-4"></div>
+                                        <p className="text-xs font-black uppercase tracking-widest text-secondary">Indexing Modules...</p>
+                                    </div>
+                                )}
+                                {errorCourses && (
+                                    <div className="p-8 border-2 border-red-500 bg-red-50 text-red-900 mb-8">
+                                        <p className="font-black italic uppercase text-sm">Critical Error: {errorCourses}</p>
+                                    </div>
+                                )}
+
+                                {!loadingCourses && !errorCourses && enrolledCourses && (
+                                    <StudentCourseManager 
+                                        courses={enrolledCourses} 
+                                        fetchEnrolledCourses={fetchEnrolledCourses}
+                                        studentId={session?.user?.id}
+                                    />
+                                )}
+                                {!loadingCourses && !errorCourses && enrolledCourses?.length === 0 && (
+                                    <div className="py-20 text-center border-2 border-dashed border-foreground/10 group hover:border-accent transition-colors">
+                                        <p className="text-2xl font-black italic uppercase mb-4 opacity-20">No Active Modules</p>
+                                        <button className="btn-rect-primary">Request Enrollment</button>
+                                    </div>
+                                )}
+                            </>
                         )}
-                    </>
-                )}
-            </div>
+                    </div>
+                </div>
+            </main>
         </div>
     );
 }

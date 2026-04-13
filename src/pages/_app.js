@@ -1,25 +1,29 @@
 // pages/_app.js
 
-
-// pages/_app.js
-
 import { SessionProvider } from "next-auth/react";
-
+import Head from 'next/head';
 import '../styles/globals.css';
 
 /**
- * The MyApp component wraps all page components in your application. 
- * It is where you initialize layout, global styles, and shared context/providers.
- * * @param {object} Component - The current page component to be rendered.
- * @param {object} pageProps - Props passed to the component (including the NextAuth session).
+ * MyApp wraps all pages with the NextAuth SessionProvider and injects
+ * the Inter font from Google Fonts for the platform-wide design system.
  */
 function MyApp({ Component, pageProps: { session, ...pageProps } }) {
   return (
-    // The SessionProvider is crucial for NextAuth.js to expose the session 
-    // context to all components without re-fetching it on every page load.
-    <SessionProvider session={session}>
-      <Component {...pageProps} />
-    </SessionProvider>
+    <>
+      <Head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+          rel="stylesheet"
+        />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
+      <SessionProvider session={session}>
+        <Component {...pageProps} />
+      </SessionProvider>
+    </>
   );
 }
 
