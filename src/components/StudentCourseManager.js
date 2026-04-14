@@ -6,18 +6,10 @@ import CourseCommentThread from './CourseCommentThread';
 import StudentAssignmentView from './StudentAssignmentView'; 
 import StudentResourceView from './StudentResourceView';
 
-/**
- * Manages the student's enrolled course list and the detail view for a selected course.
- * @param {Array} courses - List of courses the student is enrolled in.
- * @param {Function} fetchEnrolledCourses - Function to refresh the main course list.
- * @param {string} studentId - The ID of the currently logged-in student.
- */
 function StudentCourseManager({ courses, fetchEnrolledCourses, studentId }) { 
     const [selectedCourse, setSelectedCourse] = useState(null);
-    const [view, setView] = useState('my_courses'); // my_courses (list), enrollment_list, course_detail
-
-    // For course_detail view, manage sub-tabs
-    const [detailTab, setDetailTab] = useState('assignments'); // assignments, resources, communication
+    const [view, setView] = useState('my_courses'); 
+    const [detailTab, setDetailTab] = useState('assignments'); 
 
     const handleEnrollmentSuccess = () => {
         setView('my_courses');
@@ -28,72 +20,82 @@ function StudentCourseManager({ courses, fetchEnrolledCourses, studentId }) {
 
     // --- RENDER COURSE DETAIL VIEW ---
     if (selectedCourse && view === 'course_detail') { 
-        // Assuming lecturerId and lecturerName are populated in the selectedCourse object
-        const lecturerId = selectedCourse.lecturers?.[0]?.id; // Get the ID of the first lecturer, assuming one for simplicity here
-        const lecturerNameDetail = selectedCourse.lecturers?.[0]?.name || 'N/A';
+        const lecturerId = selectedCourse.lecturers?.[0]?.id; 
+        const lecturerNameDetail = selectedCourse.lecturers?.[0]?.name || 'Unassigned';
 
         return (
-            <div className="p-4 md:p-6 bg-white rounded-xl shadow-sm border border-gray-100 mt-4">
-                <button 
-                    onClick={() => { setSelectedCourse(null); setView('my_courses'); }} 
-                    className="mb-6 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors flex items-center gap-2 text-sm"
-                >
-                    &larr; Back to My Courses
-                </button>
-                <div className="border-b border-gray-200 pb-4 mb-6">
-                    <h3 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">{selectedCourse.code} - {selectedCourse.title}</h3> 
-                    <p className="text-lg text-gray-600 font-medium">Lecturer: <span className="text-gray-800">{lecturerNameDetail}</span></p>
+            <div className="bg-white rounded-[2.5rem] border border-border shadow-sm overflow-hidden mt-6 animate-in fade-in duration-500">
+                <div className="bg-primary p-10 text-white relative">
+                    {/* Background accent */}
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full translate-x-20 -translate-y-20 blur-3xl"></div>
+                    
+                    <button 
+                        onClick={() => { setSelectedCourse(null); setView('my_courses'); }} 
+                        className="relative z-10 mb-8 px-4 py-2 bg-white/20 hover:bg-white/30 text-white font-bold rounded-xl transition-all flex items-center gap-2 text-[10px] uppercase tracking-widest"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3"/></svg>
+                        Back to My Classes
+                    </button>
+                    <div className="relative z-10">
+                        <span className="text-[10px] font-bold text-accent uppercase tracking-[0.4em] mb-2 block">{selectedCourse.code}</span>
+                        <h3 className="text-4xl font-bold mb-2 tracking-tight">{selectedCourse.title}</h3> 
+                        <p className="text-xs font-bold opacity-80 uppercase tracking-widest">Teacher: {lecturerNameDetail}</p>
+                    </div>
                 </div>
                 
-                {/* Tabs for Course Details */}
-                <div className="flex border-b-2 border-gray-200 mb-6 overflow-x-auto no-scrollbar">
-                    <button 
-                        onClick={() => setDetailTab('assignments')} 
-                        className={`px-5 py-3 font-medium whitespace-nowrap transition-colors border-b-2 -mb-[2px] ${detailTab === 'assignments' ? 'text-indigo-600 border-indigo-600 bg-indigo-50/50' : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300 hover:bg-gray-50'}`}
-                    >
-                        Assignments & Grades 📝
-                    </button>
-                    <button 
-                        onClick={() => setDetailTab('resources')} 
-                        className={`px-5 py-3 font-medium whitespace-nowrap transition-colors border-b-2 -mb-[2px] ${detailTab === 'resources' ? 'text-indigo-600 border-indigo-600 bg-indigo-50/50' : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300 hover:bg-gray-50'}`}
-                    >
-                        Course Resources 📚
-                    </button>
-                    <button 
-                        onClick={() => setDetailTab('communication')} 
-                        className={`px-5 py-3 font-medium whitespace-nowrap transition-colors border-b-2 -mb-[2px] ${detailTab === 'communication' ? 'text-indigo-600 border-indigo-600 bg-indigo-50/50' : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300 hover:bg-gray-50'}`}
-                    >
-                        Messages 💬
-                    </button>
-                </div>
+                <div className="p-10">
+                    {/* Consolidated Tabs UI */}
+                    <div className="flex gap-2 border-b border-border mb-10 overflow-x-auto pb-2">
+                        <button 
+                            onClick={() => setDetailTab('assignments')} 
+                            className={`px-6 py-2.5 font-bold text-xs uppercase tracking-widest rounded-t-xl transition-all ${detailTab === 'assignments' ? 'bg-primary text-white' : 'text-secondary hover:text-primary'}`}
+                        >
+                            Assignments
+                        </button>
+                        <button 
+                            onClick={() => setDetailTab('resources')} 
+                            className={`px-6 py-2.5 font-bold text-xs uppercase tracking-widest rounded-t-xl transition-all ${detailTab === 'resources' ? 'bg-primary text-white' : 'text-secondary hover:text-primary'}`}
+                        >
+                            Class Files
+                        </button>
+                        <button 
+                            onClick={() => setDetailTab('communication')} 
+                            className={`px-6 py-2.5 font-bold text-xs uppercase tracking-widest rounded-t-xl transition-all ${detailTab === 'communication' ? 'bg-primary text-white' : 'text-secondary hover:text-primary'}`}
+                        >
+                            Teacher Chat
+                        </button>
+                    </div>
 
-                {/* Content based on detailTab */}
-                <div className="bg-gray-50/50 border border-gray-200 p-5 md:p-6 rounded-xl shadow-sm">
-                    {detailTab === 'assignments' && (
-                        <StudentAssignmentView 
-                            courseId={selectedCourse.id}
-                            studentId={studentId}
-                        />
-                    )}
-                    {detailTab === 'resources' && (
-                        <StudentResourceView
-                            courseId={selectedCourse.id}
-                        />
-                    )}
-                    {detailTab === 'communication' && (
-                        <>
-                            <h4 className="text-xl font-bold text-gray-800 border-b border-gray-200 pb-3 mb-5">Course Messages</h4>
-                            {lecturerId ? ( // Only show communication if a lecturer ID is available
-                                <CourseCommentThread 
-                                    courseId={selectedCourse.id}
-                                    currentUserId={studentId} 
-                                    otherUserId={lecturerId} 
-                                />
-                            ) : (
-                                <p className="p-4 bg-blue-50 text-blue-800 border-l-4 border-blue-500 rounded-md bg-opacity-80">No lecturer assigned to this course yet.</p>
-                            )}
-                        </>
-                    )}
+                    <div className="min-h-[400px]">
+                        {detailTab === 'assignments' && (
+                            <StudentAssignmentView 
+                                courseId={selectedCourse.id}
+                                studentId={studentId}
+                            />
+                        )}
+                        {detailTab === 'resources' && (
+                            <StudentResourceView
+                                courseId={selectedCourse.id}
+                            />
+                        )}
+                        {detailTab === 'communication' && (
+                            <div className="space-y-8 animate-in slide-in-from-bottom-4">
+                                <h4 className="text-2xl font-bold text-foreground tracking-tight">Direct Messaging</h4>
+                                {lecturerId ? ( 
+                                    <CourseCommentThread 
+                                        courseId={selectedCourse.id}
+                                        currentUserId={studentId} 
+                                        otherUserId={lecturerId} 
+                                    />
+                                ) : (
+                                    <div className="p-10 bg-gray-50 text-secondary rounded-[2rem] border border-border text-center">
+                                        <p className="font-bold">Chat Unavailable</p>
+                                        <p className="text-xs opacity-60 mt-1">No teacher has been assigned to this class yet.</p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         );
@@ -102,69 +104,81 @@ function StudentCourseManager({ courses, fetchEnrolledCourses, studentId }) {
     // --- RENDER ENROLLMENT LIST VIEW ---
     if (view === 'enrollment_list') {
         return (
-            <div className="p-4 md:p-6 bg-white rounded-xl shadow-sm border border-gray-100 mt-4">
-                <button 
-                    onClick={() => setView('my_courses')} 
-                    className="mb-6 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors flex items-center gap-2 text-sm"
-                >
-                    &larr; Back to My Courses
-                </button>
-                <CourseEnrollmentList 
-                    enrolledCourses={courses}
-                    onEnrollSuccess={handleEnrollmentSuccess}
-                />
+            <div className="mt-6 animate-in fade-in duration-500">
+                <div className="bg-white rounded-[2.5rem] border border-border shadow-sm p-10">
+                    <button 
+                        onClick={() => setView('my_courses')} 
+                        className="mb-10 px-4 py-2 bg-gray-50 hover:bg-gray-100 text-secondary font-bold rounded-xl transition-colors flex items-center gap-2 text-[10px] uppercase tracking-widest border border-border"
+                    >
+                        &larr; Return to Dashboard
+                    </button>
+                    <CourseEnrollmentList 
+                        enrolledCourses={courses}
+                        onEnrollSuccess={handleEnrollmentSuccess}
+                    />
+                </div>
             </div>
         );
     }
 
     // --- RENDER MY COURSES LIST VIEW (Default) ---
     return (
-        <div className="p-4 md:p-6 bg-white rounded-xl shadow-sm border border-gray-100 mt-4">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-200 pb-4 mb-6 gap-4">
-                <h3 className="text-2xl font-bold text-gray-800">Your Enrolled Courses <span className="text-gray-500 font-medium text-lg ml-2">({courses?.length || 0})</span></h3>
-                <div className="flex gap-3 w-full sm:w-auto">
-                    <button 
-                        onClick={() => setView('enrollment_list')} 
-                        className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-lg shadow-md transition-colors w-full sm:w-auto text-center"
-                    >
-                        + Enroll in New Course
-                    </button>
+        <div className="mt-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-6">
+                <div>
+                   <h3 className="text-3xl font-bold text-foreground tracking-tight">My Active Classes</h3>
+                   <p className="text-xs font-bold text-secondary uppercase tracking-[0.2em] mt-1 opacity-60">You are enrolled in {courses?.length || 0} classes</p>
                 </div>
+                <button 
+                    onClick={() => setView('enrollment_list')} 
+                    className="btn-primary"
+                >
+                    + Join New Class
+                </button>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                 {courses && courses.length > 0 ? (
                     courses.map(course => {
-                        // Assuming the course object will have a 'lecturers' array
-                        const lecturerNameCard = course.lecturers?.[0]?.name || 'N/A';
+                        const lecturerNameCard = course.lecturers?.[0]?.name || 'Teacher unassigned';
                         
                         return (
                             <div 
                                 key={course.id} 
-                                className="group p-6 border border-gray-200 rounded-xl cursor-pointer bg-white shadow-sm hover:border-indigo-300 hover:shadow-md transition-all duration-200 flex flex-col h-full"
+                                className="group p-10 bg-white border border-border rounded-[2.5rem] cursor-pointer shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 flex flex-col h-full relative overflow-hidden"
                                 onClick={() => { setSelectedCourse(course); setView('course_detail'); }}
                             >
-                                <div className="flex items-start justify-between mb-4">
-                                    <h4 className="text-xl font-bold text-gray-800 group-hover:text-indigo-600 transition-colors line-clamp-2">{course.title}</h4>
-                                    <span className="bg-gray-100 text-gray-800 text-xs font-semibold px-2.5 py-1 rounded border border-gray-200 whitespace-nowrap ml-3">{course.code}</span>
+                                {/* Decorative line */}
+                                <div className="absolute top-0 left-0 w-full h-1.5 bg-gray-50 group-hover:bg-primary transition-colors"></div>
+                                
+                                <div className="space-y-4 mb-10">
+                                     <span className="text-[10px] font-bold text-primary uppercase tracking-[0.3em]">{course.code}</span>
+                                     <h4 className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors leading-tight line-clamp-2">{course.title}</h4>
                                 </div>
-                                <div className="mt-auto pt-4 border-t border-gray-100">
-                                    <p className="text-sm text-gray-500 mb-4 flex items-center gap-2">
-                                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                                        Lecturer: <span className="font-medium text-gray-700">{lecturerNameCard}</span>
-                                    </p>
-                                    <button className="w-full py-2.5 bg-indigo-50 group-hover:bg-indigo-600 text-indigo-700 group-hover:text-white font-semibold rounded-lg transition-colors border border-indigo-100 group-hover:border-indigo-600 shadow-sm">
-                                        Open Course
+                                <div className="mt-auto pt-8 border-t border-gray-50 flex flex-col gap-6">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center text-sm font-bold text-primary group-hover:bg-primary/10 transition-colors">
+                                            {lecturerNameCard.charAt(0)}
+                                        </div>
+                                        <div className="text-[10px] font-bold text-secondary uppercase tracking-widest">
+                                            Teacher: <span className="text-foreground">{lecturerNameCard}</span>
+                                        </div>
+                                    </div>
+                                    <button className="w-full py-4 bg-gray-50 group-hover:bg-primary text-secondary group-hover:text-white font-bold rounded-2xl transition-all text-xs uppercase tracking-widest">
+                                        Open Syllabus
                                     </button>
                                 </div>
                             </div>
                         );
                     })
                 ) : (
-                    <div className="p-8 bg-blue-50 text-blue-800 border-2 border-dashed border-blue-200 rounded-lg text-center col-span-full mt-2">
-                        <svg className="w-12 h-12 text-blue-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                        <p className="text-lg font-medium">You are not currently enrolled in any courses.</p>
-                        <p className="text-blue-600 mt-2">Click "+ Enroll in New Course" to get started!</p>
+                    <div className="py-32 text-center bg-white border-2 border-dashed border-gray-100 rounded-[3rem] col-span-full">
+                        <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-8">
+                             <svg className="w-10 h-10 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                        </div>
+                        <h3 className="text-2xl font-bold text-black mb-2 tracking-tight">Your bookshelf is empty.</h3>
+                        <p className="text-sm font-semibold text-secondary mb-10 opacity-70">Ready to join your first academic class?</p>
+                        <button onClick={() => setView('enrollment_list')} className="btn-primary px-10">Start Enrollment</button>
                     </div>
                 )}
             </div>

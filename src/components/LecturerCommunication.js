@@ -1,50 +1,34 @@
 // components/LecturerCommunication.js
 import React, { useState, useEffect, useCallback } from 'react';
-import CourseCommentThread from './CourseCommentThread'; // Reusing the established communication component
+import CourseCommentThread from './CourseCommentThread'; 
 
-/**
- * Manages the lecturer's view for student-lecturer private communication threads
- * within a specific course.
- * @param {string} lecturerId - The ID of the currently logged-in lecturer (the sender/recipient).
- * @param {string} courseId - The ID of the currently selected course.
- * @param {string} courseCode - The course code for display purposes.
- */
 function LecturerCommunication({ lecturerId, courseId, courseCode }) {
     const [students, setStudents] = useState([]);
     const [loadingStudents, setLoadingStudents] = useState(true);
-    // Initialize selectedStudent to null to ensure the first render is managed
     const [selectedStudent, setSelectedStudent] = useState(null); 
     const [error, setError] = useState(null);
 
-    // 1. Fetch the list of enrolled students for the current course
     const fetchEnrolledStudents = useCallback(async () => {
         if (!courseId) {
             setLoadingStudents(false);
-            // It's generally cleaner to return success here if no course is selected
-            // and handle the missing course outside this component or in the effect.
             return; 
         }
 
         setLoadingStudents(true);
         setError(null);
         
-        // CRITICAL FIX: The URL must match the API route file structure
         const apiUrl = `/api/lecturer/courses/${courseId}/students`;
 
         try {
             const response = await fetch(apiUrl);
             
             if (!response.ok) {
-                // Try to parse JSON error message, fallback to status text
                 const contentType = response.headers.get("content-type");
                 let errorData = {};
-                
                 if (contentType && contentType.includes("application/json")) {
                     errorData = await response.json();
                 }
-
-                // Throw error with message from server if available
-                throw new Error(errorData.message || `Server error: ${response.status} ${response.statusText}`);
+                throw new Error(errorData.message || `Server error: ${response.status}`);
             }
 
             const data = await response.json();
@@ -52,7 +36,6 @@ function LecturerCommunication({ lecturerId, courseId, courseCode }) {
 
             setStudents(fetchedStudents);
             
-            // Automatically select the first student if available and no student is currently selected
             if (fetchedStudents.length > 0 && !selectedStudent) {
                 setSelectedStudent(fetchedStudents[0]);
             } else if (fetchedStudents.length === 0) {
@@ -61,28 +44,25 @@ function LecturerCommunication({ lecturerId, courseId, courseCode }) {
             
         } catch (err) {
             console.error("Error fetching students:", err);
-            // Provide a more specific error message from the caught error
-            setError(`Failed to fetch student list: ${err.message || 'Network issue or server error.'}`);
+            setError(`Failed to fetch student list: ${err.message}`);
             setStudents([]);
             setSelectedStudent(null);
         } finally {
             setLoadingStudents(false);
         }
-    }, [courseId, selectedStudent]); // Added selectedStudent dependency to maintain current selection after refresh
+    }, [courseId, selectedStudent]);
 
 
     useEffect(() => {
-        // Trigger fetch only if courseId is present
         if (courseId) {
             fetchEnrolledStudents();
         } else {
-            // Reset state if courseId is removed
             setStudents([]);
             setSelectedStudent(null);
             setLoadingStudents(false);
             setError(null);
         }
-    }, [courseId, fetchEnrolledStudents]); // Depend on courseId and the memoized function
+    }, [courseId, fetchEnrolledStudents]);
 
     const handleStudentSelect = (e) => {
         const studentId = e.target.value;
@@ -90,51 +70,58 @@ function LecturerCommunication({ lecturerId, courseId, courseCode }) {
         setSelectedStudent(student);
     };
 
-    if (!courseId) return <div className="p-4 bg-blue-50 text-blue-800 border-l-4 border-blue-500 rounded-md">Please select a course to manage communication threads.</div>;
-    if (error) return <div className="p-4 bg-red-100 text-red-700 border border-red-300 rounded-md text-sm font-medium">Error: {error}</div>;
-    if (loadingStudents) return <div className="p-4 text-blue-600 animate-pulse font-medium">Loading student list...</div>;
+    if (!courseId) return <div className="p-6 bg-blue-50 text-blue-800 rounded-2xl border border-blue-100 font-semibold mb-6">Select a class to start messaging.</div>;
+    
+    if (error) return <div className="p-6 bg-red-50 text-red-600 rounded-2xl border border-red-100 font-semibold mb-6">{error}</div>;
+    
+    if (loadingStudents) return (
+        <div className="flex flex-col items-center justify-center py-20 gap-4 animate-pulse">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <p className="font-bold text-secondary text-xs">Loading students...</p>
+        </div>
+    );
 
     return (
-        <div className="py-6">
-            <h3 className="text-2xl font-bold text-gray-800 border-b border-gray-200 pb-4 mb-6">
-                Direct Communication for {courseCode}
+        <div className="space-y-8 animate-in fade-in duration-500">
+            <h3 className="text-3xl font-bold text-foreground tracking-tight">
+                Student Messages for {courseCode}
             </h3>
 
             {students.length === 0 ? (
-                <div className="p-5 bg-gray-50 text-gray-600 border border-gray-200 rounded-lg text-center font-medium">There are no students currently enrolled in this course.</div>
+                <div className="py-20 text-center bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-100">
+                    <p className="text-xl font-bold text-gray-400">No students joined yet</p>
+                    <p className="text-xs text-secondary mt-1 tracking-wide">When students join this class, you can message them here.</p>
+                </div>
             ) : (
-                <>
-                    {/* 2. Student Selector Dropdown */}
-                    <div className="mb-8 p-4 bg-gray-50 border border-gray-200 rounded-lg shadow-sm flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                        <label htmlFor="student-select" className="font-bold text-gray-700 whitespace-nowrap">View Conversation With:</label>
+                <div className="space-y-8">
+                    <div className="p-6 bg-gray-50 rounded-3xl border border-border flex flex-col md:flex-row items-center gap-4">
+                        <label htmlFor="student-select" className="font-bold text-foreground text-sm flex-shrink-0">Chat with:</label>
                         <select
                             id="student-select"
-                            className="flex-1 w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow bg-white"
-                            // Use || '' for controlled component value to handle null/undefined
+                            className="flex-1 w-full p-3 rounded-xl border border-border focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm font-semibold bg-white"
                             value={selectedStudent?.id || ''} 
                             onChange={handleStudentSelect}
                         >
-                             <option value="" disabled>Select a student</option>
                             {students.map(student => (
                                 <option key={student.id} value={student.id}>
-                                    {student.name} ({student.email})
+                                    {student.name} ({student.email.substring(0, 10)}...)
                                 </option>
                             ))}
                         </select>
                     </div>
 
-                    {/* 3. Communication Thread */}
                     {selectedStudent ? ( 
-                        <div className="border-2 border-indigo-100 rounded-xl overflow-hidden bg-white shadow-sm">
-                            <div className="bg-indigo-50/50 p-4 border-b border-indigo-100 flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-lg">
-                                    {selectedStudent.name.charAt(0).toUpperCase()}
+                        <div className="bg-white rounded-[2rem] border border-border overflow-hidden shadow-sm">
+                            <div className="bg-gray-50 p-6 border-b border-border flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-lg">
+                                    {selectedStudent.name.charAt(0)}
                                 </div>
-                                <h4 className="text-xl font-bold text-indigo-900">
-                                    Conversation with {selectedStudent.name}
-                                </h4>
+                                <div>
+                                    <h4 className="text-xl font-bold text-foreground">{selectedStudent.name}</h4>
+                                    <p className="text-[10px] font-bold text-secondary uppercase tracking-widest">Enrolled Student</p>
+                                </div>
                             </div>
-                            <div className="p-2">
+                            <div className="p-8">
                                 <CourseCommentThread 
                                     courseId={courseId} 
                                     currentUserId={lecturerId} 
@@ -143,10 +130,11 @@ function LecturerCommunication({ lecturerId, courseId, courseCode }) {
                             </div>
                         </div>
                     ) : (
-                        // Fallback if the list loaded but no student was selected (shouldn't happen with auto-select, but safe)
-                        <div className="p-5 bg-blue-50 text-blue-800 border border-blue-200 rounded-lg text-center font-medium">Please select a student to view their conversation.</div>
+                        <div className="py-20 text-center bg-gray-50 rounded-3xl">
+                            <p className="font-bold text-secondary">Please select a student from the list.</p>
+                        </div>
                     )}
-                </>
+                </div>
             )}
         </div>
     );

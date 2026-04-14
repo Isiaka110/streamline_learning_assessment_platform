@@ -4,6 +4,7 @@ import { UserRole } from '@prisma/client';
 import AdminLecturerTable from '@components/AdminLecturerTable'; 
 import AdminLecturerModal from '@components/AdminLecturerModal'; 
 import LogoContainer from '@components/LogoContainer'; 
+import Head from 'next/head';
 
 function AdminLecturerManagement() {
     const [lecturers, setLecturers] = useState([]);
@@ -23,16 +24,15 @@ function AdminLecturerManagement() {
                 if (Array.isArray(data)) {
                     setLecturers(data);
                 } else {
-                    console.error("API response for lecturers was not an array:", data);
                     setError("Received unexpected data format from the server.");
                     setLecturers([]); 
                 }
             } else {
-                setError(data.message || 'Failed to load lecturer data.');
+                setError(data.message || 'Failed to load teacher data.');
             }
         } catch (err) {
             console.error("Fetch Lecturers Network Error:", err);
-            setError('Network error while fetching data. Please check your connection.');
+            setError('Could not connect. Please check your internet.');
         } finally {
             setIsLoading(false); 
         }
@@ -53,12 +53,11 @@ function AdminLecturerManagement() {
     };
 
     const handleDelete = async (lecturerId) => {
-        if (!window.confirm("Are you sure you want to delete this lecturer? This action is permanent and will unassign all their courses.")) {
+        if (!window.confirm("Are you sure you want to delete this teacher? This will unassign all their classes.")) {
             return;
         }
         
         setError(null);
-        
         try {
             const res = await fetch(`/api/admin/lecturers/${lecturerId}`, { 
                 method: 'DELETE' 
@@ -68,16 +67,12 @@ function AdminLecturerManagement() {
                 setLecturers(prevLecturers => 
                     prevLecturers.filter(l => l.id !== lecturerId)
                 );
-                alert('✅ Lecturer account successfully deleted.');
             } else {
                 const data = await res.json();
-                setError(data.message || `Failed to delete lecturer. Status: ${res.status}`);
-                alert(`❌ Error deleting lecturer: ${data.message || 'Deletion failed on the server.'}`);
+                alert(`Error: ${data.message || 'Deletion failed.'}`);
             }
         } catch (err) {
-            console.error("Deletion network error:", err);
-            setError('Network error during deletion.');
-            alert('❌ Network error during deletion. Check your connection.');
+            alert('Error: Could not delete teacher.');
         }
     };
     
@@ -90,32 +85,71 @@ function AdminLecturerManagement() {
     };
 
     if (isLoading) {
-        return <div className="min-h-screen flex items-center justify-center"><p className="text-xl font-semibold text-blue-600 animate-pulse">Loading Lecturer Data...</p></div>;
-    }
-    if (error) {
-        return <div className="p-4 bg-red-100 text-red-700 border border-red-300 rounded max-w-2xl mx-auto mt-10 text-center"><p>Error: {error}</p></div>;
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-background">
+                <div className="text-center space-y-4">
+                    <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+                    <p className="text-sm font-bold text-primary">Loading teacher data...</p>
+                </div>
+            </div>
+        );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <LogoContainer />
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2 mt-4">Lecturer Management 👥</h1>
-            <p className="text-gray-600 mb-8 border-b border-gray-200 pb-4">View, edit, or delete Lecturer accounts and their course assignments.</p>
+        <div className="min-h-screen bg-background pb-20">
+            <Head>
+                <title>Teacher Management | SLA</title>
+            </Head>
 
-            <div className="flex justify-end mb-6">
-                <button 
-                    onClick={handleCreateNew} 
-                    className="px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-lg shadow-md transition-colors"
-                >
-                    + Register New Lecturer
-                </button>
+            <div className="bg-white border-b border-border px-6 sticky top-0 z-40 shadow-sm h-16 flex items-center">
+                <div className="max-w-7xl mx-auto flex items-center justify-between w-full">
+                    <div className="flex items-center gap-4">
+                        <LogoContainer />
+                        <h1 className="text-xl font-bold tracking-tight text-foreground hidden sm:block uppercase tracking-widest">Admin Faculty</h1>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <NotificationBell />
+                        <Link 
+                            href="/dashboard/admin" 
+                            className="btn-outline px-4 py-2 text-[10px] font-bold uppercase tracking-widest"
+                        >
+                            &larr; Hub
+                        </Link>
+                    </div>
+                </div>
             </div>
 
-            <AdminLecturerTable 
-                lecturers={lecturers} 
-                onEdit={handleEdit} 
-                onDelete={handleDelete} 
-            />
+            <main className="max-w-7xl mx-auto px-6 py-8">
+                <div className="mb-8">
+                    <h2 className="text-3xl font-bold mb-2 text-foreground">Teacher Management</h2>
+                    <p className="text-secondary text-sm font-semibold">
+                        Add or manage teachers and their assigned classes.
+                    </p>
+                </div>
+
+                {error && (
+                    <div className="p-4 bg-red-50 text-red-600 rounded-2xl border border-red-100 mb-6 font-bold text-sm">
+                        {error}
+                    </div>
+                )}
+
+                <div className="flex justify-end mb-8">
+                    <button 
+                        onClick={handleCreateNew} 
+                        className="btn-primary"
+                    >
+                        + Register New Teacher
+                    </button>
+                </div>
+
+                <div className="bg-white rounded-[2rem] border border-border overflow-hidden shadow-sm">
+                    <AdminLecturerTable 
+                        lecturers={lecturers} 
+                        onEdit={handleEdit} 
+                        onDelete={handleDelete} 
+                    />
+                </div>
+            </main>
 
             {isModalOpen && (
                 <AdminLecturerModal 

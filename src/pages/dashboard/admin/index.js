@@ -7,16 +7,17 @@ import Head from 'next/head';
 import prisma from '@lib/prisma'; 
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@api/auth/[...nextauth]'; 
-
+import NotificationBell from '@components/NotificationBell';
 
 function AdminDashboard({ 
     totalLecturers, 
     totalCourses, 
     unassignedCourses, 
+    totalStudents,
     error,
     session 
 }) {
-    const adminName = session?.user?.name || 'System Administrator';
+    const adminName = session?.user?.name || 'Administrator';
 
     const handleLogout = () => {
         signOut({ callbackUrl: '/auth/signin' }); 
@@ -25,126 +26,148 @@ function AdminDashboard({
     if (error) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-background">
-                <div className="p-8 border-2 border-red-500 bg-red-50 text-red-900 max-w-2xl w-full text-center mb-6">
-                    <p className="font-black italic uppercase text-sm">{error}</p>
+                <div className="p-8 border border-red-200 bg-red-50 text-red-600 rounded-[2rem] max-w-2xl w-full text-center mb-6">
+                    <p className="font-bold text-sm">{error}</p>
                 </div>
-                <button onClick={handleLogout} className="btn-rect-outline">Terminate Session</button>
+                <button onClick={handleLogout} className="btn-outline">Log Out</button>
             </div>
         );
     }
 
     const statCards = [
-        { label: 'Faculty Members', value: totalLecturers, sub: 'Active instructors on platform' },
-        { label: 'Active Modules', value: totalCourses, sub: 'Total course catalog entries' },
-        { label: 'Unassigned Modules', value: unassignedCourses, sub: 'Awaiting instructor assignment', warn: unassignedCourses > 0 },
+        { label: 'Teachers', value: totalLecturers, sub: 'Active faculty members', color: 'bg-primary' },
+        { label: 'Classes', value: totalCourses, sub: 'Total curriculum items', color: 'bg-[#10B981]' },
+        { label: 'Students', value: totalStudents, sub: 'Registered on platform', color: 'bg-[#8B5CF6]' },
+        { label: 'Pending', value: unassignedCourses, sub: 'Unassigned classes', warn: unassignedCourses > 0, color: 'bg-[#F97316]' },
     ];
 
     const actionCards = [
         {
             num: '01',
-            title: 'Faculty Management',
-            description: 'Provision, update, and govern all instructor accounts. Control course-faculty assignments.',
+            title: 'Manage Teachers',
+            description: 'Account registration and class assignments.',
             href: '/dashboard/admin/lecturer-management',
-            label: 'Manage Faculty',
+            label: 'Open Registry',
             accent: false,
         },
         {
             num: '02',
-            title: 'Course Catalog',
-            description: 'Build and maintain the institutional module catalog. Define credits, semesters, and lecturer assignments.',
+            title: 'Manage Classes',
+            description: 'Curriculum creation and session management.',
             href: '/dashboard/admin/course-management',
-            label: 'Manage Modules',
+            label: 'Manage Curriculum',
             accent: true,
         },
         {
             num: '03',
-            title: 'Platform Broadcasts',
-            description: 'Publish system-wide announcements and targeted advisories to all platform user roles.',
+            title: 'Platform Announcements',
+            description: 'Broadcast messages to all students and faculty.',
             href: '/dashboard/admin/announcements',
-            label: 'Manage Broadcasts',
+            label: 'Send Notification',
             accent: false,
             fullWidth: true,
         },
     ];
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background pb-20">
             <Head>
-                <title>Admin Console | Streamline LMS</title>
+                <title>Admin Dashboard | SLA</title>
             </Head>
 
             {/* Header */}
-            <div className="glass border-b border-foreground/10 px-6 py-6 sticky top-0 z-40">
-                <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-foreground flex items-center justify-center flex-shrink-0">
-                            <span className="text-white font-black italic text-sm">SL</span>
+            <div className="bg-white border-b border-border px-6 py-4 sticky top-0 z-40 shadow-sm">
+                <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center flex-shrink-0">
+                            <span className="text-primary font-bold text-xl">S</span>
                         </div>
                         <div>
-                            <h1 className="text-xl font-black italic uppercase tracking-tighter leading-none">Admin Console</h1>
-                            <p className="text-[10px] font-bold text-accent uppercase tracking-widest mt-0.5">{adminName} | SUPERUSER</p>
+                            <h1 className="text-xl font-bold tracking-tight text-foreground uppercase tracking-widest">SLA Admin</h1>
+                            <p className="text-xs font-semibold text-secondary">Logged in as {adminName}</p>
                         </div>
                     </div>
-                    <button onClick={handleLogout} className="btn-rect-outline px-4 py-2 text-xs">
-                        Terminate Session
-                    </button>
+                    
+                    <div className="flex items-center gap-4 w-full sm:w-auto justify-end">
+                        <NotificationBell />
+                        <button onClick={handleLogout} className="btn-outline px-4 py-2.5 text-xs">
+                             Log Out
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <main className="max-w-7xl mx-auto px-6 py-12">
+            <main className="max-w-7xl mx-auto px-6 py-8">
 
-                {/* Title */}
-                <div className="mb-12">
-                    <h2 className="text-3xl md:text-5xl mb-2">Platform Governance</h2>
-                    <p className="text-secondary font-medium italic">
-                        Centralize operations, manage faculty, and govern the institutional ecosystem.
+                <div className="mb-8">
+                    <h2 className="text-3xl font-bold mb-2 text-foreground tracking-tight">Platform Overview</h2>
+                    <p className="text-secondary text-sm font-semibold uppercase tracking-widest opacity-60">
+                        Real-time system diagnostics and administrative controls.
                     </p>
                 </div>
 
                 {/* Stats Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 border-2 border-foreground mb-12">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                     {statCards.map((stat, i) => (
-                        <div key={i} className={`p-8 ${i < statCards.length - 1 ? 'border-b sm:border-b-0 sm:border-r border-foreground/20' : ''}`}>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-secondary mb-2">{stat.label}</p>
-                            <p className={`text-5xl font-black italic mb-1 ${stat.warn ? 'text-red-500' : 'text-foreground'}`}>
-                                {stat.value ?? '—'}
-                            </p>
-                            <p className="text-xs text-secondary font-medium">{stat.sub}</p>
-                            {stat.warn && (
-                                <div className="mt-3 inline-block px-2 py-0.5 bg-red-100 border border-red-300">
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-red-600">Action Required</span>
-                                </div>
-                            )}
+                        <div key={i} className={`${stat.color} text-white rounded-[2rem] p-8 shadow-md relative overflow-hidden`}>
+                            <div className="relative z-10">
+                               <p className="text-sm font-bold opacity-80 mb-2 uppercase tracking-widest">{stat.label}</p>
+                               <div className="text-5xl font-bold mb-2">
+                                   {stat.value ?? '—'}
+                               </div>
+                               <p className="text-xs opacity-90 font-bold uppercase tracking-tight">{stat.sub}</p>
+                               {stat.warn && (
+                                   <div className="mt-3 inline-block px-3 py-1 bg-white/20 rounded-full">
+                                       <span className="text-[10px] font-bold shrink-0 uppercase tracking-widest">Critical</span>
+                                   </div>
+                               )}
+                            </div>
+                            <div className="absolute right-0 bottom-0 w-24 h-24 bg-white/10 rounded-tl-full translate-x-4 translate-y-4 z-0"></div>
                         </div>
                     ))}
                 </div>
 
                 {/* Action Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {actionCards.map((card) => (
                         <div
                             key={card.num}
-                            className={`${card.fullWidth ? 'md:col-span-2' : ''} ${card.accent ? 'bg-foreground text-white' : 'bg-white border-2 border-foreground/10'} p-10 flex flex-col justify-between gap-8 group hover:shadow-2xl transition-shadow duration-300`}
+                            className={`${card.fullWidth ? 'md:col-span-2' : ''} group bg-white rounded-[2.5rem] border border-border p-10 flex flex-col justify-between gap-8 shadow-sm hover:shadow-xl transition-all duration-500 relative overflow-hidden`}
                         >
-                            <div>
-                                <div className={`text-4xl font-black italic mb-4 ${card.accent ? 'text-accent' : 'text-foreground/20'}`}>
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-gray-50 rounded-bl-full translate-x-10 -translate-y-10 group-hover:bg-primary/5 transition-colors"></div>
+                            
+                            <div className="relative z-10">
+                                <div className="text-5xl font-bold text-gray-100 mb-4 group-hover:text-primary/10 transition-colors">
                                     {card.num}
                                 </div>
-                                <h3 className={`text-2xl font-black italic uppercase mb-3 ${card.accent ? 'text-white' : 'text-foreground'}`}>
+                                <h3 className="text-3xl font-bold text-foreground mb-3 tracking-tight">
                                     {card.title}
                                 </h3>
-                                <p className={`text-sm leading-relaxed font-medium ${card.accent ? 'text-white/50' : 'text-secondary'}`}>
+                                <p className="text-lg text-secondary font-semibold italic opacity-80">
                                     {card.description}
                                 </p>
                             </div>
                             <Link
                                 href={card.href}
-                                className={`btn-rect self-start ${card.accent ? 'bg-accent border-accent text-white hover:bg-white hover:text-foreground hover:border-white' : 'bg-foreground text-white border-foreground hover:bg-accent hover:border-accent'}`}
+                                className={`btn-primary self-start py-4 px-8 text-xs uppercase tracking-widest ${!card.accent ? 'bg-secondary' : ''}`}
                             >
                                 {card.label}
                             </Link>
                         </div>
                     ))}
+                </div>
+
+                {/* Platform Mission Card */}
+                <div className="mt-12 bg-gray-50 rounded-[2.5rem] p-12 border border-border shadow-sm flex flex-col md:flex-row items-center gap-12">
+                    <div className="flex-shrink-0 w-24 h-24 bg-primary/10 text-primary rounded-3xl flex items-center justify-center animate-pulse">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    </div>
+                    <div className="flex-1">
+                        <h3 className="text-3xl font-bold text-foreground mb-4 tracking-tight">Sustainable Digital Transformation</h3>
+                        <p className="text-lg text-secondary leading-relaxed font-semibold italic opacity-80">
+                            "The SLA administrative hub provides oversight of the institutional transition from paper to digital. Monitor faculty engagement and curriculum deployment in real-time."
+                        </p>
+                    </div>
                 </div>
             </main>
         </div>
@@ -163,23 +186,20 @@ export async function getServerSideProps(context) {
         };
     }
 
-    if (session?.user) {
-        session.user.image = session.user.image ?? null;
-        session.user.name = session.user.name ?? null;
-    }
-
     let totalLecturers = 0;
     let totalCourses = 0;
     let unassignedCourses = 0;
+    let totalStudents = 0;
     let error = null;
 
     try {
         totalLecturers = await prisma.user.count({ where: { role: UserRole.LECTURER } });
         totalCourses = await prisma.course.count();
         unassignedCourses = await prisma.course.count({ where: { lecturers: { none: {} } } });
+        totalStudents = await prisma.user.count({ where: { role: UserRole.STUDENT } });
     } catch (err) {
         console.error("getServerSideProps Admin Stats Error:", err);
-        error = 'Failed to load administrator statistics from the database.';
+        error = 'Failed to load system pulse from the database.';
     }
 
     return {
@@ -187,6 +207,7 @@ export async function getServerSideProps(context) {
             totalLecturers,
             totalCourses,
             unassignedCourses,
+            totalStudents,
             error, 
             session: JSON.parse(JSON.stringify(session)), 
         },

@@ -1,3 +1,5 @@
+// components/ComposeAnnouncementForm.js
+
 import React, { useState } from 'react';
 
 const ComposeAnnouncementForm = ({ onAnnouncementCreated }) => {
@@ -19,7 +21,7 @@ const ComposeAnnouncementForm = ({ onAnnouncementCreated }) => {
         setIsError(false);
 
         if (!title || !content) {
-            setMessage('Error: All fields are required.');
+            setMessage('Please fill in all fields.');
             setIsError(true);
             setLoading(false);
             return;
@@ -35,7 +37,7 @@ const ComposeAnnouncementForm = ({ onAnnouncementCreated }) => {
             const data = await response.json();
 
             if (response.ok) {
-                setMessage('Success! Announcement broadcasted successfully.');
+                setMessage('Successfully posted message!');
                 setIsError(false);
                 resetForm();
                 if (onAnnouncementCreated) onAnnouncementCreated(data.announcement);
@@ -44,7 +46,7 @@ const ComposeAnnouncementForm = ({ onAnnouncementCreated }) => {
                 setIsError(true);
             }
         } catch (error) {
-            setMessage('Network Error: Please check your connection.');
+            setMessage('Could not connect. Please check your internet.');
             setIsError(true);
         } finally {
             setLoading(false);
@@ -52,59 +54,51 @@ const ComposeAnnouncementForm = ({ onAnnouncementCreated }) => {
     };
 
     return (
-        <div className="bg-white rounded-[40px] shadow-2xl shadow-gray-100 border border-gray-50 overflow-hidden animate-in fade-in slide-in-from-top-12 duration-1000">
-            <div className="bg-indigo-600 p-10 text-white relative">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full translate-x-10 -translate-y-10 blur-2xl"></div>
+        <div className="bg-white rounded-3xl shadow-sm border border-border overflow-hidden">
+            <div className="bg-primary p-8 text-white relative">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full translate-x-10 -translate-y-10 blur-xl"></div>
                 <div className="relative z-10">
-                    <div className="flex items-center gap-2 mb-2">
-                        <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-indigo-100">Global Broadcast</span>
-                    </div>
-                    <h2 className="text-4xl font-black text-white italic uppercase tracking-tighter">Compose <span className="text-indigo-200">Intel</span></h2>
+                    <p className="text-[10px] font-bold uppercase tracking-widest opacity-80 mb-1">New Update</p>
+                    <h2 className="text-3xl font-bold text-white tracking-tight">Post a Message</h2>
                 </div>
             </div>
 
-            <div className="p-10">
+            <div className="p-8">
                 {message && (
-                    <div className={`mb-8 p-5 rounded-2xl border-2 transition-all animate-in zoom-in-95 ${isError ? 'bg-rose-50 border-rose-100 text-rose-600' : 'bg-emerald-50 border-emerald-100 text-emerald-600'}`}>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-center">{message}</p>
+                    <div className={`mb-6 p-4 rounded-xl text-sm font-semibold border ${isError ? 'bg-red-50 border-red-100 text-red-600' : 'bg-green-50 border-green-100 text-green-600'}`}>
+                        {message}
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-8">
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2 italic">Announcement Title</label>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="space-y-1">
+                        <label className="text-sm font-bold text-foreground">Message Title</label>
                         <input
                             type="text"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            placeholder="URGENT: SYSTEM MAINTENANCE"
-                            className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:border-indigo-600 rounded-2xl outline-none font-black text-gray-900 placeholder:text-gray-200 uppercase italic shadow-inner transition-all"
+                            placeholder="e.g. Next week's schedule"
+                            className="w-full px-4 py-3 rounded-xl border border-border focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
                             required
                         />
                     </div>
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2 italic">Detailed Broadcast Content</label>
+                    <div className="space-y-1">
+                        <label className="text-sm font-bold text-foreground">Message Content</label>
                         <textarea
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
-                            placeholder="Enter the critical announcement message details here..."
-                            rows="6"
-                            className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:border-indigo-600 rounded-2xl outline-none font-medium text-gray-700 italic shadow-inner transition-all resize-none"
+                            placeholder="Tell everyone what they need to know..."
+                            rows="5"
+                            className="w-full px-4 py-3 rounded-xl border border-border focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm resize-none"
                             required
                         />
                     </div>
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-5 bg-indigo-600 hover:bg-black text-white font-black rounded-[30px] shadow-lg shadow-indigo-500/30 hover:shadow-black/20 transition-all uppercase tracking-widest italic flex items-center justify-center gap-4 disabled:opacity-50"
+                        className="w-full btn-primary py-4 disabled:opacity-50"
                     >
-                        {loading ? 'Transmitting...' : (
-                            <>
-                                Broadcast Announcement
-                                <svg className="w-5 h-5 animate-bounce-horizontal" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                            </>
-                        )}
+                        {loading ? 'Posting...' : 'Post Message'}
                     </button>
                 </form>
             </div>

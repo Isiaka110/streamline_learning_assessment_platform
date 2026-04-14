@@ -1,5 +1,4 @@
 // File: components/ResourceFormModal.js
-
 import React, { useState, useEffect } from 'react';
 
 function ResourceFormModal({ courseId, resource, onClose, onSuccess }) {
@@ -38,8 +37,7 @@ function ResourceFormModal({ courseId, resource, onClose, onSuccess }) {
         setError('');
         
         if (!formData.title) { setError('Title is required.'); return; }
-        if (!isEdit && !file) { setError('A file must be selected for upload.'); return; }
-        if (isEdit && !file && !currentFileUrl) { setError('Resource file information is missing.'); return; }
+        if (!isEdit && !file) { setError('Please select a file to upload.'); return; }
 
         setIsSaving(true);
         
@@ -70,80 +68,85 @@ function ResourceFormModal({ courseId, resource, onClose, onSuccess }) {
             if (res.ok) {
                 onSuccess(); 
             } else {
-                setError(data.message || `Failed to ${isEdit ? 'update' : 'upload'} resource.`);
+                setError(data.message || `Failed to ${isEdit ? 'update' : 'upload'} file.`);
             }
 
         } catch (err) {
             console.error("Save operation network error:", err);
-            setError('Network error during save operation.');
+            setError('Could not connect to the server.');
         } finally {
             setIsSaving(false);
         }
     };
 
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex justify-center items-center z-[1000] p-6 animate-in fade-in duration-300" onClick={onClose}>
-            <div className="bg-white rounded-[40px] w-full max-w-xl overflow-hidden relative shadow-2xl flex flex-col transform transition-all animate-in zoom-in-95 duration-300" onClick={(e) => e.stopPropagation()}>
-                <div className="bg-indigo-600 p-10 text-white relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full translate-x-10 -translate-y-10 blur-3xl"></div>
-                    <div className="relative z-10">
-                        <h2 className="text-4xl font-black tracking-tight leading-none mb-2">{isEdit ? 'Edit Resource' : 'Upload Resource'}</h2>
-                        <p className="text-indigo-100/80 text-sm font-black uppercase tracking-widest">{isEdit ? 'Update resource details' : 'Upload new course material'}</p>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-[1000] p-4 sm:p-6 animate-in fade-in duration-300" onClick={onClose}>
+            <div className="bg-white rounded-[2.5rem] w-full max-w-xl overflow-hidden relative shadow-2xl flex flex-col transform transition-all animate-in zoom-in-95 duration-300" onClick={(e) => e.stopPropagation()}>
+                <div className="bg-primary p-8 text-white relative flex justify-between items-center">
+                    <div>
+                        <h2 className="text-2xl font-bold tracking-tight">{isEdit ? 'Edit File' : 'Upload File'}</h2>
+                        <p className="text-white/80 text-[10px] font-bold uppercase tracking-widest">{isEdit ? 'Update file details' : 'Share a new material with the class'}</p>
                     </div>
-                    <button onClick={onClose} className="absolute top-8 right-8 p-3 hover:bg-white/20 rounded-2xl transition-colors text-white active:scale-95 group">
-                        <svg className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-all">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
 
-                <div className="p-10">
+                <div className="p-8">
                     {error && (
-                        <div className="mb-8 p-4 bg-rose-50 border border-rose-100 rounded-2xl text-rose-600 text-[10px] font-black uppercase tracking-widest text-center animate-shake">
+                        <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm font-bold text-center">
                             {error}
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="space-y-8">
-                        <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Resource Title</label>
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="space-y-1">
+                            <label className="text-xs font-bold text-foreground ml-1 uppercase tracking-wider">File Title</label>
                             <input 
                                 type="text" 
                                 name="title" 
                                 value={formData.title} 
                                 onChange={handleChange} 
-                                placeholder="e.g. System Dynamics Syllabus"
-                                className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 rounded-2xl outline-none transition-all font-bold text-gray-700 placeholder:text-gray-300"
+                                placeholder="e.g. Week 1 Syllabus"
+                                className="w-full px-5 py-3 rounded-xl border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-sm font-semibold"
                                 required 
                                 disabled={isSaving} 
                             />
                         </div>
 
-                        <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{isEdit ? 'Replace File (Optional)' : 'Select File'}</label>
-                            <div className="relative group/file">
+                        <div className="space-y-1">
+                            <label className="text-xs font-bold text-foreground ml-1 uppercase tracking-wider">{isEdit ? 'Replace File (Optional)' : 'Select File'}</label>
+                            <div className="border-2 border-dashed border-border p-8 rounded-xl text-center hover:border-primary transition-all relative">
                                 <input 
                                     type="file" 
                                     onChange={handleFileChange} 
-                                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-4 file:px-8 file:rounded-2xl file:border-0 file:text-[10px] file:font-black file:uppercase file:tracking-widest file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 transition-all cursor-pointer bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 p-2"
+                                    className="absolute inset-0 opacity-0 cursor-pointer"
                                     required={!isEdit && !currentFileUrl} 
                                     disabled={isSaving} 
                                 />
-                                {isEdit && currentFileUrl && (
-                                    <div className="mt-4 flex items-center gap-3 px-4 py-3 bg-emerald-50 rounded-xl border border-emerald-100">
-                                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                                        <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Active: {currentFileUrl.split('/').pop()}</span>
+                                <div className="flex flex-col items-center gap-2">
+                                    <div className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-secondary">
+                                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
                                     </div>
-                                )}
+                                    <span className="text-foreground font-bold text-xs uppercase tracking-wider">Click to choose a file</span>
+                                </div>
                             </div>
+                            {isEdit && currentFileUrl && (
+                                <div className="mt-2 text-[10px] font-bold text-secondary uppercase tracking-widest flex items-center gap-2">
+                                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                                    Current: {currentFileUrl.split('/').pop()}
+                                </div>
+                            )}
                         </div>
 
-                        <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Description (Optional)</label>
+                        <div className="space-y-1">
+                            <label className="text-xs font-bold text-foreground ml-1 uppercase tracking-wider">Description (Optional)</label>
                             <textarea 
                                 name="description" 
                                 value={formData.description} 
                                 onChange={handleChange} 
-                                placeholder="Define the core purpose and utility of this artifact..."
-                                className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 rounded-2xl outline-none transition-all font-medium text-gray-700 min-h-[120px] resize-none placeholder:text-gray-300 shadow-inner"
+                                placeholder="What is this file about?"
+                                className="w-full px-5 py-3 rounded-xl border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-sm font-semibold min-h-[100px] resize-none"
                                 disabled={isSaving} 
                             />
                         </div>
@@ -152,7 +155,7 @@ function ResourceFormModal({ courseId, resource, onClose, onSuccess }) {
                             <button 
                                 type="button" 
                                 onClick={onClose} 
-                                className="flex-1 py-5 px-6 bg-gray-50 text-gray-400 font-black rounded-3xl hover:bg-gray-100 transition-colors uppercase tracking-widest text-[10px] border border-gray-200"
+                                className="flex-1 btn-outline py-4 text-xs"
                                 disabled={isSaving}
                             >
                                 Cancel
@@ -160,16 +163,9 @@ function ResourceFormModal({ courseId, resource, onClose, onSuccess }) {
                             <button 
                                 type="submit" 
                                 disabled={isSaving}
-                                className={`flex-[2] py-5 px-6 font-black rounded-3xl shadow-2xl transition-all transform active:scale-95 uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 ${isSaving ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-indigo-600 text-white hover:bg-black shadow-indigo-100 hover:shadow-black/20'}`}
+                                className="flex-[2] btn-primary py-4 text-xs"
                             >
-                                {isSaving ? (
-                                    <>
-                                        <svg className="animate-spin h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                        Processing...
-                                    </>
-                                ) : (
-                                    isEdit ? 'Save' : 'Upload'
-                                )}
+                                {isSaving ? 'Uploading...' : (isEdit ? 'Save Changes' : 'Upload File')}
                             </button>
                         </div>
                     </form>

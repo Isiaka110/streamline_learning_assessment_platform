@@ -87,35 +87,35 @@ function CourseCommentThread({ courseId, currentUserId, otherUserId }) {
     };
     
     const getDisplayName = (userId) => {
-        if (userId === currentUserId) return "Self";
-        return userNames[userId] || 'External Node';
+        if (userId === currentUserId) return "Me";
+        return userNames[userId] || 'Other';
     };
 
     return (
-        <div className="flex flex-col gap-10 animate-in fade-in duration-700">
-            <div className="bg-white p-8 rounded-[40px] shadow-2xl shadow-gray-100 border border-gray-100 transform transition-all">
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">Encrypted Data Stream Active</span>
+        <div className="flex flex-col gap-8">
+            <div className="bg-white p-6 rounded-3xl shadow-sm border border-border">
+                <div className="flex items-center gap-2 mb-4">
+                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <span className="text-[10px] font-bold text-secondary uppercase tracking-wider">Direct Chat Active</span>
                 </div>
-                <div className="relative group">
+                <div className="relative">
                     <textarea 
-                        placeholder="Type tactical intel or feedback here..." 
-                        className="w-full h-[120px] px-8 py-6 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 rounded-[32px] outline-none transition-all font-medium text-gray-700 resize-none placeholder:text-gray-300 shadow-inner group-hover:shadow-indigo-50"
+                        placeholder="Type a message to your teacher or student..." 
+                        className="w-full h-[100px] px-4 py-4 bg-gray-50 border border-border focus:border-primary focus:ring-1 focus:ring-primary rounded-2xl outline-none transition-all text-sm resize-none"
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
                         disabled={!otherUserId || isSubmitting}
                     />
-                    <div className="absolute bottom-4 right-4 flex items-center gap-4">
+                    <div className="mt-4 flex justify-end">
                         <button 
-                            className={`px-10 py-4 font-black rounded-[24px] shadow-2xl transition-all transform active:scale-95 uppercase tracking-widest text-[10px] flex items-center gap-3 ${!otherUserId || isSubmitting || !newComment.trim() ? 'bg-gray-100 text-gray-300 cursor-not-allowed' : 'bg-indigo-600 text-white hover:bg-black shadow-indigo-100 hover:shadow-black/20'}`}
+                            className={`px-8 py-3 font-bold rounded-xl shadow-sm transition-all transform active:scale-95 text-xs flex items-center gap-2 ${!otherUserId || isSubmitting || !newComment.trim() ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'btn-primary'}`}
                             onClick={handleSubmitComment}
                             disabled={!otherUserId || isSubmitting || !newComment.trim()}
                         >
-                            {isSubmitting ? 'Transmitting...' : (
+                            {isSubmitting ? 'Sending...' : (
                                 <>
-                                    Transmit Signal
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                                    Send Message
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
                                 </>
                             )}
                         </button>
@@ -123,38 +123,36 @@ function CourseCommentThread({ courseId, currentUserId, otherUserId }) {
                 </div>
             </div>
 
-            <div className="space-y-6 max-h-[600px] overflow-y-auto px-4 custom-scrollbar pb-10">
+            <div className="space-y-4 max-h-[500px] overflow-y-auto px-1 pb-4 flex flex-col scrollbar-hide">
                 {loading ? (
-                    <div className="flex flex-col items-center justify-center py-20 gap-4 opacity-30">
-                        <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                        <p className="text-[10px] font-black uppercase tracking-widest italic">Syncing History...</p>
+                    <div className="flex flex-col items-center justify-center py-10 gap-2 opacity-50">
+                        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                        <p className="text-[10px] font-bold uppercase tracking-widest">Loading history...</p>
                     </div>
                 ) : comments.length === 0 ? (
-                    <div className="py-20 text-center bg-gray-50/50 rounded-[40px] border-4 border-dashed border-gray-100 animate-in zoom-in-95">
-                        <p className="text-xl font-black text-gray-300 italic tracking-tight uppercase">No communications archived.</p>
-                        <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mt-2 animate-pulse">Initiate First Link</p>
+                    <div className="py-16 text-center bg-gray-50 rounded-3xl border border-dashed border-gray-200">
+                        <p className="text-lg font-bold text-gray-400">No messages yet</p>
+                        <p className="text-xs text-secondary mt-1">Start the conversation by sending a message above.</p>
                     </div>
                 ) : (
                     comments.map(msg => (
                         <div 
                             key={msg.id} 
-                            className={`flex flex-col max-w-[85%] animate-in slide-in-from-bottom-4 duration-500 ${isCurrentUserSender(msg.senderId) ? 'self-end items-end' : 'self-start items-start'}`}
+                            className={`flex flex-col max-w-[80%] ${isCurrentUserSender(msg.senderId) ? 'self-end items-end' : 'self-start items-start'}`}
                         >
-                            <div className="flex items-center gap-2 mb-2 px-4">
-                                {!isCurrentUserSender(msg.senderId) && <div className="w-1.5 h-1.5 rounded-full bg-indigo-600 ring-2 ring-indigo-50"></div>}
-                                <span className={`text-[9px] font-black uppercase tracking-widest ${isCurrentUserSender(msg.senderId) ? 'text-gray-400' : 'text-indigo-600'}`}>
+                            <div className="flex items-center gap-2 mb-1 px-2">
+                                <span className={`text-[10px] font-bold uppercase tracking-wider ${isCurrentUserSender(msg.senderId) ? 'text-secondary opacity-60' : 'text-primary'}`}>
                                     {getDisplayName(msg.senderId)}
                                 </span>
-                                {isCurrentUserSender(msg.senderId) && <div className="w-1.5 h-1.5 rounded-full bg-gray-300"></div>}
                             </div>
                             
-                            <div className={`p-6 rounded-[32px] shadow-xl transition-transform hover:scale-[1.02] ${isCurrentUserSender(msg.senderId) ? 'bg-indigo-600 text-white rounded-tr-none shadow-indigo-100' : 'bg-white text-gray-800 rounded-tl-none border border-gray-100 shadow-gray-100'}`}>
-                                <p className="text-sm font-medium leading-relaxed italic selection:bg-white/20">
+                            <div className={`p-4 rounded-2xl shadow-sm ${isCurrentUserSender(msg.senderId) ? 'bg-primary text-white rounded-tr-none' : 'bg-white text-foreground rounded-tl-none border border-border'}`}>
+                                <p className="text-sm font-semibold leading-relaxed">
                                     {msg.content}
                                 </p>
                             </div>
                             
-                            <span className="text-[9px] font-black text-gray-300 uppercase mt-3 px-4 tabular-nums tracking-tighter">
+                            <span className="text-[9px] font-bold text-secondary opacity-40 mt-1 px-2">
                                 {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {new Date(msg.createdAt).toLocaleDateString([], { day: '2-digit', month: 'short' })}
                             </span>
                         </div>

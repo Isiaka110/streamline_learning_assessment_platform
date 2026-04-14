@@ -1,4 +1,4 @@
-// :::1::: components/AssignmentFormModal.js
+// components/AssignmentFormModal.js
 import React, { useState, useEffect } from 'react';
 
 function AssignmentFormModal({ assignment, courseId, onClose, onSuccess }) {
@@ -31,7 +31,7 @@ function AssignmentFormModal({ assignment, courseId, onClose, onSuccess }) {
         setError(''); 
 
         if (!courseId) {
-            setError("Error: Course ID is missing. Cannot proceed.");
+            setError("Error: Class ID is missing.");
             setIsLoading(false);
             return;
         }
@@ -78,79 +78,83 @@ function AssignmentFormModal({ assignment, courseId, onClose, onSuccess }) {
             }
         } catch (err) {
             console.error('Assignment Form Network Error:', err);
-            setError('Network error. Please try again.');
+            setError('Network error. Please help by checking your connection.');
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex justify-center items-center z-[1000] p-6 animate-in fade-in duration-300" onClick={() => onClose(false)}>
-            <div className="bg-white rounded-[40px] w-full max-w-xl overflow-hidden relative shadow-2xl flex flex-col transform transition-all animate-in zoom-in-95 duration-300" onClick={(e) => e.stopPropagation()}>
-                <div className="bg-indigo-600 p-10 text-white relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full translate-x-10 -translate-y-10 blur-3xl"></div>
-                    <div className="relative z-10">
-                        <h2 className="text-4xl font-black tracking-tight leading-none mb-2">{isEditing ? 'Edit Assignment' : 'New Assignment'}</h2>
-                        <p className="text-indigo-100/80 text-sm font-black uppercase tracking-widest">{isEditing ? 'Update assignment details' : 'Create a new assignment'}</p>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-[1000] p-4 sm:p-6 animate-in fade-in duration-300" onClick={() => onClose(false)}>
+            <div className="bg-white rounded-[2.5rem] w-full max-w-xl overflow-hidden relative shadow-2xl flex flex-col transform transition-all animate-in zoom-in-95 duration-300" onClick={(e) => e.stopPropagation()}>
+                <div className="bg-primary p-8 text-white relative">
+                    <div className="relative z-10 flex justify-between items-center">
+                        <div>
+                            <h2 className="text-2xl font-bold tracking-tight">{isEditing ? 'Edit Assignment' : 'New Assignment'}</h2>
+                            <p className="text-white/80 text-[10px] font-bold uppercase tracking-widest">{isEditing ? 'Update details' : 'Set a new task for students'}</p>
+                        </div>
+                        <button onClick={() => onClose(false)} className="p-2 hover:bg-white/10 rounded-full transition-all">
+                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
                     </div>
                 </div>
 
-                <div className="p-10">
+                <div className="p-8">
                     {error && (
-                        <div className="mb-8 p-4 bg-rose-50 border border-rose-100 rounded-2xl text-rose-600 text-[10px] font-black uppercase tracking-widest text-center animate-shake">
+                        <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm font-bold text-center">
                             {error}
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="space-y-8">
-                        <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Assignment Title</label>
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="space-y-1">
+                            <label className="text-xs font-bold text-foreground ml-1 uppercase tracking-wider">Assignment Title</label>
                             <input
                                 type="text"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
-                                placeholder="e.g. Mid-Term Performance Analysis"
-                                className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 rounded-2xl outline-none transition-all font-bold text-gray-700 placeholder:text-gray-300"
+                                placeholder="Enter assignment title"
+                                className="w-full px-5 py-3 rounded-xl border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-sm font-semibold"
                                 required
                                 disabled={isLoading}
                             />
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Due Date</label>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-1">
+                                <label className="text-xs font-bold text-foreground ml-1 uppercase tracking-wider">Due Date</label>
                                 <input
                                     type="datetime-local"
                                     value={dueDate}
                                     onChange={(e) => setDueDate(e.target.value)}
-                                    className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 rounded-2xl outline-none transition-all font-bold text-gray-700 appearance-none"
+                                    className="w-full px-5 py-3 rounded-xl border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-sm font-semibold"
                                     required
                                     disabled={isLoading}
                                 />
                             </div>
 
-                            <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Maximum Points</label>
+                            <div className="space-y-1">
+                                <label className="text-xs font-bold text-foreground ml-1 uppercase tracking-wider">Max Points</label>
                                 <input
                                     type="number"
                                     value={maxPoints}
                                     onChange={(e) => setMaxPoints(e.target.value)}
-                                    placeholder="e.g. 100"
+                                    placeholder="100"
                                     min="1"
-                                    className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 rounded-2xl outline-none transition-all font-black text-indigo-600 text-xl"
+                                    className="w-full px-5 py-3 rounded-xl border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-sm font-bold text-primary"
                                     required
                                     disabled={isLoading}
                                 />
                             </div>
                         </div>
 
-                        <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Description (Optional)</label>
+                        <div className="space-y-1">
+                            <label className="text-xs font-bold text-foreground ml-1 uppercase tracking-wider">Instructions (Optional)</label>
                             <textarea
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                placeholder="Instructions for students..."
-                                className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 rounded-2xl outline-none transition-all font-medium text-gray-700 min-h-[120px] resize-none placeholder:text-gray-300 shadow-inner"
+                                placeholder="What should students do?"
+                                className="w-full px-5 py-3 rounded-xl border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-sm font-semibold min-h-[120px] resize-none"
                                 disabled={isLoading}
                             />
                         </div>
@@ -159,7 +163,7 @@ function AssignmentFormModal({ assignment, courseId, onClose, onSuccess }) {
                             <button 
                                 type="button" 
                                 onClick={() => onClose(false)} 
-                                className="flex-1 py-5 px-6 bg-gray-50 text-gray-400 font-black rounded-3xl hover:bg-gray-100 transition-colors uppercase tracking-widest text-[10px] border border-gray-200"
+                                className="flex-1 btn-outline py-4 text-xs"
                                 disabled={isLoading}
                             >
                                 Cancel
@@ -167,16 +171,9 @@ function AssignmentFormModal({ assignment, courseId, onClose, onSuccess }) {
                             <button 
                                 type="submit" 
                                 disabled={isLoading}
-                                className="flex-[2] py-5 px-6 bg-indigo-600 text-white font-black rounded-3xl hover:bg-black shadow-2xl shadow-indigo-100 hover:shadow-black/20 transition-all transform active:scale-95 uppercase tracking-widest text-[10px]"
+                                className="flex-[2] btn-primary py-4 text-xs"
                             >
-                                {isLoading ? (
-                                    <span className="flex items-center justify-center gap-2">
-                                        <svg className="animate-spin h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                        Synchronizing...
-                                    </span>
-                                ) : (
-                                    isEditing ? 'Save' : 'Create Assignment'
-                                )}
+                                {isLoading ? 'Saving...' : (isEditing ? 'Save Changes' : 'Create Assignment')}
                             </button>
                         </div>
                     </form>

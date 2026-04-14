@@ -4,18 +4,23 @@ import { withAuthGuard } from '@components/AuthGuard';
 import { UserRole } from '@prisma/client'; 
 import AssignmentManager from '@components/AssignmentManager';
 import ResourceManager from '@components/ResourceManager';
-import LogoContainer from '@components/LogoContainer';
 import LecturerCommunication from '@components/LecturerCommunication'; 
 import AnnouncementList from '@components/AnnouncementList'; 
+import NotificationBell from '@components/NotificationBell';
 
 function LecturerDashboard() {
     const { data: session } = useSession();
-    const userName = session?.user?.name || "Instructor"; 
+    const userName = session?.user?.name || "Teacher"; 
     const lecturerId = session?.user?.id; 
     
     const [courses, setCourses] = useState(null);
     const [loadingCourses, setLoadingCourses] = useState(true);
-    const [errorCourses, setErrorCourses] = useState(null);
+    const [stats, setStats] = useState({
+        totalClasses: 0,
+        pendingReviews: 0,
+        totalStudents: 0
+    });
+    const [loadingStats, setLoadingStats] = useState(true);
     const [selectedCourse, setSelectedCourse] = useState(null); 
     const [activeTab, setActiveTab] = useState('announcements'); 
     const [announcements, setAnnouncements] = useState([]);
@@ -28,47 +33,41 @@ function LecturerDashboard() {
         try {
             const response = await fetch('/api/announcements'); 
             const data = await response.json();
-            if (response.ok) {
-                setAnnouncements(data.announcements || []);
-            } else {
-                setErrorAnnouncements(data.message || 'Broadcast feed unavailable.');
-            }
-        } catch (err) {
-            console.error("Network error fetching announcements:", err);
-            setErrorAnnouncements('Broadcast network error. Check connectivity.');
-        } finally {
-            setLoadingAnnouncements(false);
-        }
+            if (response.ok) setAnnouncements(data.announcements || []);
+        } catch (err) { console.error("Announcements error:", err); } 
+        finally { setLoadingAnnouncements(false); }
     }, []);
 
     const fetchLecturerCourses = useCallback(async () => {
         setLoadingCourses(true);
-        setErrorCourses(null);
         try {
             const response = await fetch('/api/lecturer/courses'); 
             const data = await response.json();
             if (response.ok) {
                 setCourses(data.courses);
-                if (data.courses && data.courses.length > 0) {
-                    setSelectedCourse(data.courses[0]); 
-                }
-            } else {
-                setErrorCourses(data.message || 'Module roster fetch failed.');
-                setCourses([]);
+                if (data.courses && data.courses.length > 0) setSelectedCourse(data.courses[0]); 
             }
-        } catch (err) {
-            console.error("Network error fetching courses:", err);
-            setErrorCourses('Module registry synchronization error.');
-            setCourses([]);
-        } finally {
-            setLoadingCourses(false);
-        }
+        } catch (err) { console.error("Courses error:", err); } 
+        finally { setLoadingCourses(false); }
+    }, []);
+
+    const fetchStats = useCallback(async () => {
+        setLoadingStats(true);
+        try {
+            const response = await fetch('/api/lecturer/stats');
+            const data = await response.json();
+            if (response.ok) setStats(data);
+        } catch (err) { console.error("Stats error:", err); } 
+        finally { setLoadingStats(false); }
     }, []);
 
     useEffect(() => {
-        fetchLecturerCourses();
-        fetchAnnouncements(); 
-    }, [fetchLecturerCourses, fetchAnnouncements]);
+        if (lecturerId) {
+            fetchLecturerCourses();
+            fetchAnnouncements(); 
+            fetchStats();
+        }
+    }, [lecturerId, fetchLecturerCourses, fetchAnnouncements, fetchStats]);
 
     const handleLogout = () => {
         signOut({ callbackUrl: '/auth/signin' }); 
@@ -83,126 +82,155 @@ function LecturerDashboard() {
     const isCourseSelected = !!selectedCourse;
 
     const tabs = [
-        { id: 'announcements', label: 'Broadcasts', alwaysActive: true },
-        { id: 'assignments', label: 'Assessments', alwaysActive: false },
-        { id: 'resources', label: 'Resource Vault', alwaysActive: false },
-        { id: 'communication', label: 'Learner Comms', alwaysActive: false },
+        { id: 'announcements', label: 'Platform Messages', alwaysActive: true },
+        { id: 'assignments', label: 'Assignments', alwaysActive: false },
+        { id: 'resources', label: 'Class Files', alwaysActive: false },
+        { id: 'communication', label: 'Student Chat', alwaysActive: false },
     ];
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background pb-20">
 
             {/* Header */}
-            <div className="glass border-b border-foreground/10 px-6 py-6 sticky top-0 z-40">
-                <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div className="flex items-center gap-4"> 
-                        <div className="w-10 h-10 bg-foreground flex items-center justify-center flex-shrink-0">
-                            <span className="text-white font-black italic text-sm">SL</span>
+            <div className="bg-white border-b border-border px-6 py-4 sticky top-0 z-40 shadow-sm">
+                <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                    <div className="flex items-center gap-3"> 
+                        <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center flex-shrink-0">
+                            <span className="text-primary font-bold text-xl">S</span>
                         </div>
                         <div>
-                            <h1 className="text-xl font-black italic uppercase tracking-tighter leading-none">Instructor Console</h1>
-                            <p className="text-[10px] font-bold text-accent uppercase tracking-widest mt-0.5">{userName} | FACULTY</p>
+                            <h1 className="text-xl font-bold tracking-tight text-foreground uppercase tracking-widest">SLA Teacher</h1>
+                            <p className="text-xs font-semibold text-secondary">Logged in as {userName}</p>
                         </div>
                     </div>
-                    <button onClick={handleLogout} className="btn-rect-outline px-4 py-2 text-xs">
-                        System Logout
-                    </button>
+                    
+                    <div className="flex items-center gap-4 w-full sm:w-auto justify-end">
+                        <NotificationBell />
+                        <button onClick={handleLogout} className="btn-outline px-4 py-2.5 text-xs">
+                             Log Out
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <main className="max-w-7xl mx-auto px-6 py-12">
-                <div className="mb-10">
-                    <h2 className="text-3xl md:text-5xl mb-2">Module Operations</h2>
-                    <p className="text-secondary font-medium">Manage assessments, resource distribution, and learner communications.</p>
+            <main className="max-w-7xl mx-auto px-6 py-8">
+                {/* Stats row */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                   <div className="bg-primary text-white rounded-[2rem] p-8 shadow-md relative overflow-hidden">
+                      <h3 className="text-sm font-bold opacity-80 mb-2 uppercase tracking-widest">My Classes</h3>
+                      <div className="text-5xl font-bold">{stats.totalClasses}</div>
+                      <div className="absolute right-0 bottom-0 w-24 h-24 bg-white/10 rounded-tl-full translate-x-4 translate-y-4"></div>
+                   </div>
+                   <div className="bg-[#8B5CF6] text-white rounded-[2rem] p-8 shadow-md relative overflow-hidden">
+                      <h3 className="text-sm font-bold opacity-80 mb-2 uppercase tracking-widest">Pending Review</h3>
+                      <div className="text-5xl font-bold">{stats.pendingReviews}</div>
+                      <p className="text-xs font-bold opacity-80 mt-2 uppercase tracking-tight">Ungraded submissions</p>
+                      <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-bl-full translate-x-2 -translate-y-2"></div>
+                   </div>
+                   <div className="bg-[#F97316] text-white rounded-[2rem] p-8 shadow-md relative overflow-hidden">
+                      <h3 className="text-sm font-bold opacity-80 mb-2 uppercase tracking-widest">Enrolled Students</h3>
+                      <div className="text-5xl font-bold">{stats.totalStudents}</div>
+                      <p className="text-xs font-bold opacity-80 mt-2 uppercase tracking-tight">Across all assigned classes</p>
+                      <div className="absolute right-0 top-0 w-20 h-20 bg-white/10 rounded-bl-full"></div>
+                   </div>
                 </div>
 
-                {/* Module Selector */}
-                <div className="mb-8 p-6 glass border-2 border-foreground/5">
-                    <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
-                        <label htmlFor="course-select" className="font-black text-[10px] uppercase tracking-widest whitespace-nowrap">
-                            Active Module Context:
+                {/* Class Selector  */}
+                <div className="bg-white rounded-[2rem] border border-border p-8 mb-8 shadow-sm">
+                    <div className="flex flex-col md:flex-row items-center gap-4">
+                        <label htmlFor="course-select" className="font-bold text-sm text-foreground flex-shrink-0">
+                            Active Class Management:
                         </label>
                         <select
                             id="course-select"
-                            className="flex-1 w-full md:w-auto p-3 border-2 border-foreground/20 bg-transparent font-bold text-sm focus:outline-none focus:border-accent transition-colors uppercase tracking-wider"
+                            className="flex-1 w-full p-4 rounded-xl border border-border focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm font-bold bg-gray-50 text-foreground"
                             value={selectedCourse?.id || ''}
                             onChange={handleCourseChange}
                             disabled={!courses || courses.length === 0 || loadingCourses}
                         >
-                            {loadingCourses && <option value="">Indexing modules...</option>}
-                            {!loadingCourses && courses?.length === 0 && <option value="">No modules assigned.</option>}
+                            {loadingCourses && <option value="">Loading classes...</option>}
+                            {!loadingCourses && courses?.length === 0 && <option value="">No classes found.</option>}
                             {!loadingCourses && courses?.length > 0 && courses.map(course => (
                                 <option key={course.id} value={course.id}>
-                                    [{course.code}] {course.title}
+                                    {course.code} - {course.title}
                                 </option>
                             ))}
                         </select>
-
-                        {selectedCourse && (
-                            <div className="hidden md:flex items-center gap-2 px-4 py-3 bg-accent/10 border-l-4 border-accent">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-accent">Module Active</span>
-                            </div>
-                        )}
                     </div>
                 </div>
 
                 {/* Tab Navigation */}
-                <div className="flex gap-2 mb-8 overflow-x-auto pb-2 flex-wrap">
+                <div className="flex gap-2 mb-8 overflow-x-auto pb-2 border-b border-border">
                     {tabs.map(tab => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             disabled={!tab.alwaysActive && !isCourseSelected}
-                            className={`btn-rect transition-all text-xs disabled:opacity-30 disabled:cursor-not-allowed whitespace-nowrap 
-                                ${activeTab === tab.id ? 'bg-foreground text-white border-foreground' : 'bg-transparent text-secondary border-foreground/20 hover:border-foreground/60'}`}
+                            className={`px-6 py-2.5 rounded-t-xl font-bold text-xs uppercase tracking-widest transition-all whitespace-nowrap 
+                                ${activeTab === tab.id ? 'bg-primary text-white' : 'bg-transparent text-secondary hover:text-primary'}
+                                disabled:opacity-40 disabled:cursor-not-allowed`}
                         >
                             {tab.label}
                         </button>
                     ))}
                 </div>
 
-                {/* Content Panel */}
-                <div className="glass border-2 border-foreground/5 p-1 min-h-[500px]">
-                    <div className="bg-white/50 p-6 md:p-10 h-full border border-white/40">
-
-                        {activeTab === 'announcements' && (
+                <div className="min-h-[500px] animate-in fade-in duration-500">
+                    {activeTab === 'announcements' && (
+                        <div className="bg-white p-10 rounded-[2.5rem] border border-border shadow-sm">
                             <AnnouncementList 
                                 announcements={announcements}
                                 isLoading={loadingAnnouncements}
                                 error={errorAnnouncements}
                             />
-                        )}
+                        </div>
+                    )}
 
-                        {isCourseSelected && (
-                            <>
-                                {activeTab === 'assignments' && (
-                                    <AssignmentManager courseId={selectedCourse.id} courseCode={selectedCourse.code} />
-                                )}
-                                {activeTab === 'resources' && (
-                                    <ResourceManager courseId={selectedCourse.id} courseCode={selectedCourse.code} />
-                                )}
-                                {activeTab === 'communication' && (
+                    {isCourseSelected && (
+                        <div className="space-y-8">
+                            {activeTab === 'assignments' && (
+                                <AssignmentManager courseId={selectedCourse.id} courseCode={selectedCourse.code} />
+                            )}
+                            {activeTab === 'resources' && (
+                                <ResourceManager courseId={selectedCourse.id} courseCode={selectedCourse.code} />
+                            )}
+                            {activeTab === 'communication' && (
+                                <div className="bg-white p-10 rounded-[2.5rem] border border-border shadow-sm">
                                     <LecturerCommunication 
                                         lecturerId={lecturerId} 
                                         courseId={selectedCourse.id} 
                                         courseCode={selectedCourse.code} 
                                     />
-                                )}
-                            </>
-                        )}
+                                </div>
+                            )}
+                        </div>
+                    )}
 
-                        {!isCourseSelected && activeTab !== 'announcements' && courses?.length > 0 && (
-                            <div className="py-20 text-center border-2 border-dashed border-foreground/10">
-                                <p className="text-2xl font-black italic uppercase opacity-20 mb-4">No Module Selected</p>
-                                <p className="text-secondary text-sm font-medium">Select a module context above to begin management.</p>
-                            </div>
-                        )}
-                        {courses?.length === 0 && !loadingCourses && (
-                            <div className="py-20 text-center border-2 border-dashed border-foreground/10">
-                                <p className="text-2xl font-black italic uppercase opacity-20 mb-4">No Modules Assigned</p>
-                                <p className="text-secondary text-sm font-medium">Contact the System Administrator to be assigned to a module.</p>
-                            </div>
-                        )}
+                    {!isCourseSelected && activeTab !== 'announcements' && courses?.length > 0 && (
+                        <div className="py-32 text-center bg-white rounded-[2.5rem] border border-border shadow-sm">
+                            <h3 className="text-xl font-bold text-black mb-2 tracking-tight">Platform Focus Required</h3>
+                            <p className="text-sm font-semibold text-secondary opacity-70">Please select a class from the list above to begin management.</p>
+                        </div>
+                    )}
+                    
+                    {courses?.length === 0 && !loadingCourses && (
+                        <div className="py-32 text-center bg-white rounded-[2.5rem] border border-border shadow-sm">
+                           <h3 className="text-xl font-bold text-black mb-2 tracking-tight">Access Restricted</h3>
+                           <p className="text-sm font-semibold text-secondary opacity-70">You are not currently assigned to any active classes.</p>
+                        </div>
+                    )}
+                </div>
+
+                 {/* Platform Mission Card */}
+                <div className="mt-12 bg-gray-50 rounded-[2.5rem] p-12 border border-border shadow-sm flex flex-col md:flex-row items-center gap-12">
+                    <div className="flex-shrink-0 w-24 h-24 bg-primary/10 text-primary rounded-3xl flex items-center justify-center animate-pulse">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    </div>
+                    <div className="flex-1">
+                        <h3 className="text-3xl font-bold text-foreground mb-4 tracking-tight">Institutional Excellence</h3>
+                        <p className="text-lg text-secondary leading-relaxed font-semibold italic opacity-80">
+                            "Streamlined Learning and Assessment (SLA) is dedicated to the digital leap. We provide the hub for feedback delivery, academic recordkeeping, and resource management without the friction of manual legacy systems."
+                        </p>
                     </div>
                 </div>
             </main>

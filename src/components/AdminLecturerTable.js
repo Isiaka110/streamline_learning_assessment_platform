@@ -3,95 +3,90 @@ import React from 'react';
 const AdminLecturerTable = ({ lecturers, onEdit, onDelete }) => {
     
     const headers = [
-        { key: 'identity', label: 'Lecturer Name' },
+        { key: 'identity', label: 'Teacher Name' },
         { key: 'comms', label: 'Email' },
-        { key: 'jurisdiction', label: 'Assigned Courses' },
-        { key: 'commands', label: 'Actions', align: 'right' },
+        { key: 'jurisdiction', label: 'Assigned Classes' },
+        { key: 'commands', label: 'Action', align: 'right' },
     ];
 
     if (!lecturers || lecturers.length === 0) {
         return (
-            <div className="py-24 text-center bg-gray-50/50 rounded-[40px] border-4 border-dashed border-gray-100 m-10">
-                <div className="w-16 h-16 bg-white rounded-3xl shadow-lg flex items-center justify-center text-gray-200 mx-auto mb-6">
-                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            <div className="py-20 text-center">
+                <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                 </div>
-                <p className="text-xl font-black text-gray-300 italic tracking-tight">No lecturers found.</p>
-                <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mt-2">Awaiting Recruitment</p>
+                <p className="text-xl font-bold text-gray-400">No teachers found</p>
+                <p className="text-xs text-gray-400 mt-2 tracking-wide uppercase">Register a new teacher to get started</p>
             </div>
         );
     }
 
     return (
-        <div className="space-y-6">
+        <div className="bg-white">
             {/* Desktop Table View */}
-            <div className="hidden lg:block overflow-hidden bg-white/50 backdrop-blur-xl rounded-[40px] shadow-2xl border border-white/50 animate-in fade-in duration-700">
-                <table className="w-full border-separate border-spacing-0">
+            <div className="hidden lg:block overflow-x-auto">
+                <table className="w-full text-left">
                     <thead>
-                        <tr className="bg-gray-900/5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] text-left">
-                            {headers.map((header, idx) => (
+                        <tr className="bg-gray-50 text-[10px] font-bold text-secondary uppercase tracking-widest border-b border-border">
+                            {headers.map((header) => (
                                 <th 
                                     key={header.key} 
-                                    className={`py-6 px-10 ${header.align === 'right' ? 'text-right' : ''} ${idx === 0 ? 'rounded-tl-[40px]' : ''} ${idx === headers.length - 1 ? 'rounded-tr-[40px]' : ''}`}
+                                    className={`py-5 px-8 ${header.align === 'right' ? 'text-right' : ''}`}
                                 >
                                     {header.label}
                                 </th>
                             ))}
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100/50">
+                    <tbody className="divide-y divide-gray-50">
                         {lecturers.map((lecturer) => (
-                            <tr key={lecturer.id} className="group hover:bg-white transition-all duration-300">
-                                <td className="py-8 px-10">
+                            <tr key={lecturer.id} className="group hover:bg-gray-50/50 transition-colors">
+                                <td className="py-6 px-8">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-lg shadow-indigo-100 group-hover:scale-110 transition-transform">
+                                        <div className="w-10 h-10 bg-primary/10 text-primary rounded-full flex items-center justify-center font-bold text-lg">
                                             {lecturer.name.charAt(0)}
                                         </div>
-                                        <div className="flex flex-col gap-0.5">
-                                            <span className="text-lg font-black text-gray-900 tracking-tight leading-none group-hover:text-indigo-600 transition-colors">
+                                        <div className="flex flex-col">
+                                            <span className="font-bold text-foreground">
                                                 {lecturer.name}
                                             </span>
-                                            <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest italic opacity-60">Lecturer</span>
+                                            <span className="text-[10px] font-bold text-secondary uppercase">Teacher</span>
                                         </div>
                                     </div>
                                 </td>
-                                <td className="py-8 px-10">
-                                    <div className="flex items-center gap-2 group/email cursor-pointer">
-                                        <div className="p-2 bg-gray-50 rounded-xl text-gray-400 group-hover/email:bg-indigo-50 group-hover/email:text-indigo-600 transition-colors">
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                                        </div>
-                                        <span className="text-sm font-bold text-gray-600 group-hover/email:text-indigo-600 transition-colors italic">{lecturer.email}</span>
-                                    </div>
+                                <td className="py-6 px-8 text-sm font-semibold text-secondary">
+                                    {lecturer.email}
                                 </td>
                                 
-                                <td className="py-8 px-10">
+                                <td className="py-6 px-8">
                                     <div className="flex flex-wrap gap-2">
                                         {lecturer.courses && lecturer.courses.length > 0 ? (
                                             lecturer.courses.map(course => (
-                                                <span key={course.id} className="inline-block bg-white border border-indigo-100 text-indigo-600 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm shadow-indigo-50 hover:bg-indigo-600 hover:text-white transition-all cursor-default">
+                                                <span key={course.id} className="bg-white border border-border text-primary px-3 py-1 rounded-full text-[10px] font-bold uppercase shadow-sm">
                                                     {course.code}
                                                 </span>
                                             )) 
                                         ) : (
-                                            <span className="px-3 py-1.5 bg-rose-50 text-rose-500 rounded-xl text-[10px] font-black uppercase tracking-widest border border-rose-100 animate-pulse">No courses assigned</span>
+                                            <span className="text-[10px] font-bold text-orange-500 uppercase">None assigned</span>
                                         )}
                                     </div>
                                 </td>
 
-                                <td className="py-8 px-10 text-right">
-                                    <div className="flex gap-3 justify-end opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-0 translate-x-4">
+                                <td className="py-6 px-8 text-right">
+                                    <div className="flex gap-2 justify-end">
                                         <button 
                                             onClick={() => onEdit(lecturer)} 
-                                            className="p-3 bg-white border border-gray-100 text-amber-500 hover:bg-amber-500 hover:text-white rounded-2xl shadow-xl shadow-gray-100 hover:shadow-amber-100 transition-all active:scale-90"
-                                            title="Edit Profile"
+                                            className="p-2 text-gray-400 hover:text-primary transition-colors"
+                                            title="Edit Teacher"
                                         >
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                                         </button>
                                         <button 
                                             onClick={() => onDelete(lecturer.id)} 
-                                            className="p-3 bg-white border border-gray-100 text-rose-500 hover:bg-rose-500 hover:text-white rounded-2xl shadow-xl shadow-gray-100 hover:shadow-rose-100 transition-all active:scale-90"
-                                            title="Delete Account"
+                                            className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                                            title="Delete Teacher"
                                         >
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                                         </button>
                                     </div>
                                 </td>
@@ -102,57 +97,37 @@ const AdminLecturerTable = ({ lecturers, onEdit, onDelete }) => {
             </div>
 
             {/* Mobile Card View */}
-            <div className="grid grid-cols-1 gap-6 lg:hidden">
+            <div className="grid grid-cols-1 divide-y divide-gray-50 lg:hidden">
                 {lecturers.map((lecturer) => (
-                    <div key={lecturer.id} className="bg-white rounded-[40px] p-8 shadow-xl border border-gray-100 flex flex-col gap-6 animate-in slide-in-from-bottom-5 duration-500">
+                    <div key={lecturer.id} className="p-6 space-y-4">
                         <div className="flex justify-between items-start">
                             <div className="flex items-center gap-4">
-                                <div className="w-14 h-14 bg-indigo-600 text-white rounded-2xl flex items-center justify-center font-black text-2xl shadow-lg shadow-indigo-100">
+                                <div className="w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center font-bold text-xl">
                                     {lecturer.name.charAt(0)}
                                 </div>
-                                <div className="space-y-1">
-                                    <h3 className="text-xl font-black text-gray-900 tracking-tight leading-none">{lecturer.name}</h3>
-                                    <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest italic">Lecturer</p>
+                                <div>
+                                    <h3 className="font-bold text-foreground">{lecturer.name}</h3>
+                                    <p className="text-[10px] font-bold text-secondary uppercase">Teacher</p>
                                 </div>
                             </div>
-                            <div className="flex gap-2">
-                                <button 
-                                    onClick={() => onEdit(lecturer)} 
-                                    className="p-3 bg-gray-50 text-amber-500 rounded-2xl border border-gray-100 active:scale-90"
-                                >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            <div className="flex gap-1">
+                                <button onClick={() => onEdit(lecturer)} className="p-2 text-primary">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                                 </button>
-                                <button 
-                                    onClick={() => onDelete(lecturer.id)} 
-                                    className="p-3 bg-gray-50 text-rose-500 rounded-2xl border border-gray-100 active:scale-90"
-                                >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                <button onClick={() => onDelete(lecturer.id)} className="p-2 text-red-500">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                                 </button>
                             </div>
                         </div>
-
-                        <div className="bg-gray-50 p-6 rounded-3xl space-y-4">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-white rounded-xl text-gray-400 border border-gray-100">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                                </div>
-                                <span className="text-sm font-bold text-gray-600 italic truncate">{lecturer.email}</span>
-                            </div>
-
-                            <div className="space-y-2">
-                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest pl-1">Assigned Courses</p>
-                                <div className="flex flex-wrap gap-2">
-                                    {lecturer.courses && lecturer.courses.length > 0 ? (
-                                        lecturer.courses.map(course => (
-                                            <span key={course.id} className="bg-white border border-indigo-100 text-indigo-600 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm">
-                                                {course.code}
-                                            </span>
-                                        )) 
-                                    ) : (
-                                        <span className="text-[10px] font-bold text-rose-500 italic pl-1">No courses assigned yet</span>
-                                    )}
-                                </div>
-                            </div>
+                        <div className="text-sm font-semibold text-secondary ml-16">{lecturer.email}</div>
+                        <div className="flex flex-wrap gap-2 ml-16">
+                            {lecturer.courses && lecturer.courses.length > 0 ? (
+                                lecturer.courses.map(course => (
+                                    <span key={course.id} className="bg-gray-100 px-2 py-1 rounded text-[10px] font-bold text-primary">{course.code}</span>
+                                ))
+                            ) : (
+                                <span className="text-[10px] text-orange-500 font-bold uppercase">No classes</span>
+                            )}
                         </div>
                     </div>
                 ))}
